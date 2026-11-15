@@ -27,6 +27,8 @@ npm run verify
 
 ## Android
 
+L’APK installable est disponible dans la [GitHub Release Hear v0.1.0](https://github.com/pauldjeuda/HEAR/releases/tag/v0.1.0). Sa génération et sa signature sont faites par GitHub Actions ; aucun JDK ni SDK Android local n’est nécessaire pour l’obtenir.
+
 Installer Android Studio avec le JDK et le SDK Android requis par Capacitor 8, puis :
 
 ```powershell

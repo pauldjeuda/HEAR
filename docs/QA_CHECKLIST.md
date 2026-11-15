@@ -7,12 +7,12 @@
 - [x] `npm run build -- --configuration production` — OK.
 - [x] `npx cap sync android` — 11 plugins synchronisés.
 - [x] Assemblage debug Android — GitHub Actions : `assembleDebug` et vérification `apksigner` réussis ; artefact uploadé.
-- [x] `npm run e2e` — 2 tests réussis.
-- [x] `npm run verify` — 27 fichiers examinés.
+- [x] `npm run e2e` — 4 tests réussis : navigation/retour, molette, SQLite, playlists, import/lecture/persistance audio locale.
+- [x] `npm run verify` — 30 fichiers examinés.
 
 ## Sprint 0 — téléphone Android
 
-- [ ] Installer l’APK debug et vérifier l’icône Hear, le splash natif et l’ouverture directe de l’accueil.
+- [ ] Installer [l’APK debug de la Release v0.1.0](https://github.com/pauldjeuda/HEAR/releases/tag/v0.1.0) et vérifier l’icône Hear, le splash natif et l’ouverture directe de l’accueil.
 - [ ] Naviguer vers Recherche, Collection, Hors ligne et Réglages.
 - [ ] Créer une playlist locale, fermer/réouvrir l’application et vérifier qu’elle persiste.
 - [ ] Importer un fichier audio du téléphone, le lire, mettre en pause, naviguer entre titres et vérifier qu’il persiste après redémarrage.

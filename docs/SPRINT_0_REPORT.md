@@ -2,15 +2,17 @@
 
 ## Objectif et résultat : partiel
 
-Le socle web compile en production. Les sources Stitch, les tokens et les assets locaux sont importés, SQLite fonctionne dans le navigateur, les sondes LRCLIB sont documentées et les contrôles automatiques du socle passent. L’API Jamendo n’a pas pu fournir de piste réelle sans le `client_id`. Le projet reste sur `sprint/0-fondations`, sans merge ni tag : les portes audio, API et recette physique ne sont pas vertes.
+Le socle web compile en production. Les sources Stitch, les tokens et les assets locaux sont importés, SQLite fonctionne dans le navigateur, les sondes LRCLIB sont documentées et les contrôles automatiques passent. L’API Jamendo n’a pas pu fournir de piste réelle sans le `client_id`. Le projet reste sur `sprint/0-fondations`, sans merge vers `main` ; le tag `v0.1.0` publie l’APK, mais la recette physique et l’audio natif en arrière-plan restent à valider.
 
 ### Mise à jour après ajout de la pipeline cloud
 
 Le run [GitHub Actions #43765584497](https://github.com/pauldjeuda/HEAR/actions/runs/43765584497) a réussi les jobs Web et Android. `assembleDebug` et `apksigner` passent sur le runner cloud, et l’APK est conservé comme artefact Actions. Cette validation remplace le blocage local d’assemblage ; elle ne remplace pas l’installation sur le téléphone ni les tests audio en arrière-plan.
 
+Le correctif d’application a ensuite réussi les contrôles Web et Android dans le [run #43771448620](https://github.com/pauldjeuda/HEAR/actions/runs/43771448620). Le [run de tag #43771672223](https://github.com/pauldjeuda/HEAR/actions/runs/43771672223) a également réussi et publié [Hear v0.1.0](https://github.com/pauldjeuda/HEAR/releases/tag/v0.1.0) avec l’APK debug signé et vérifié.
+
 La page temporaire de fondation a été remplacée sur la branche par un accueil et une navigation vers Recherche, Collection, Hors ligne et Réglages. Les playlists locales, le contrôle SQLite, l’import de fichiers audio du téléphone, leur persistance locale et la lecture au premier plan sont accessibles ; la recherche Jamendo attend toujours un identifiant et l’audio natif en arrière-plan n’est pas livré. Les neuf écrans Stitch sont conservés comme référence et leur conversion complète reste à faire.
 
-Le correctif interface/branding et audio local (logo Hear, splash et icône Android, navigation, défilement, playlists, import et lecture de fichiers locaux) est en cours de validation par le workflow cloud. Le résultat final sera consigné après exécution.
+Le correctif interface/branding et audio local (logo Hear, splash et icône Android, navigation, retour, défilement, playlists, import et lecture de fichiers locaux) a passé les tests du workflow cloud. La recette sur téléphone reste à faire.
 
 ## Stories livrées
 
@@ -21,15 +23,15 @@ Le correctif interface/branding et audio local (logo Hear, splash et icône Andr
 | H-003 | Partielle            | Plateforme Android générée ; `cap sync`, assemblage `assembleDebug` et vérification `apksigner` réussis dans GitHub Actions. Installation et recette téléphone en attente. |
 | H-004 | Partielle            | Paramètres documentés depuis la doc officielle ; appel `client_id=demo` rejeté avec code 5. Pas de réponse Jamendo valide sans l’identifiant fourni par Paul.              |
 | H-005 | Livrée avec réserve  | `/get`, `/search`, instrumental et 404 sondés ; fixtures expurgées des paroles. Le User-Agent de production reste à compléter par un lien ou contact.                      |
-| H-006 | Partielle            | Audit des plugins et décision Media3/`MediaSessionService` consignés ; aucun prototype natif ni lecture réelle écran éteint n’a pu être validé.                            |
+| H-006 | Partielle            | Import et lecture de fichiers locaux au premier plan sont intégrés et testés en E2E ; moteur natif Media3, écran verrouillé et lecture en arrière-plan restent à valider.       |
 | H-007 | Partielle            | Migration v1 et sonde lecture/écriture SQLite navigateur validées par e2e ; SQLite natif non éprouvé sur Android.                                                          |
-| H-008 | Livrée               | `npm run verify` réussit et examine 27 fichiers.                                                                                                                           |
+| H-008 | Livrée               | `npm run verify` réussit et examine 30 fichiers.                                                                                                                           |
 
 ## Stories reportées et blocages
 
-- H-003 : installer l’APK fourni comme artefact Actions et effectuer la recette sur le téléphone.
+- H-003 : installer [l’APK de la Release v0.1.0](https://github.com/pauldjeuda/HEAR/releases/tag/v0.1.0) et effectuer la recette sur le téléphone.
 - H-004 : refaire les requêtes Jamendo réelles avec `JAMENDO_CLIENT_ID` dans `.env.local`, puis compléter les fixtures et les endpoints albums/artistes.
-- H-006 : implémenter et compiler le prototype HearAudio/Media3 ; valider une vraie piste sur téléphone, écran éteint, notification, casque et interruption d’appel.
+- H-006 : valider les fichiers audio locaux sur téléphone ; implémenter Media3 si nécessaire pour l’écran éteint, la notification, le casque et les interruptions d’appel.
 - H-007 : répéter la migration et la sonde SQLite sur Android.
 - H-601 à H-606 : suspendues. Les conditions Jamendo consultées interdisent les applications conçues pour mettre le contenu en cache ou fournir un accès hors ligne. Il faut une autorisation écrite ou une source compatible avant de réaliser le téléchargement Jamendo.
 
@@ -40,12 +42,12 @@ Le correctif interface/branding et audio local (logo Hear, splash et icône Andr
 | Lint et formatage             | `npm run lint`                                           | `All files pass linting.` puis `All matched files use Prettier code style!` — code 0.                                                                             |
 | Tests unitaires et couverture | `npm test`                                               | `Test Files 2 passed (2)`, `Tests 3 passed (3)` — code 0. Le seuil de couverture de la logique pure n’est pas configuré ni mesuré ; porte partielle.              |
 | Build production              | `npm run build -- --configuration production`            | `Application bundle generation complete`; sortie `dist/hear` — code 0.                                                                                            |
-| Capacitor et APK              | `npx cap sync android`, puis GitHub Actions #43765584497 | Sync réussi, 11 plugins ; `assembleDebug` et `apksigner verify` réussis sur le runner cloud. Le build local reste indisponible faute de JDK/SDK.                  |
-| E2E                           | `npm run e2e`                                            | `2 passed (15.2s)` ; tests couvrent le shell français et l’écriture/lecture SQLite navigateur. Aucune erreur console ni erreur non interceptée dans les parcours. |
-| Contenu factice               | `npm run verify`                                         | `Vérification HEAR réussie (27 fichiers examinés).`                                                                                                               |
+| Capacitor et APK              | GitHub Actions #43771448620 et #43771672223             | `assembleDebug` et `apksigner verify` réussis ; Release `v0.1.0` publiée avec l’APK debug. Le build local reste indisponible faute de JDK/SDK.                         |
+| E2E                           | `npm run e2e`                                            | `4 passed (8.9s)` ; tests couvrent navigation/retour, molette, création de playlist et SQLite, puis import, lecture et persistance d’un fichier audio local.          |
+| Contenu factice               | `npm run verify`                                         | `Vérification HEAR réussie (30 fichiers examinés).`                                                                                                               |
 | Fidélité visuelle             | Comparaison aux `screen.png`                             | Non applicable à S0 : aucun écran Stitch n’a encore été converti. La comparaison sera faite à S1 pour chaque écran modifié.                                       |
-| Recette manuelle              | Android physique                                         | À faire par Paul ; l’APK debug installable est disponible comme artefact Actions, mais aucun téléphone n’a été connecté à ce run.                                 |
-| Rapport, branche et tag       | État Git                                                 | Rapport ajouté sur `sprint/0-fondations`. Aucun merge vers `main` ni tag, car les portes Android, audio, Jamendo et recette ne sont pas validées.                 |
+| Recette manuelle              | Android physique                                         | À faire par Paul ; la Release contient l’APK debug installable, mais aucun téléphone n’a été connecté aux runs cloud.                                                 |
+| Rapport, branche et tag       | État Git                                                 | Correctif poussé sur `sprint/0-fondations` ; tag `v0.1.0` et Release APK publiés. Aucun merge vers `main` ; recette physique, Jamendo et audio arrière-plan restent ouverts. |
 
 ### Dépendances
 
@@ -64,8 +66,7 @@ Cette démo lit un fichier local au premier plan ; les commandes écran verrouil
 
 ## Recette manuelle pour Paul
 
-- [ ] Installer JDK et Android SDK compatibles avec Capacitor 8, puis relancer `npm run cap:sync` et `cd android; .\gradlew.bat assembleDebug`.
-- [ ] Installer l’APK debug et vérifier le splash Hear, l’icône et l’ouverture directe de l’accueil.
+- [ ] Installer l’APK de la [Release v0.1.0](https://github.com/pauldjeuda/HEAR/releases/tag/v0.1.0) et vérifier le splash Hear, l’icône et l’ouverture directe de l’accueil.
 - [ ] Naviguer entre Accueil, Recherche et Collection ; créer une playlist locale.
 - [ ] Importer un fichier audio du téléphone, le lire et vérifier sa présence après avoir fermé puis rouvert Hear.
 - [ ] Dans Réglages, appuyer sur **VÉRIFIER SQLITE** ; résultat attendu : **PRÊTE**.

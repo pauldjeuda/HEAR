@@ -14,6 +14,8 @@ Les jobs `Web quality gates` et `Build installable Android debug APK` partent en
 
 Le run [#43765584497](https://github.com/pauldjeuda/HEAR/actions/runs/43765584497), commit `adc277b`, a réussi le 15 novembre 2026 : jobs Web et Android verts, signature `apksigner` vérifiée, artefact `hear-debug-apk-adc277b0d2dfabd9e38c9f172e928513467a55ba` généré (14,6 Mo, rétention 30 jours). Aucun tag n’ayant été poussé, l’APK est disponible dans les artefacts Actions et aucune GitHub Release n’a été créée.
 
+Le correctif d’application a ensuite passé tous les contrôles dans le run [#43771448620](https://github.com/pauldjeuda/HEAR/actions/runs/43771448620) : lint, tests unitaires, vérification de contenu, quatre tests Playwright (navigation/retour, molette, SQLite, playlists, import/lecture/persistance audio), build Android et signature APK. Le tag [run #43771672223](https://github.com/pauldjeuda/HEAR/actions/runs/43771672223) a publié [Hear v0.1.0](https://github.com/pauldjeuda/HEAR/releases/tag/v0.1.0) avec l’asset `hear-0.1.0-debug.apk` (13,85 Mio).
+
 Les runners Actions et `gradle/actions/setup-gradle` mettent en cache npm et Gradle. Aucun `client_id` Jamendo ni secret de build n’est requis. Les builds des branches et l’exécution manuelle donnent un artefact Actions conservé 30 jours ; seuls les tags de version créent une GitHub Release.
 
 ## Générer localement
