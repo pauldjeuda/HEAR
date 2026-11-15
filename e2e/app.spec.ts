@@ -42,16 +42,16 @@ test('opens the Hear home screen with its logo and usable navigation', async ({ 
   await mainNavigation.getByRole('button', { name: 'RECHERCHE' }).click();
   await expect(page.getByRole('heading', { name: 'Recherche' })).toBeVisible();
   await mainNavigation.getByRole('button', { name: 'COLLECTION' }).click();
-  await expect(page.getByRole('heading', { name: 'Collection' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Collection', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /destinations secondaires/ }).click();
   await page.getByRole('button', { name: /Hors ligne/ }).click();
   await expect(page.getByRole('heading', { name: 'Hors ligne' })).toBeVisible();
   await page.getByRole('button', { name: /RETOUR/ }).click();
-  await expect(page.getByRole('heading', { name: 'Collection' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Collection', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /destinations secondaires/ }).click();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('navigation', { name: 'Menu' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: 'Collection' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Collection', exact: true })).toBeVisible();
   expect(consoleErrors).toEqual([]);
   expect(uncaughtErrors).toEqual([]);
 });
@@ -75,7 +75,7 @@ test('creates a local playlist and verifies SQLite from settings', async ({ page
   await page.getByRole('button', { name: /destinations secondaires/ }).click();
   await page.getByRole('button', { name: /Réglages/ }).click();
   await page.getByRole('button', { name: /RETOUR/ }).click();
-  await expect(page.getByRole('heading', { name: 'Collection' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Collection', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /destinations secondaires/ }).click();
   await page.getByRole('button', { name: /Réglages/ }).click();
   await page.getByRole('button', { name: 'VÉRIFIER SQLITE' }).click();
@@ -122,6 +122,7 @@ test('imports and plays a phone audio file, then keeps it in the local library',
   await expect(page.getByRole('button', { name: 'Mettre en pause la lecture' })).toBeVisible();
 
   await page.reload();
+  const mainNavigation = page.getByRole('navigation', { name: 'Navigation principale' });
   await mainNavigation.getByRole('button', { name: 'COLLECTION' }).click();
   await page.getByRole('tab', { name: 'Titres locaux' }).click();
   await expect(page.getByText('Piste locale', { exact: true })).toBeVisible();
