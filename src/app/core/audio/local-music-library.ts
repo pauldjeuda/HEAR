@@ -117,23 +117,25 @@ export class LocalMusicLibrary {
         new Error('La bibliothèque locale n’est pas disponible sur cet appareil.'),
       );
     }
-    this.databasePromise ??= new Promise((resolve, reject) => {
-      const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
-      request.onupgradeneeded = () => {
-        if (!request.result.objectStoreNames.contains(TRACK_STORE)) {
-          request.result.createObjectStore(TRACK_STORE, { keyPath: 'id' });
-        }
-      };
-      request.onsuccess = () => {
-        request.result.onversionchange = () => request.result.close();
-        resolve(request.result);
-      };
-      request.onerror = () =>
-        reject(request.error ?? new Error('Impossible d’ouvrir la bibliothèque locale.'));
-    }).catch((error: unknown) => {
+    const databasePromise = (this.databasePromise ??= new Promise<IDBDatabase>(
+      (resolve, reject) => {
+        const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
+        request.onupgradeneeded = () => {
+          if (!request.result.objectStoreNames.contains(TRACK_STORE)) {
+            request.result.createObjectStore(TRACK_STORE, { keyPath: 'id' });
+          }
+        };
+        request.onsuccess = () => {
+          request.result.onversionchange = () => request.result.close();
+          resolve(request.result);
+        };
+        request.onerror = () =>
+          reject(request.error ?? new Error('Impossible d’ouvrir la bibliothèque locale.'));
+      },
+    ).catch((error: unknown) => {
       this.databasePromise = undefined;
       throw error;
-    });
-    return this.databasePromise;
+    }));
+    return databasePromise;
   }
 }
