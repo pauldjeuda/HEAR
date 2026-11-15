@@ -6,7 +6,7 @@
     "start": "node scripts/write-environment.mjs && node scripts/copy-sqlite-wasm.mjs && ng serve",
     "build": "node scripts/write-environment.mjs && node scripts/copy-sqlite-wasm.mjs && ng build",
     "watch": "node scripts/write-environment.mjs && node scripts/copy-sqlite-wasm.mjs && ng build --watch --configuration development",
-    "test": "ng test --watch=false",
+    "test": "node scripts/write-environment.mjs && ng test --watch=false",
     "lint": "ng lint && prettier --check \"src/**/*.{ts,html,scss}\" \"*.{ts,js,cjs,json}\" \"scripts/**/*.mjs\" \"e2e/**/*.ts\"",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\" \"*.{ts,js,cjs,json}\" \"scripts/**/*.mjs\" \"e2e/**/*.ts\"",
     "e2e": "playwright test",
