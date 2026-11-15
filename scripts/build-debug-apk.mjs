@@ -44,6 +44,9 @@ function run(command, args, cwd = projectRoot) {
 }
 
 try {
+  console.log('0/4 — Génération du logo Android, de l’icône et du splash');
+  run(process.execPath, [resolve(projectRoot, 'scripts/generate-brand-assets.mjs')]);
+
   console.log('1/4 — Build web de production');
   run(windows ? 'npm.cmd' : 'npm', ['run', 'build', '--', '--configuration', 'production']);
 

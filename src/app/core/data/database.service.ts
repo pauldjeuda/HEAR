@@ -6,10 +6,43 @@ import { DATABASE_MIGRATIONS } from './migrations/v1';
 const DATABASE_NAME = 'hear';
 const SQLITE_MODE = 'no-encryption';
 
+export interface HearPlaylist {
+  id: string;
+  name: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
   private readonly sqlite = new SQLiteConnection(CapacitorSQLite);
   private connectionPromise?: Promise<SQLiteDBConnection>;
+
+  async listPlaylists(): Promise<HearPlaylist[]> {
+    const database = await this.open();
+    const result = await database.query('SELECT id, name FROM playlists ORDER BY updated_at DESC');
+    return (result.values ?? []).map((row) => ({
+      id: String(row['id']),
+      name: String(row['name']),
+    }));
+  }
+
+  async createPlaylist(name: string): Promise<void> {
+    const normalizedName = name.trim();
+    if (!normalizedName || normalizedName.length > 60) {
+      throw new Error('A playlist name must contain between 1 and 60 characters.');
+    }
+
+    const database = await this.open();
+    const now = Date.now();
+    await database.run(
+      'INSERT INTO playlists (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)',
+      [`playlist-${crypto.randomUUID()}`, normalizedName, now, now],
+    );
+  }
+
+  async deletePlaylist(id: string): Promise<void> {
+    const database = await this.open();
+    await database.run('DELETE FROM playlists WHERE id = ?', [id]);
+  }
 
   async verifyReadWrite(): Promise<boolean> {
     const database = await this.open();

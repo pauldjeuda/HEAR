@@ -12,8 +12,11 @@
 
 ## Sprint 0 — téléphone Android
 
-- [ ] Installer l’APK debug et vérifier que l’écran HEAR s’affiche.
-- [ ] Appuyer sur « Vérifier SQLite » ; attendre « PRÊTE ».
+- [ ] Installer l’APK debug et vérifier l’icône Hear, le splash natif et l’ouverture directe de l’accueil.
+- [ ] Naviguer vers Recherche, Collection, Hors ligne et Réglages.
+- [ ] Créer une playlist locale, fermer/réouvrir l’application et vérifier qu’elle persiste.
+- [ ] Importer un fichier audio du téléphone, le lire, mettre en pause, naviguer entre titres et vérifier qu’il persiste après redémarrage.
+- [ ] Appuyer sur « Vérifier SQLite » dans Réglages ; attendre « PRÊTE ».
 - [ ] Configurer un client ID Jamendo et exécuter une recherche de piste réelle.
 - [ ] Démarrer une piste Jamendo réelle, éteindre l’écran cinq minutes, puis rallumer et vérifier la continuité et la position.
 - [ ] Vérifier contrôles notification/écran verrouillé, boutons casque et pause lors d’un appel entrant.

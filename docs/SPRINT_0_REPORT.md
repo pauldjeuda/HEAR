@@ -8,7 +8,9 @@ Le socle web compile en production. Les sources Stitch, les tokens et les assets
 
 Le run [GitHub Actions #43765584497](https://github.com/pauldjeuda/HEAR/actions/runs/43765584497) a réussi les jobs Web et Android. `assembleDebug` et `apksigner` passent sur le runner cloud, et l’APK est conservé comme artefact Actions. Cette validation remplace le blocage local d’assemblage ; elle ne remplace pas l’installation sur le téléphone ni les tests audio en arrière-plan.
 
-L’écran de l’application est encore une page temporaire de fondation. Les neuf écrans Stitch sont conservés comme référence et ne sont pas encore convertis.
+La page temporaire de fondation a été remplacée sur la branche par un accueil et une navigation vers Recherche, Collection, Hors ligne et Réglages. Les playlists locales, le contrôle SQLite, l’import de fichiers audio du téléphone, leur persistance locale et la lecture au premier plan sont accessibles ; la recherche Jamendo attend toujours un identifiant et l’audio natif en arrière-plan n’est pas livré. Les neuf écrans Stitch sont conservés comme référence et leur conversion complète reste à faire.
+
+Le correctif interface/branding et audio local (logo Hear, splash et icône Android, navigation, défilement, playlists, import et lecture de fichiers locaux) est en cours de validation par le workflow cloud. Le résultat final sera consigné après exécution.
 
 ## Stories livrées
 
@@ -52,30 +54,35 @@ L’écran de l’application est encore une page temporaire de fondation. Les n
 ## Démo scriptée
 
 1. Depuis la racine, lancer `npm start`.
-2. Vérifier que la page HEAR en français indique que l’identifiant Jamendo est à fournir et que le test SQLite n’a pas encore été exécuté.
-3. Appuyer sur **VÉRIFIER SQLITE** ; le navigateur doit afficher **PRÊTE** et confirmer l’écriture puis la lecture.
+2. Vérifier le logo, l’accueil et les accès Recherche/Collection.
+3. Dans **Collection**, créer une playlist, puis la supprimer si nécessaire.
+4. Dans **Collection > Titres locaux**, choisir un fichier audio, le lire puis le mettre en pause.
+5. Fermer et relancer l’application ; le titre importé doit toujours figurer dans la bibliothèque privée Hear.
+6. Dans **Réglages**, appuyer sur **VÉRIFIER SQLITE** ; la base doit afficher **PRÊTE** et confirmer l’écriture puis la lecture.
 
-Cette démo vérifie le socle uniquement ; elle ne lit pas de musique.
+Cette démo lit un fichier local au premier plan ; les commandes écran verrouillé et la lecture en arrière-plan restent à vérifier sur téléphone.
 
 ## Recette manuelle pour Paul
 
 - [ ] Installer JDK et Android SDK compatibles avec Capacitor 8, puis relancer `npm run cap:sync` et `cd android; .\gradlew.bat assembleDebug`.
-- [ ] Installer l’APK debug et vérifier le démarrage portrait ainsi que l’écran de fondation.
-- [ ] Appuyer sur **VÉRIFIER SQLITE** ; résultat attendu : **PRÊTE**.
+- [ ] Installer l’APK debug et vérifier le splash Hear, l’icône et l’ouverture directe de l’accueil.
+- [ ] Naviguer entre Accueil, Recherche et Collection ; créer une playlist locale.
+- [ ] Importer un fichier audio du téléphone, le lire et vérifier sa présence après avoir fermé puis rouvert Hear.
+- [ ] Dans Réglages, appuyer sur **VÉRIFIER SQLITE** ; résultat attendu : **PRÊTE**.
 - [ ] Après création du client ID, le placer dans `.env.local` (`JAMENDO_CLIENT_ID=…`) et vérifier une recherche réelle Jamendo. L’identifiant reste local et ignoré par Git.
 - [ ] Avec une piste Jamendo réelle autorisée, vérifier lecture continue écran éteint pendant 5 minutes, notification/écran verrouillé, boutons casque et pause lors d’un appel.
 - [ ] Décider de la source ou obtenir une autorisation explicite avant tout téléchargement hors ligne de contenu Jamendo.
 
 ## Écarts visuels vs maquettes
 
-Aucun écart de conversion mesuré : le shell temporaire ne prétend pas reproduire les maquettes. Les comparaisons pixel seront consignées au Sprint 1, écran par écran.
+Les écrans complets restent à convertir. Le shell, l’accueil vide sans données fictives, les accès rapides et le branding reprennent les couleurs, typographies et le disque vinyle des références. La comparaison détaillée écran par écran reste à faire.
 
 ## Bugs ouverts / dette technique
 
 - K-001 — client ID Jamendo absent ; pas de données réelles Jamendo.
 - K-002 — conditions Jamendo en conflit avec l’écoute hors ligne demandée.
 - K-003 — JDK/SDK/adb absents ; APK non assemblable ici.
-- K-004 — moteur Media3 décidé mais pas compilé ni testé sur appareil.
+- K-004 — lecture locale au premier plan intégrée via WebView, service Media3 et recette Android en arrière-plan encore à faire.
 - K-005 — User-Agent LRCLIB sans lien de projet ni contact.
 - K-006 — 7 alertes npm modérées dans les outils de développement ; correctif automatique breaking seulement.
 - Couverture des tests purs non mesurée ; tests Android natifs inexistants à ce stade.

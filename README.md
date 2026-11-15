@@ -43,7 +43,11 @@ Pour construire et copier l’APK installable dans `release/` en une commande :
 npm run apk:debug
 ```
 
-La pipeline GitHub Actions lance lint, tests unitaires, e2e, vérification anti-faux contenus et build Android. Elle publie l’APK comme artefact à chaque exécution réussie ; un tag `v<version du package.json>` ajoute l’APK debug à une GitHub Release. Cet APK est signé avec la clé debug Android, pas avec une clé de production.
+Cette commande génère également l’icône de l’application, le logo Android et les variantes de densité à partir des ressources Hear. La splash native Android utilise le même disque vinyle que le front.
+
+La pipeline GitHub Actions lance lint, tests unitaires, e2e (navigation, playlist locale et SQLite), vérification anti-faux contenus et build Android. Elle publie l’APK comme artefact à chaque exécution réussie ; un tag `v<version du package.json>` ajoute l’APK debug à une GitHub Release. Cet APK est signé avec la clé debug Android, pas avec une clé de production.
+
+L’application ouvre l’accueil et donne accès aux sections Recherche, Collection, Hors ligne et Réglages. Depuis l’accueil ou la collection, on peut choisir des fichiers audio sur le téléphone ; Hear les copie dans sa bibliothèque privée, les conserve après fermeture et les lit avec le lecteur intégré. Les playlists et l’import audio fonctionnent sans compte Jamendo et sans permission générale sur les fichiers du téléphone. La recherche du catalogue en ligne et les contrôles audio en arrière-plan restent à intégrer et valider ; aucun morceau de démonstration n’est inventé.
 
 ## État de portée
 

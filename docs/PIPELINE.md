@@ -6,8 +6,8 @@ Le workflow [ci-apk.yml](../.github/workflows/ci-apk.yml) s’exécute sur les p
 
 Les jobs `Web quality gates` et `Build installable Android debug APK` partent en parallèle.
 
-- Web : `npm ci`, lint/formatage, tests unitaires, `npm run verify`, puis e2e Playwright/Chromium.
-- Android : JDK 21 et SDK API 36, build web de production, `cap sync android`, `assembleDebug`, empaquetage dans `release/hear-<version>-debug.apk`, puis vérification de signature avec `apksigner`.
+- Web : `npm ci`, lint/formatage, tests unitaires, `npm run verify`, puis e2e Playwright/Chromium sur navigation/retour, roulette, SQLite, playlists et import/lecture/persistance d’un fichier audio.
+- Android : JDK 21 et SDK API 36, génération des icônes Android depuis les sources de marque, build web de production, `cap sync android`, `assembleDebug`, empaquetage dans `release/hear-<version>-debug.apk`, puis vérification de signature avec `apksigner`.
 - Le job de publication attend la réussite des deux jobs. Il vérifie que le tag est exactement `v<version package.json>`, puis crée la GitHub Release et y attache l’APK.
 
 ## Exécution cloud vérifiée

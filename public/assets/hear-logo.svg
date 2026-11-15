@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 96" fill="none">
+  <g transform="translate(2 2) scale(.575)">
+    <circle cx="80" cy="80" r="77" fill="#1A1C1A"/>
+    <circle cx="80" cy="80" r="61" stroke="#444748" stroke-width="2"/>
+    <circle cx="80" cy="80" r="49" stroke="#444748" stroke-width="2"/>
+    <circle cx="80" cy="80" r="36" stroke="#444748" stroke-width="2"/>
+    <circle cx="80" cy="80" r="25" fill="#B81120"/>
+    <circle cx="80" cy="80" r="5" fill="#FAF9F6"/>
+  </g>
+  <text x="108" y="65" fill="#1A1C1A" font-family="Arial, sans-serif" font-size="58" font-weight="700" letter-spacing="-3">HEAR</text>
+</svg>

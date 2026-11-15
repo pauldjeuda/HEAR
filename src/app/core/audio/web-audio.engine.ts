@@ -7,7 +7,7 @@ import type {
   NowPlayingMeta,
 } from './audio-engine';
 
-/** Browser-only engine for development and automated UI checks. Android uses HearAudio/Media3. */
+/** WebView audio engine for local files and browser playback; background controls need native validation. */
 export class WebAudioEngine implements AudioEngine {
   private readonly audio = new Audio();
   private readonly eventSubject = new Subject<EngineEvent>();

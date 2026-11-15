@@ -1,105 +1,473 @@
 <ion-app>
-  <svg class="svg-symbols" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="icon-arrow_back" viewBox="0 0 24 24"><path d="M20 12H4m0 0 7-7m-7 7 7 7" /></symbol>
-    <symbol id="icon-keyboard_arrow_down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
-    <symbol id="icon-favorite" viewBox="0 0 24 24">
-      <path
-        d="M20.8 8.8c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"
-      />
-    </symbol>
-    <symbol id="icon-shuffle" viewBox="0 0 24 24">
-      <path d="M16 3h5v5M4 20l6-6m4-4 2-2m0 0 5-5m-5 0h5v5M4 4l16 16m-4 0h5v-5" />
-    </symbol>
-    <symbol id="icon-skip_previous" viewBox="0 0 24 24">
-      <path d="M6 5v14m13-14L8 12l11 7z" />
-    </symbol>
-    <symbol id="icon-skip_next" viewBox="0 0 24 24"><path d="M18 5v14M5 5l11 7-11 7z" /></symbol>
-    <symbol id="icon-play_arrow" viewBox="0 0 24 24"><path d="m7 4 13 8-13 8z" /></symbol>
-    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" /></symbol>
-    <symbol id="icon-repeat" viewBox="0 0 24 24">
-      <path d="m17 1 4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4m14-1v1a4 4 0 0 1-4 4H3" />
-    </symbol>
-    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7" /></symbol>
-    <symbol id="icon-check_circle" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9" />
-      <path d="m8 12 3 3 5-6" />
-    </symbol>
-    <symbol id="icon-error" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v6m0 4h.01" />
-    </symbol>
-    <symbol id="icon-short_text" viewBox="0 0 24 24"><path d="M4 6h16M4 12h9M4 18h16" /></symbol>
-    <symbol id="icon-queue_music" viewBox="0 0 24 24">
-      <path d="M4 5h12M4 9h12M4 13h8M4 17h7m7-4V4l4-1v10m-4 0a2 2 0 1 0 2 2V6" />
-    </symbol>
-    <symbol id="icon-graphic_eq" viewBox="0 0 24 24">
-      <path d="M4 10v4m4-8v12m4-16v20m4-15v10m4-7v4" />
-    </symbol>
-    <symbol id="icon-library_music" viewBox="0 0 24 24">
-      <path d="M4 4h13v15H4zM8 8h5M8 12h5m5-5h3v14H8v-2" />
-    </symbol>
-    <symbol id="icon-album" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9" />
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 3v6" />
-    </symbol>
-    <symbol id="icon-search" viewBox="0 0 24 24">
-      <circle cx="10.5" cy="10.5" r="6.5" />
-      <path d="m16 16 5 5" />
-    </symbol>
-    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19" /></symbol>
-    <symbol id="icon-replay_10" viewBox="0 0 24 24">
-      <path d="M3 11a9 9 0 1 1 2 7m-2-7V5m0 6h6m3-2v6m3-6v6m-3-4h3" />
-    </symbol>
-    <symbol id="icon-fullscreen" viewBox="0 0 24 24">
-      <path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" />
-    </symbol>
-    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" /></symbol>
-  </svg>
-  <main class="foundation-shell">
+  <div class="app-shell">
     <header class="masthead">
-      <p class="masthead__mark">HEAR</p>
-      <p class="masthead__meta">FONDATIONS · SPRINT 0</p>
+      <button
+        class="brand-button"
+        type="button"
+        aria-label="Accueil Hear"
+        (click)="navigate('home')"
+      >
+        <img class="brand-logo" src="assets/hear-logo.svg" alt="Hear" />
+      </button>
+      <span class="masthead__meta">MUSIQUE PERSONNELLE</span>
+      <button
+        class="icon-button menu-trigger"
+        type="button"
+        aria-label="Ouvrir les destinations secondaires"
+        [attr.aria-expanded]="menuOpen()"
+        (click)="toggleMenu()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+      </button>
+      @if (menuOpen()) {
+        <button
+          class="menu-backdrop"
+          type="button"
+          aria-label="Fermer le menu"
+          (click)="menuOpen.set(false)"
+        ></button>
+        <nav class="menu-panel" aria-label="Menu">
+          <button type="button" (click)="navigate('offline')">Hors ligne <span>→</span></button>
+          <button type="button" (click)="navigate('settings')">Réglages <span>→</span></button>
+        </nav>
+      }
     </header>
 
-    <section class="hero" aria-labelledby="page-title">
-      <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> ÉCOUTE PERSONNELLE</p>
-      <h1 id="page-title">HEAR</h1>
-      <p class="hero__intro">Une bibliothèque musicale personnelle, pensée pour le téléphone.</p>
-    </section>
+    <main #appScreen class="screen" aria-live="polite">
+      <input
+        #localAudioInput
+        class="file-picker-input"
+        type="file"
+        accept="audio/*,.flac,.opus,.mid,.midi"
+        multiple
+        aria-label="Choisir des fichiers audio sur ce téléphone"
+        (change)="importLocalFiles($event)"
+      />
+      @switch (activeScreen()) {
+        @case ('home') {
+          <section class="home-screen" aria-labelledby="home-title">
+            <div class="home-hero">
+              <p class="eyebrow">
+                <span class="signal-dot" aria-hidden="true"></span> ÉCOUTE PERSONNELLE
+              </p>
+              <h1 id="home-title">Votre musique,<br />à vous.</h1>
+              <p class="lead">Une bibliothèque musicale personnelle, pensée pour le téléphone.</p>
+              <img
+                class="hero-record"
+                src="assets/hear-mark.svg"
+                alt="Illustration d’un disque vinyle"
+              />
+            </div>
 
-    <section class="checks" aria-labelledby="checks-title">
-      <h2 id="checks-title" class="section-heading">SOCLE TECHNIQUE</h2>
-      <dl class="check-list">
-        <div class="check-row">
-          <dt>Jamendo</dt>
-          <dd [class.check-row__value--ready]="hasJamendoClientId()">
-            {{ hasJamendoClientId() ? 'IDENTIFIANT CONFIGURÉ' : 'IDENTIFIANT À FOURNIR' }}
-          </dd>
+            <section class="catalogue-card" aria-labelledby="catalogue-title">
+              <div class="catalogue-card__heading">
+                <div>
+                  <p class="eyebrow eyebrow--small">LE CATALOGUE</p>
+                  <h2 id="catalogue-title">
+                    {{
+                      hasJamendoClientId() ? 'Connexion à préparer' : 'En attente de configuration'
+                    }}
+                  </h2>
+                </div>
+                <span class="status-mark" aria-label="Connexion indisponible">•</span>
+              </div>
+              <p>
+                {{
+                  hasJamendoClientId()
+                    ? 'Le catalogue musical n’est pas encore connecté.'
+                    : 'Ajoutez votre identifiant Jamendo dans la configuration pour activer la recherche.'
+                }}
+                Aucun titre fictif n’est affiché.
+              </p>
+              <button class="text-action" type="button" (click)="navigate('settings')">
+                VOIR LES RÉGLAGES <span aria-hidden="true">↗</span>
+              </button>
+              <button
+                class="action-button home-import-button"
+                type="button"
+                [disabled]="isImportingTracks()"
+                (click)="localAudioInput.click()"
+              >
+                {{ isImportingTracks() ? 'IMPORT EN COURS…' : 'IMPORTER MA MUSIQUE' }}
+              </button>
+            </section>
+
+            <section class="quick-links" aria-label="Accès rapide">
+              <button class="quick-link" type="button" (click)="navigate('search')">
+                <span class="quick-link__number">01 <i></i></span>
+                <span class="quick-link__title">RECHERCHER</span>
+                <span class="quick-link__arrow" aria-hidden="true">↗</span>
+              </button>
+              <button class="quick-link" type="button" (click)="navigate('collection')">
+                <span class="quick-link__number">02 <i></i></span>
+                <span class="quick-link__title">MA COLLECTION</span>
+                <span class="quick-link__arrow" aria-hidden="true">↗</span>
+              </button>
+            </section>
+          </section>
+        }
+        @case ('search') {
+          <section class="content-screen" aria-labelledby="search-title">
+            <button class="back-action" type="button" (click)="handleBack()">
+              <span aria-hidden="true">←</span> RETOUR
+            </button>
+            <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> EXPLORER</p>
+            <h1 id="search-title">Recherche</h1>
+            <div class="empty-state">
+              <div class="empty-state__symbol" aria-hidden="true">⌕</div>
+              <h2>Le catalogue n’est pas encore connecté.</h2>
+              <p>
+                La recherche sera disponible après l’ajout d’un identifiant Jamendo valide. Hear
+                n’invente aucun résultat en attendant.
+              </p>
+              <button class="action-button" type="button" (click)="navigate('settings')">
+                CONFIGURER HEAR
+              </button>
+            </div>
+          </section>
+        }
+        @case ('collection') {
+          <section class="content-screen" aria-labelledby="collection-title">
+            <button class="back-action" type="button" (click)="handleBack()">
+              <span aria-hidden="true">←</span> RETOUR
+            </button>
+            <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> VOTRE ESPACE</p>
+            <div class="section-title-row">
+              <h1 id="collection-title">Collection</h1>
+            </div>
+            <div class="collection-actions">
+              <button
+                class="small-action"
+                type="button"
+                [disabled]="isImportingTracks()"
+                (click)="localAudioInput.click()"
+              >
+                {{ isImportingTracks() ? 'IMPORT EN COURS…' : '+ TITRES DU TÉLÉPHONE' }}
+              </button>
+              @if (collectionFilter() === 'playlists') {
+                <button class="small-action" type="button" (click)="isCreatingPlaylist.set(true)">
+                  + PLAYLIST
+                </button>
+              }
+            </div>
+            <div class="filter-tabs" role="tablist" aria-label="Éléments de la collection">
+              <button
+                type="button"
+                role="tab"
+                [attr.aria-selected]="collectionFilter() === 'favorites'"
+                (click)="collectionFilter.set('favorites')"
+              >
+                Favoris
+              </button>
+              <button
+                type="button"
+                role="tab"
+                [attr.aria-selected]="collectionFilter() === 'playlists'"
+                (click)="collectionFilter.set('playlists')"
+              >
+                Playlists
+              </button>
+              <button
+                type="button"
+                role="tab"
+                [attr.aria-selected]="collectionFilter() === 'local'"
+                (click)="collectionFilter.set('local')"
+              >
+                Titres locaux
+              </button>
+              <button
+                type="button"
+                role="tab"
+                [attr.aria-selected]="collectionFilter() === 'history'"
+                (click)="collectionFilter.set('history')"
+              >
+                Historique
+              </button>
+            </div>
+
+            @if (collectionFilter() === 'playlists') {
+              @if (isCreatingPlaylist()) {
+                <form class="playlist-form" (submit)="$event.preventDefault(); createPlaylist()">
+                  <label for="playlist-name">NOM DE LA PLAYLIST</label>
+                  <input
+                    id="playlist-name"
+                    name="playlistName"
+                    type="text"
+                    maxlength="60"
+                    autocomplete="off"
+                    placeholder="Ex. À écouter"
+                    [ngModel]="playlistName()"
+                    (ngModelChange)="playlistName.set($event)"
+                  />
+                  <div class="form-actions">
+                    <button class="action-button" type="submit">CRÉER</button>
+                    <button
+                      class="quiet-button"
+                      type="button"
+                      (click)="isCreatingPlaylist.set(false); playlistMessage.set('')"
+                    >
+                      ANNULER
+                    </button>
+                  </div>
+                </form>
+              }
+              @if (playlists().length) {
+                <ul class="playlist-list">
+                  @for (playlist of playlists(); track playlist.id) {
+                    <li>
+                      <span class="playlist-list__icon" aria-hidden="true">♫</span>
+                      <span class="playlist-list__name">{{ playlist.name }}</span>
+                      <button
+                        class="delete-button"
+                        type="button"
+                        [attr.aria-label]="'Supprimer ' + playlist.name"
+                        (click)="deletePlaylist(playlist.id)"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  }
+                </ul>
+              } @else if (!isCreatingPlaylist()) {
+                <div class="empty-state empty-state--compact">
+                  <div class="empty-state__symbol" aria-hidden="true">♫</div>
+                  <h2>Votre collection commence ici.</h2>
+                  <p>
+                    Créez des playlists locales. Vous pourrez y ajouter des titres lorsque le
+                    catalogue sera connecté.
+                  </p>
+                  <button
+                    class="action-button"
+                    type="button"
+                    (click)="isCreatingPlaylist.set(true)"
+                  >
+                    CRÉER UNE PLAYLIST
+                  </button>
+                </div>
+              }
+            } @else if (collectionFilter() === 'local') {
+              @if (localTracks().length) {
+                <ul class="local-track-list">
+                  @for (track of localTracks(); track track.id) {
+                    <li>
+                      <button
+                        class="track-play-button"
+                        type="button"
+                        [attr.aria-label]="
+                          activeLocalTrackId() === track.id && audioState() === 'playing'
+                            ? 'Mettre en pause ' + track.title
+                            : 'Lire ' + track.title
+                        "
+                        (click)="playLocalTrack(track)"
+                      >
+                        {{
+                          activeLocalTrackId() === track.id && audioState() === 'playing'
+                            ? 'Ⅱ'
+                            : '▶'
+                        }}
+                      </button>
+                      <span class="local-track-list__title">{{ track.title }}</span>
+                      <span class="local-track-list__meta"
+                        >{{ (track.size / 1048576).toFixed(1) }} MO</span
+                      >
+                      <button
+                        class="delete-button"
+                        type="button"
+                        [attr.aria-label]="'Supprimer ' + track.title + ' de Hear'"
+                        (click)="removeLocalTrack(track)"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <div class="empty-state empty-state--compact">
+                  <div class="empty-state__symbol" aria-hidden="true">♫</div>
+                  <h2>Aucun titre local pour le moment.</h2>
+                  <p>
+                    Choisissez des fichiers audio présents sur votre téléphone. Hear les conservera
+                    dans sa bibliothèque privée.
+                  </p>
+                  <button class="action-button" type="button" (click)="localAudioInput.click()">
+                    CHOISIR DES FICHIERS AUDIO
+                  </button>
+                </div>
+              }
+              <p class="inline-notice" role="status" aria-live="polite">
+                {{ localMusicMessage() }}
+              </p>
+            } @else {
+              <div class="empty-state empty-state--compact">
+                <div class="empty-state__symbol" aria-hidden="true">
+                  {{ collectionFilter() === 'favorites' ? '♡' : '↺' }}
+                </div>
+                <h2>
+                  {{
+                    collectionFilter() === 'favorites'
+                      ? 'Aucun favori pour le moment.'
+                      : 'Votre historique est vide.'
+                  }}
+                </h2>
+                <p>
+                  {{
+                    collectionFilter() === 'favorites'
+                      ? 'La gestion des favoris sera ajoutée dans une prochaine étape.'
+                      : 'Les écoutes ne sont pas encore conservées dans un historique.'
+                  }}
+                </p>
+              </div>
+            }
+            <p class="inline-notice" role="status" aria-live="polite">{{ playlistMessage() }}</p>
+          </section>
+        }
+        @case ('offline') {
+          <section class="content-screen" aria-labelledby="offline-title">
+            <button class="back-action" type="button" (click)="handleBack()">
+              <span aria-hidden="true">←</span> RETOUR
+            </button>
+            <p class="eyebrow">
+              <span class="signal-dot" aria-hidden="true"></span> ÉCOUTE SANS RÉSEAU
+            </p>
+            <h1 id="offline-title">Hors ligne</h1>
+            <div class="empty-state">
+              <div class="empty-state__symbol" aria-hidden="true">◎</div>
+              <h2>Écoutez vos fichiers locaux hors connexion.</h2>
+              <p>
+                Les fichiers importés depuis votre téléphone sont disponibles dans votre collection,
+                même sans réseau. Les téléchargements du catalogue en ligne attendent la validation
+                de leur source et de leurs conditions d’utilisation.
+              </p>
+              <button class="action-button" type="button" (click)="openLocalLibrary()">
+                OUVRIR MES TITRES LOCAUX
+              </button>
+            </div>
+          </section>
+        }
+        @case ('settings') {
+          <section class="content-screen" aria-labelledby="settings-title">
+            <button class="back-action" type="button" (click)="handleBack()">
+              <span aria-hidden="true">←</span> RETOUR
+            </button>
+            <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> HEAR · 0.1.0</p>
+            <h1 id="settings-title">Réglages</h1>
+            <section class="settings-block" aria-labelledby="service-title">
+              <h2 id="service-title" class="section-heading">SERVICES</h2>
+              <div class="setting-row">
+                <div>
+                  <h3>Jamendo</h3>
+                  <p>Catalogue et recherche musicale</p>
+                </div>
+                <span class="setting-status">{{
+                  hasJamendoClientId() ? 'À CONNECTER' : 'IDENTIFIANT REQUIS'
+                }}</span>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <h3>SQLite</h3>
+                  <p>{{ databaseMessage() }}</p>
+                </div>
+                <span
+                  class="setting-status"
+                  [class.setting-status--ready]="databaseStatus() === 'PRÊTE'"
+                  >{{ databaseStatus() }}</span
+                >
+              </div>
+              <div class="setting-row">
+                <div>
+                  <h3>Lecture audio</h3>
+                  <p>La lecture en arrière-plan doit encore être intégrée et testée sur Android.</p>
+                </div>
+                <span class="setting-status">À VENIR</span>
+              </div>
+            </section>
+            <button
+              class="action-button"
+              type="button"
+              (click)="verifyDatabase()"
+              [disabled]="isCheckingDatabase()"
+            >
+              {{ isCheckingDatabase() ? 'VÉRIFICATION…' : 'VÉRIFIER SQLITE' }}
+            </button>
+            <p class="footer-note">ANDROID · FRANÇAIS <span>VERSION 0.1.0</span></p>
+          </section>
+        }
+      }
+    </main>
+
+    @if (activeLocalTrack(); as playingTrack) {
+      <section class="mini-player" aria-label="Lecteur audio local">
+        <div class="mini-player__track">
+          <span class="mini-player__title">{{ playingTrack.title }}</span>
+          <span class="mini-player__subtitle">FICHIER LOCAL</span>
         </div>
-        <div class="check-row">
-          <dt>SQLite</dt>
-          <dd>{{ databaseStatus() }}</dd>
+        <button
+          class="player-control player-control--main"
+          type="button"
+          [attr.aria-label]="
+            audioState() === 'playing' ? 'Mettre en pause la lecture' : 'Reprendre la lecture'
+          "
+          (click)="playLocalTrack(playingTrack)"
+        >
+          {{ audioState() === 'playing' ? 'Ⅱ' : '▶' }}
+        </button>
+        <button
+          class="player-control"
+          type="button"
+          aria-label="Piste précédente"
+          (click)="handlePreviousTrack()"
+        >
+          |◀
+        </button>
+        <button
+          class="player-control"
+          type="button"
+          aria-label="Piste suivante"
+          (click)="handleNextTrack()"
+        >
+          ▶|
+        </button>
+        <div class="mini-player__progress">
+          <span>{{ formatTime(playbackPosition()) }}</span>
+          <input
+            type="range"
+            aria-label="Position de lecture"
+            min="0"
+            [max]="playbackDuration() || 1"
+            [value]="playbackPosition()"
+            (input)="seekLocalTrack($event)"
+          />
+          <span>{{ formatTime(playbackDuration()) }}</span>
         </div>
-        <div class="check-row">
-          <dt>Audio natif</dt>
-          <dd>ESSAI SUR ANDROID REQUIS</dd>
-        </div>
-      </dl>
+      </section>
+    }
+
+    <nav class="tab-bar" aria-label="Navigation principale">
       <button
-        class="action-button"
         type="button"
-        (click)="verifyDatabase()"
-        [disabled]="isCheckingDatabase()"
+        [class.is-active]="activeScreen() === 'home'"
+        [attr.aria-current]="activeScreen() === 'home' ? 'page' : null"
+        (click)="navigate('home')"
       >
-        {{ isCheckingDatabase() ? 'VÉRIFICATION…' : 'VÉRIFIER SQLITE' }}
+        <span class="tab-icon tab-icon--home" aria-hidden="true">⌂</span><span>ACCUEIL</span>
       </button>
-      <p class="notice" role="status" aria-live="polite">{{ databaseMessage() }}</p>
-    </section>
-
-    <footer class="footer-note">
-      <span>ANDROID · FRANÇAIS</span>
-      <span>VERSION 0.1.0</span>
-    </footer>
-  </main>
+      <button
+        type="button"
+        [class.is-active]="activeScreen() === 'search'"
+        [attr.aria-current]="activeScreen() === 'search' ? 'page' : null"
+        (click)="navigate('search')"
+      >
+        <span class="tab-icon tab-icon--search" aria-hidden="true">⌕</span><span>RECHERCHE</span>
+      </button>
+      <button
+        type="button"
+        [class.is-active]="activeScreen() === 'collection'"
+        [attr.aria-current]="activeScreen() === 'collection' ? 'page' : null"
+        (click)="navigate('collection')"
+      >
+        <span class="tab-icon tab-icon--collection" aria-hidden="true">▧</span
+        ><span>COLLECTION</span>
+      </button>
+    </nav>
+  </div>
 </ion-app>
