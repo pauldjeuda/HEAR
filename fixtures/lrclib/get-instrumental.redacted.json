@@ -1,0 +1,14 @@
+{
+  "request": "https://lrclib.net/api/get/10998070",
+  "httpStatus": 200,
+  "record": {
+    "id": 10998070,
+    "trackName": "Music for Marcel Duchamp",
+    "artistName": "Cage, John",
+    "albumName": "John Cage",
+    "duration": 394.0,
+    "instrumental": true,
+    "plainLyrics": null,
+    "syncedLyrics": null
+  }
+}

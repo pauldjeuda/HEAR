@@ -1,0 +1,105 @@
+<ion-app>
+  <svg class="svg-symbols" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-arrow_back" viewBox="0 0 24 24"><path d="M20 12H4m0 0 7-7m-7 7 7 7" /></symbol>
+    <symbol id="icon-keyboard_arrow_down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+    <symbol id="icon-favorite" viewBox="0 0 24 24">
+      <path
+        d="M20.8 8.8c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"
+      />
+    </symbol>
+    <symbol id="icon-shuffle" viewBox="0 0 24 24">
+      <path d="M16 3h5v5M4 20l6-6m4-4 2-2m0 0 5-5m-5 0h5v5M4 4l16 16m-4 0h5v-5" />
+    </symbol>
+    <symbol id="icon-skip_previous" viewBox="0 0 24 24">
+      <path d="M6 5v14m13-14L8 12l11 7z" />
+    </symbol>
+    <symbol id="icon-skip_next" viewBox="0 0 24 24"><path d="M18 5v14M5 5l11 7-11 7z" /></symbol>
+    <symbol id="icon-play_arrow" viewBox="0 0 24 24"><path d="m7 4 13 8-13 8z" /></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" /></symbol>
+    <symbol id="icon-repeat" viewBox="0 0 24 24">
+      <path d="m17 1 4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4m14-1v1a4 4 0 0 1-4 4H3" />
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7" /></symbol>
+    <symbol id="icon-check_circle" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 3 3 5-6" />
+    </symbol>
+    <symbol id="icon-error" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v6m0 4h.01" />
+    </symbol>
+    <symbol id="icon-short_text" viewBox="0 0 24 24"><path d="M4 6h16M4 12h9M4 18h16" /></symbol>
+    <symbol id="icon-queue_music" viewBox="0 0 24 24">
+      <path d="M4 5h12M4 9h12M4 13h8M4 17h7m7-4V4l4-1v10m-4 0a2 2 0 1 0 2 2V6" />
+    </symbol>
+    <symbol id="icon-graphic_eq" viewBox="0 0 24 24">
+      <path d="M4 10v4m4-8v12m4-16v20m4-15v10m4-7v4" />
+    </symbol>
+    <symbol id="icon-library_music" viewBox="0 0 24 24">
+      <path d="M4 4h13v15H4zM8 8h5M8 12h5m5-5h3v14H8v-2" />
+    </symbol>
+    <symbol id="icon-album" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 3v6" />
+    </symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="m16 16 5 5" />
+    </symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19" /></symbol>
+    <symbol id="icon-replay_10" viewBox="0 0 24 24">
+      <path d="M3 11a9 9 0 1 1 2 7m-2-7V5m0 6h6m3-2v6m3-6v6m-3-4h3" />
+    </symbol>
+    <symbol id="icon-fullscreen" viewBox="0 0 24 24">
+      <path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" />
+    </symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" /></symbol>
+  </svg>
+  <main class="foundation-shell">
+    <header class="masthead">
+      <p class="masthead__mark">HEAR</p>
+      <p class="masthead__meta">FONDATIONS · SPRINT 0</p>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow"><span class="signal-dot" aria-hidden="true"></span> ÉCOUTE PERSONNELLE</p>
+      <h1 id="page-title">HEAR</h1>
+      <p class="hero__intro">Une bibliothèque musicale personnelle, pensée pour le téléphone.</p>
+    </section>
+
+    <section class="checks" aria-labelledby="checks-title">
+      <h2 id="checks-title" class="section-heading">SOCLE TECHNIQUE</h2>
+      <dl class="check-list">
+        <div class="check-row">
+          <dt>Jamendo</dt>
+          <dd [class.check-row__value--ready]="hasJamendoClientId()">
+            {{ hasJamendoClientId() ? 'IDENTIFIANT CONFIGURÉ' : 'IDENTIFIANT À FOURNIR' }}
+          </dd>
+        </div>
+        <div class="check-row">
+          <dt>SQLite</dt>
+          <dd>{{ databaseStatus() }}</dd>
+        </div>
+        <div class="check-row">
+          <dt>Audio natif</dt>
+          <dd>ESSAI SUR ANDROID REQUIS</dd>
+        </div>
+      </dl>
+      <button
+        class="action-button"
+        type="button"
+        (click)="verifyDatabase()"
+        [disabled]="isCheckingDatabase()"
+      >
+        {{ isCheckingDatabase() ? 'VÉRIFICATION…' : 'VÉRIFIER SQLITE' }}
+      </button>
+      <p class="notice" role="status" aria-live="polite">{{ databaseMessage() }}</p>
+    </section>
+
+    <footer class="footer-note">
+      <span>ANDROID · FRANÇAIS</span>
+      <span>VERSION 0.1.0</span>
+    </footer>
+  </main>
+</ion-app>

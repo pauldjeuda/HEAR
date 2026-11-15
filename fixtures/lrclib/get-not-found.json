@@ -1,0 +1,9 @@
+{
+  "request": "https://lrclib.net/api/get?track_name=Hear%20Fixture%20No%20Match%20QX9814&artist_name=Hear%20Fixture%20Artist&album_name=No%20Album&duration=199",
+  "httpStatus": 404,
+  "response": {
+    "message": "Failed to find specified track",
+    "name": "TrackNotFound",
+    "statusCode": 404
+  }
+}

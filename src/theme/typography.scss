@@ -1,0 +1,16 @@
+:root {
+  --hear-display: 'Space Grotesk', sans-serif;
+  --hear-mono: 'JetBrains Mono', monospace;
+}
+
+html,
+body {
+  font-family: var(--hear-display);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

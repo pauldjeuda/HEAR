@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#faf9f6;}body{overscroll-behavior:none;-webkit-font-smoothing:antialiased;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary": "#ffffff", "inverse-on-surface": "#f2f1ee", "on-background": "#1a1c1a", "surface-tint": "#5f5e5e", "primary-fixed": "#e5e2e1", "on-secondary-fixed-variant": "#930014", "on-secondary-fixed": "#410004", "on-tertiary-fixed-variant": "#484645", "primary-container": "#1c1b1b", "secondary": "#b81120", "on-surface-variant": "#444748", "inverse-surface": "#2f312f", "tertiary": "#000000", "primary": "#000000", "background": "#faf9f6", "surface-bright": "#faf9f6", "outline-variant": "#c4c7c7", "on-tertiary-fixed": "#1d1b1a", "surface-container-highest": "#e3e2e0", "surface-container-low": "#f4f3f1", "on-primary-fixed-variant": "#474646", "outline": "#747878", "on-tertiary-container": "#868381", "error-container": "#ffdad6", "primary-fixed-dim": "#c9c6c5", "inverse-primary": "#c9c6c5", "secondary-container": "#dc3135", "surface-variant": "#e3e2e0", "tertiary-container": "#1d1b1a", "surface": "#faf9f6", "surface-dim": "#dbdad7", "on-primary": "#ffffff", "surface-container": "#efeeeb", "surface-container-lowest": "#ffffff", "on-secondary-container": "#fffbff", "secondary-fixed": "#ffdad7", "on-surface": "#1a1c1a", "surface-container-high": "#e9e8e5", "on-primary-container": "#858383", "on-error": "#ffffff", "tertiary-fixed": "#e6e1df", "on-error-container": "#93000a", "error": "#ba1a1a", "tertiary-fixed-dim": "#cac6c3", "secondary-fixed-dim": "#ffb3ae", "on-primary-fixed": "#1c1b1b", "on-tertiary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "1rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "gutter": "1rem", "space-2xl": "4rem", "space-sm": "0.5rem", "margin": "1.25rem", "margin-mobile": "1rem", "gutter-sm": "0.75rem" }, "fontFamily": { "label-mono-sm": ["JetBrains Mono"], "body-sm": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "label-mono-badge": ["JetBrains Mono"], "label-mono-lg": ["JetBrains Mono"], "headline-lg-mobile": ["Space Grotesk"], "headline-lg": ["Space Grotesk"], "body-lg": ["Space Grotesk"] }, "fontSize": { "label-mono-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "500" }], "body-sm": ["14px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }], "display-hero": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.05em", "fontWeight": "700" }], "display-hero-mobile": ["48px", { "lineHeight": "46px", "letterSpacing": "-0.04em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-mono-badge": ["9px", { "lineHeight": "11px", "letterSpacing": "0.1em", "fontWeight": "700" }], "label-mono-lg": ["13px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "headline-lg-mobile": ["28px", { "lineHeight": "30px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "headline-lg": ["36px", { "lineHeight": "38px", "letterSpacing": "-0.04em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Hear Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrCy2201VLKcqcbutCKW1rmHv7maIvDVY-oDnCPiKbbL9HTqU_lLYRSNiuvka-HDdHmASZYLVEwDZ9zV9U_VmijWdllyl7QN4v9aNPCeMlrtgC14VUJmguoGtbS2bm56kw0tTghKvURpWHaJTvH57SuqeoR42z5qtICAYWSo-PdRdVnEnyD48p0xuvn7ac6BeKE_25z_Hi32nuH843N4rd0jbdzUxhNBttScpWIJVqtu"/><span class="font-label-mono-lg text-label-mono-lg uppercase text-primary tracking-widest">HEAR</span></div><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button aria-label="Menu Principal" class="w-11 h-11 flex flex-col items-center justify-center gap-1.5 focus:outline-none"><span class="w-5 h-[1.5px] bg-primary block"></span><span class="w-5 h-[1.5px] bg-primary block"></span></button></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-28 bg-surface"><div class="flex flex-col w-full">
+<!-- Top Editorial Tag -->
+<div class="px-margin pt-2 pb-1 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-secondary inline-block"></span>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface uppercase tracking-widest">INDEX GLOBAL / EXPLORATION 04</span>
+</div>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase tracking-widest">ARCHIVE N° 884-B</span>
+</div>
+<!-- Hero Typographic Title -->
+<div class="px-margin pt-1 pb-4">
+<h1 class="font-display-hero-mobile text-display-hero-mobile uppercase text-primary tracking-tighter -ml-0.5 select-none">
+      RECHERCHE
+    </h1>
+<div class="flex items-center justify-between pt-1">
+<p class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-wider">Catalogue matriciel analogique &amp; numérique</p>
+<span class="font-label-mono-sm text-label-mono-sm text-secondary font-semibold">DIRECT</span>
+</div>
+</div>
+<!-- Search Input Module -->
+<div class="px-margin pt-2 pb-6">
+<div class="relative flex items-center bg-surface-container-low px-3 py-3">
+<span class="material-symbols-outlined text-primary text-[20px] mr-2.5 select-none">search</span>
+<input class="w-full bg-transparent font-label-mono-lg text-label-mono-lg text-primary placeholder:text-outline focus:outline-none tracking-normal uppercase" id="search-input" placeholder="TITRE, ARTISTE, COMPILATION, MATRICE..." type="text" value="JON HOPKINS"/>
+<button aria-label="Effacer la recherche" class="flex items-center justify-center p-1 text-on-surface-variant hover:text-secondary focus:outline-none" id="clear-btn">
+<span class="font-label-mono-lg text-label-mono-lg font-bold">✕</span>
+</button>
+</div>
+<div class="h-[2px] w-full bg-primary"></div>
+<div class="flex justify-between items-center pt-2">
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase">SYNTAXE : MOT-CLÉ [ESPACE] CODE MATRICE</span>
+<span class="font-label-mono-badge text-label-mono-badge text-secondary font-bold uppercase" id="results-counter">FILTRE ACTIF</span>
+</div>
+</div>
+<!-- Filter Chips / Exploration Tags -->
+<div class="pb-6">
+<div class="px-margin pb-2 flex items-center justify-between">
+<span class="font-label-mono-badge text-label-mono-badge text-primary font-bold uppercase">CORPUS &amp; GENRES SÉLECTIONNÉS</span>
+<span class="font-label-mono-badge text-label-mono-badge text-outline uppercase">[06 AXES]</span>
+</div>
+<div class="flex overflow-x-auto gap-2 px-margin no-scrollbar py-1">
+<button class="shrink-0 bg-primary text-on-primary px-3 py-1.5 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 bg-secondary inline-block"></span>
+<span class="font-label-mono-sm text-label-mono-sm uppercase tracking-wider">ELECTRONICA</span>
+</button>
+<button class="shrink-0 bg-surface-container-high text-on-surface px-3 py-1.5 hover:bg-surface-container-highest transition-colors">
+<span class="font-label-mono-sm text-label-mono-sm uppercase tracking-wider">AMBIENT MODULAIRE</span>
+</button>
+<button class="shrink-0 bg-surface-container-high text-on-surface px-3 py-1.5 hover:bg-surface-container-highest transition-colors">
+<span class="font-label-mono-sm text-label-mono-sm uppercase tracking-wider">JAZZ ANALOGIQUE</span>
+</button>
+<button class="shrink-0 bg-surface-container-high text-on-surface px-3 py-1.5 hover:bg-surface-container-highest transition-colors">
+<span class="font-label-mono-sm text-label-mono-sm uppercase tracking-wider">ÉDITIONS 33 RPM</span>
+</button>
+<button class="shrink-0 bg-surface-container-high text-on-surface px-3 py-1.5 hover:bg-surface-container-highest transition-colors">
+<span class="font-label-mono-sm text-label-mono-sm uppercase tracking-wider">FLAC 24-BIT</span>
+</button>
+<button class="shrink-0 bg-surface-container-high text-on-surface px-3 py-1.5 hover:bg-surface-container-highest transition-colors">
+<span class="font-label-mono-sm text-label-mono-sm uppercase tracking-wider">KRAUTROCK</span>
+</button>
+</div>
+</div>
+<!-- Search Results Module -->
+<div class="flex flex-col w-full pb-6" id="results-view">
+<!-- Results Header -->
+<div class="px-margin py-2.5 bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-secondary font-label-mono-sm text-label-mono-sm font-bold">■</span>
+<span class="font-label-mono-badge text-label-mono-badge text-primary uppercase font-bold tracking-wider">RÉSULTATS INDEXÉS (04)</span>
+</div>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase">TRI PAR FRÉQUENCE [FRQ-01]</span>
+</div>
+<!-- Tracklist Rows -->
+<div class="flex flex-col w-full">
+<!-- Item 01 (Active Playing) -->
+<div class="px-margin py-3 bg-surface-container-lowest flex items-center justify-between gap-3 cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<span class="font-label-mono-sm text-label-mono-sm font-bold text-secondary w-5 shrink-0 select-none">01</span>
+<div class="w-10 h-10 shrink-0 bg-primary overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Monochromatic Swiss style album art cover Jon Hopkins geometric abstract dark vinyl minimalist design high contrast black and grey" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKchWmMjT5NzzH10tHEWojhwJJU0xUo-Qq0xeFyTUIKG3UIFiioC3MW6W48l6oedCWEG6pcNl2YvIjq06Yf1NYK8C3ow6Jb_79w4IOc1CjWb0ohLzDbfjNphKUs-PrT1KG-YZQvrd9tIagf6JQOn3bjb3WcWIHxfO8Tl9dWChhgfF3ugfu23Ahm17HoesIAQgwwzQWXHE5na-TPFSQwjget_1goxhNeuUwZBgsGrQ"/>
+<div class="absolute inset-0 bg-primary/20 flex items-center justify-center">
+<span class="w-1.5 h-1.5 bg-secondary"></span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-lg text-body-lg text-primary font-bold truncate italic">SYMMETRY BREAK</span>
+<span class="w-1.5 h-1.5 bg-secondary shrink-0"></span>
+</div>
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase truncate">JON HOPKINS — RITUAL</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="flex items-end gap-[2px] h-3">
+<span class="w-[2px] h-3 bg-secondary animate-pulse"></span>
+<span class="w-[2px] h-2 bg-secondary"></span>
+<span class="w-[2px] h-3.5 bg-secondary animate-pulse"></span>
+</div>
+<span class="font-label-mono-sm text-label-mono-sm text-secondary font-bold">05:42</span>
+</div>
+</div>
+<!-- Item 02 -->
+<div class="px-margin py-3 bg-surface flex items-center justify-between gap-3 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant w-5 shrink-0 select-none">02</span>
+<div class="w-10 h-10 shrink-0 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist cinematic album cover for Cliff Martinez architectural concrete typography stark monochrome brutalist record sleeve" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqUqnzRFrHLY7vnEqkU4dr12kf85oHkdwFEwjrtmgeyJpHzwriZALzq_SFSDPIdv7bToAY9QKiL37qNet-IkpNpoX70PhNUwQEqNob8KKPtn9AfN48erEugEwQ14NCEk8iCkDsB-ZfCgzn1qtfsTjWzEJ4IhICWI1Xuo--n2MSE_nylK3KjjpPMU05N1JWY3J0flMTL-CHDYNnI-_3AQriFfipKqOoOki0ufQn-Dc"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-lg text-body-lg text-primary font-medium truncate">SOLARIS VARIATIONS</span>
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase truncate">CLIFF MARTINEZ</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant">04:19</span>
+</div>
+</div>
+<!-- Item 03 -->
+<div class="px-margin py-3 bg-surface-container-lowest flex items-center justify-between gap-3 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant w-5 shrink-0 select-none">03</span>
+<div class="w-10 h-10 shrink-0 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Floating Points jazz electronica experimental graphic vinyl album jacket clean black lines on off-white canvas Swiss typography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV-yYtS-owOu6c_CVDDPoLDT8d8lWUx-by3cmfV1mMD3RQKUjQHX-7eQUVSpNUnKxI1aWH1KDRNqJhakxpAm20BBUU4MCJPBdHcBtptsLErHVwzTizyZ0B_n4IFoKhlRndUHgGoMni4V48D0u4UI7-Sv6vKScWgGCw09wTHjkByyRTVa4QeftvedWa1KLREL6kIswb4nnFJXg3FeAl3YVdUlAPrsqGFug_he_YAVg"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-lg text-body-lg text-primary font-medium truncate">ANALOG DRIFT</span>
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase truncate">FLOATING POINTS</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant">06:11</span>
+</div>
+</div>
+<!-- Item 04 -->
+<div class="px-margin py-3 bg-surface flex items-center justify-between gap-3 hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-3 min-w-0">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant w-5 shrink-0 select-none">04</span>
+<div class="w-10 h-10 shrink-0 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Bonobo album art minimalist monochrome abstract natural waveform texture stark modern graphic design layout" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1KflXBX0kXb45YAZ0G4S_6zQRpNy3BZJZ-Z46GLK6Uu6L2sobDk8U-Wfs8zN59-0efeBWVahX0Dp_TDRfT5dpoXH8KdgvuyvCIdU_v3KDDWLiX3R3avpbVgjuEW5ZBU6x-4WsCUCqEIbmM0Jn41FhV-wBxe8M1zRGS0f05wRjR4gjKxMefUeYAFR9LivfcbFXKRfLJsEcTe0jDBLewrluJnbbbvcEVSNU-lAYEHo"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-lg text-body-lg text-primary font-medium truncate">OPALINE</span>
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase truncate">BONOBO</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant">03:54</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Dedicated Empty State Showcase Section -->
+<div class="px-margin pb-6">
+<div class="bg-surface-container-low p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between pb-1">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary"></span>
+<span class="font-label-mono-badge text-label-mono-badge text-primary uppercase font-bold tracking-wider">APERÇU CADRE : ÉTAT VIDE SYSTÈME</span>
+</div>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant">CODE : 404_MTRX</span>
+</div>
+<div class="bg-surface p-4 flex flex-col gap-3">
+<div class="bg-primary text-on-primary px-3 py-1.5 self-start">
+<span class="font-label-mono-sm text-label-mono-sm uppercase font-bold tracking-widest">[ ÉTAT SYSTÈME : AUCUNE MATRICE TROUVÉE ]</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+          Aucun enregistrement ne correspond à « <span class="font-label-mono-sm text-label-mono-sm font-bold text-secondary">XYZ-99</span> ». Vérifiez l'indexation du catalogue vinyle ou explorez les archives analogiques.
+        </p>
+<div class="pt-1 flex items-center justify-between">
+<button class="bg-primary hover:bg-secondary text-on-primary px-4 py-2 flex items-center gap-2 transition-colors">
+<span class="font-label-mono-sm text-label-mono-sm uppercase font-bold tracking-wider">RÉINITIALISER L'INDEX</span>
+<span class="font-label-mono-sm text-label-mono-sm text-secondary hover:text-on-primary font-bold">→</span>
+</button>
+<span class="font-label-mono-badge text-label-mono-badge text-outline uppercase">BASE DE DONNÉES SYNCHRONISÉE</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Persistent Player Module (Above global bottom tab nav) -->
+<div class="px-margin pb-4">
+<div class="bg-primary text-on-primary p-3 flex flex-col gap-2">
+<!-- 1px red elapsed track scrubber -->
+<div class="w-full bg-on-surface-variant/40 h-[2px] relative">
+<div class="h-full bg-secondary w-3/5"></div>
+</div>
+<div class="flex items-center justify-between gap-3 pt-1">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-7 h-7 bg-surface text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">album</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-body-sm text-body-sm font-bold text-on-primary truncate uppercase">COLLÉGIUM [33T]</span>
+<span class="font-label-mono-badge text-label-mono-badge text-secondary font-bold">HQ</span>
+</div>
+<span class="font-label-mono-badge text-label-mono-badge text-outline uppercase truncate">THOM YORKE — PRESSAGE ÉDITION 01</span>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button aria-label="Reculer de 15 secondes" class="text-on-primary hover:text-secondary p-1">
+<span class="material-symbols-outlined text-[18px]">replay_10</span>
+</button>
+<button aria-label="Pause ou Lecture" class="w-8 h-8 bg-secondary text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">pause</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('clear-btn');
+    const resultsView = document.getElementById('results-view');
+    const counter = document.getElementById('results-counter');
+
+    if (clearBtn && searchInput) {
+      clearBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        searchInput.focus();
+        if (counter) {
+          counter.textContent = 'INDEX OUVERT';
+          counter.classList.remove('text-secondary');
+          counter.classList.add('text-on-surface-variant');
+        }
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        if (e.target.value.trim() === '') {
+          if (counter) {
+            counter.textContent = 'AUCUNE REQUÊTE';
+            counter.classList.remove('text-secondary');
+            counter.classList.add('text-on-surface-variant');
+          }
+        } else {
+          if (counter) {
+            counter.textContent = 'FILTRE ACTIF';
+            counter.classList.add('text-secondary');
+            counter.classList.remove('text-on-surface-variant');
+          }
+        }
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_12px_rgba(0,0,0,0.03)]" data-active-classes="text-secondary font-semibold"><div class="h-16 px-margin flex items-center justify-around"><a class="flex flex-col items-center justify-center gap-1 h-11 px-2 text-on-surface-variant hover:text-secondary transition-colors" data-path="accueil" href="#"><span class="material-symbols-outlined text-[22px]">album</span><span class="font-label-mono-badge text-label-mono-badge uppercase">ACCUEIL</span></a><a class="flex flex-col items-center justify-center gap-1 h-11 px-2 text-on-surface-variant hover:text-secondary transition-colors" data-path="recherche" href="#"><span class="material-symbols-outlined text-[22px]">search</span><span class="font-label-mono-badge text-label-mono-badge uppercase">RECHERCHE</span></a><a class="flex flex-col items-center justify-center gap-1 h-11 px-2 text-on-surface-variant hover:text-secondary transition-colors" data-path="artiste" href="#"><span class="material-symbols-outlined text-[22px]">graphic_eq</span><span class="font-label-mono-badge text-label-mono-badge uppercase">ARTISTE</span></a><a class="flex flex-col items-center justify-center gap-1 h-11 px-2 text-on-surface-variant hover:text-secondary transition-colors" data-path="bibliotheque" href="#"><span class="material-symbols-outlined text-[22px]">library_music</span><span class="font-label-mono-badge text-label-mono-badge uppercase">COLLECTION</span></a></div></nav></body></html>

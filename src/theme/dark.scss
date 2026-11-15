@@ -1,0 +1,8 @@
+@use './tokens';
+
+:root[data-theme='dark'] {
+  --ion-background-color: var(--hear-paper);
+  --ion-text-color: var(--hear-ink);
+  --ion-color-primary: var(--hear-ink);
+  --ion-color-danger: var(--hear-signal);
+}

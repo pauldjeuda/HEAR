@@ -1,0 +1,15 @@
+{
+  "request": "https://lrclib.net/api/get?track_name=Still%20Alive&artist_name=Jonathan%20Coulton&album_name=Portal%20Soundtrack&duration=176",
+  "httpStatus": 200,
+  "record": {
+    "id": 21794804,
+    "trackName": "Still Alive",
+    "artistName": "Jonathan Coulton",
+    "albumName": "Portal Soundtrack",
+    "duration": 176.0,
+    "instrumental": false,
+    "hasWordSync": false,
+    "plainLyrics": "[present; lyric text omitted]",
+    "syncedLyrics": "[present; lyric text omitted]"
+  }
+}

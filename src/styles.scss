@@ -1,0 +1,48 @@
+@use './theme/tokens';
+@use './theme/typography';
+@use './theme/light';
+@use './theme/dark';
+
+@import '@fontsource/space-grotesk/400.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+
+@import './theme/tailwind.css';
+
+html,
+body {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+  background: var(--hear-paper);
+}
+
+body {
+  color: var(--hear-ink);
+  font-family: var(--hear-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+ion-app {
+  font-family: var(--hear-display);
+  --ion-background-color: var(--hear-paper);
+  --ion-text-color: var(--hear-ink);
+  --ion-color-primary: var(--hear-ink);
+  --ion-color-danger: var(--hear-signal);
+}

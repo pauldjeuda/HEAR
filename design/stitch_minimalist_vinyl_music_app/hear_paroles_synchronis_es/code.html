@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#faf9f6;}body{overscroll-behavior:none;-webkit-font-smoothing:antialiased;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary": "#ffffff", "inverse-on-surface": "#f2f1ee", "on-background": "#1a1c1a", "surface-tint": "#5f5e5e", "primary-fixed": "#e5e2e1", "on-secondary-fixed-variant": "#930014", "on-secondary-fixed": "#410004", "on-tertiary-fixed-variant": "#484645", "primary-container": "#1c1b1b", "secondary": "#b81120", "on-surface-variant": "#444748", "inverse-surface": "#2f312f", "tertiary": "#000000", "primary": "#000000", "background": "#faf9f6", "surface-bright": "#faf9f6", "outline-variant": "#c4c7c7", "on-tertiary-fixed": "#1d1b1a", "surface-container-highest": "#e3e2e0", "surface-container-low": "#f4f3f1", "on-primary-fixed-variant": "#474646", "outline": "#747878", "on-tertiary-container": "#868381", "error-container": "#ffdad6", "primary-fixed-dim": "#c9c6c5", "inverse-primary": "#c9c6c5", "secondary-container": "#dc3135", "surface-variant": "#e3e2e0", "tertiary-container": "#1d1b1a", "surface": "#faf9f6", "surface-dim": "#dbdad7", "on-primary": "#ffffff", "surface-container": "#efeeeb", "surface-container-lowest": "#ffffff", "on-secondary-container": "#fffbff", "secondary-fixed": "#ffdad7", "on-surface": "#1a1c1a", "surface-container-high": "#e9e8e5", "on-primary-container": "#858383", "on-error": "#ffffff", "tertiary-fixed": "#e6e1df", "on-error-container": "#93000a", "error": "#ba1a1a", "tertiary-fixed-dim": "#cac6c3", "secondary-fixed-dim": "#ffb3ae", "on-primary-fixed": "#1c1b1b", "on-tertiary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "1rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "gutter": "1rem", "space-2xl": "4rem", "space-sm": "0.5rem", "margin": "1.25rem", "margin-mobile": "1rem", "gutter-sm": "0.75rem" }, "fontFamily": { "label-mono-sm": ["JetBrains Mono"], "body-sm": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "label-mono-badge": ["JetBrains Mono"], "label-mono-lg": ["JetBrains Mono"], "headline-lg-mobile": ["Space Grotesk"], "headline-lg": ["Space Grotesk"], "body-lg": ["Space Grotesk"] }, "fontSize": { "label-mono-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "500" }], "body-sm": ["14px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }], "display-hero": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.05em", "fontWeight": "700" }], "display-hero-mobile": ["48px", { "lineHeight": "46px", "letterSpacing": "-0.04em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-mono-badge": ["9px", { "lineHeight": "11px", "letterSpacing": "0.1em", "fontWeight": "700" }], "label-mono-lg": ["13px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "headline-lg-mobile": ["28px", { "lineHeight": "30px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "headline-lg": ["36px", { "lineHeight": "38px", "letterSpacing": "-0.04em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Retour" class="w-11 h-11 -ml-2 flex items-center justify-center text-primary focus:outline-none" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><img alt="Hear Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrCy2201VLKcqcbutCKW1rmHv7maIvDVY-oDnCPiKbbL9HTqU_lLYRSNiuvka-HDdHmASZYLVEwDZ9zV9U_VmijWdllyl7QN4v9aNPCeMlrtgC14VUJmguoGtbS2bm56kw0tTghKvURpWHaJTvH57SuqeoR42z5qtICAYWSo-PdRdVnEnyD48p0xuvn7ac6BeKE_25z_Hi32nuH843N4rd0jbdzUxhNBttScpWIJVqtu"/><span class="font-label-mono-badge text-label-mono-badge uppercase text-on-surface-variant">Lecture En Cours</span></div><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button aria-label="Options" class="w-11 h-11 flex flex-col items-center justify-center gap-1.5 focus:outline-none"><span class="w-5 h-[1.5px] bg-primary block"></span><span class="w-5 h-[1.5px] bg-primary block"></span></button></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-surface"><div class="flex flex-col w-full relative select-none">
+<!-- Minimalist Header & Track Metadata -->
+<section class="w-full px-margin pt-2 pb-4 bg-surface flex flex-col gap-3">
+<!-- Pull Down Bar -->
+<div class="w-full flex items-center justify-center pt-1 pb-2">
+<div class="w-8 h-[2px] bg-outline-variant/60"></div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-11 h-11 shrink-0 bg-primary-container relative overflow-hidden">
+<img class="w-full h-full object-cover grayscale contrast-125" data-alt="Monochrome minimalist vinyl record album art high contrast Swiss graphic typography geometric black and white square sleeve" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu5nvPuyHc6VAhklTtjBCGwiPC78CU9gTv1Ka_5FjuaSfRXNrTVrxZRMoT53E5DEQQ7_y3YU0XSdvsAnu_cKlRxB53rKk_09VEr3cKRnZTNntPHJdcbOr68NapVTCey5rlEloWuK2PvSQ_7YSxpYrIv_C8POsNR7gGTub-4mKA5tnm-7QOsx4bhBcKdSssWRfR9fd5I6nicxWvz_p8pX2w8bvvtYN-dvadyvo6LZQ"/>
+<div class="absolute inset-0 bg-primary/10"></div>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-md text-headline-md text-primary uppercase truncate tracking-tight">Collégium</span>
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase truncate tracking-wider">Thom Yorke &amp; Mark Pritchard</span>
+</div>
+</div>
+<div class="shrink-0 flex flex-col items-end gap-1">
+<span class="font-label-mono-badge text-label-mono-badge uppercase px-1.5 py-0.5 bg-surface-container text-primary font-bold">FLAC 24-BIT / SYNC</span>
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-secondary-container inline-block"></span>
+<span class="font-label-mono-badge text-label-mono-badge text-secondary uppercase">Flux Direct</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Hairline divider via tone shift -->
+<div class="w-full h-[1px] bg-surface-container-highest"></div>
+<!-- Synchronized Lyrics Body -->
+<section class="flex-1 w-full px-margin py-8 flex flex-col gap-7 overflow-y-auto" id="lyrics-viewport">
+<!-- Past Lyric 01 -->
+<div class="transition-opacity duration-300 opacity-30 flex flex-col gap-1 cursor-pointer">
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant">01:32</span>
+<p class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-surface-variant tracking-tighter leading-none">
+        L'écho résonne entre les murs de béton
+      </p>
+</div>
+<!-- Past Lyric 02 -->
+<div class="transition-opacity duration-300 opacity-40 flex flex-col gap-1 cursor-pointer">
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant">01:50</span>
+<p class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-surface-variant tracking-tighter leading-none">
+        Fréquences brutes sans compression
+      </p>
+</div>
+<!-- Current Active Lyric -->
+<div class="flex flex-col gap-2.5 pt-2 pb-3 cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary inline-block"></span>
+<span class="font-label-mono-badge text-label-mono-badge text-secondary font-bold tracking-widest uppercase">02:14 · LECTURE SYNCHRONISÉE</span>
+</div>
+<p class="font-display-hero-mobile text-display-hero-mobile uppercase text-primary tracking-tight font-extrabold leading-[0.92]">
+        DANS LE SILENCE DE LA MATRICE ÉLECTRIQUE
+      </p>
+<div class="flex items-center gap-3 pt-1">
+<span class="font-label-mono-sm text-label-mono-sm text-secondary uppercase font-bold tracking-wider">● Signal Calibré</span>
+<div class="h-2 w-12 flex items-end gap-0.5">
+<span class="w-1 bg-secondary h-full"></span>
+<span class="w-1 bg-secondary h-3/4"></span>
+<span class="w-1 bg-secondary h-1/2"></span>
+<span class="w-1 bg-secondary h-full"></span>
+</div>
+</div>
+</div>
+<!-- Future Lyric 01 -->
+<div class="transition-opacity duration-300 opacity-35 flex flex-col gap-1 cursor-pointer">
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant">02:41</span>
+<p class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-surface-variant tracking-tighter leading-none">
+        Une onde pure traverse le vinyle
+      </p>
+</div>
+<!-- Future Lyric 02 -->
+<div class="transition-opacity duration-300 opacity-25 flex flex-col gap-1 cursor-pointer">
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant">03:08</span>
+<p class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-surface-variant tracking-tighter leading-none">
+        L'aiguille glisse sur le sillon noir
+      </p>
+</div>
+<!-- Future Lyric 03 -->
+<div class="transition-opacity duration-300 opacity-15 flex flex-col gap-1 cursor-pointer">
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant">03:34</span>
+<p class="font-headline-lg-mobile text-headline-lg-mobile uppercase text-on-surface-variant tracking-tighter leading-none">
+        Rémanence des spectres analogiques
+      </p>
+</div>
+<!-- System Alternative State Banner -->
+<div class="mt-6 mb-2 p-3 bg-surface-container flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-label-mono-badge text-label-mono-badge text-secondary font-bold uppercase tracking-widest">[ APERÇU HORS LIGNE ]</span>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant">00:00</span>
+</div>
+<p class="font-label-mono-sm text-label-mono-sm text-primary uppercase leading-snug">
+        [ ÉTAT SYSTÈME : PAROLES NON DISPONIBLES — SOURCE ANALOGIQUE NON INDEXÉE ]
+      </p>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase">Indexation manuelle requise</span>
+<button class="font-label-mono-badge text-label-mono-badge uppercase bg-primary text-on-primary px-2 py-1">Éditer</button>
+</div>
+</div>
+</section>
+<!-- Bottom Transport Bar -->
+<footer class="w-full bg-surface-container-low flex flex-col">
+<!-- Progress Timeline Bar -->
+<div class="w-full relative h-[3px] bg-surface-container-highest cursor-pointer">
+<div class="h-full bg-secondary w-[52%] relative">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-secondary"></div>
+</div>
+</div>
+<!-- Timeline Metrics -->
+<div class="w-full px-margin pt-2.5 pb-1 flex items-center justify-between font-label-mono-sm text-label-mono-sm">
+<span class="text-primary font-bold">02:14</span>
+<span class="text-secondary font-bold uppercase tracking-wider">SYNC AUTO · DÉFILEMENT ACTIF</span>
+<span class="text-on-surface-variant">-02:04</span>
+</div>
+<!-- Transport Controls & State -->
+<div class="w-full px-margin pb-5 pt-2 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button aria-label="Mode répétition" class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">repeat</span>
+</button>
+<button aria-label="Partager les paroles" class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+</button>
+</div>
+<!-- Center Audio Controls -->
+<div class="flex items-center gap-3">
+<button aria-label="Piste précédente" class="w-10 h-10 flex items-center justify-center text-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[24px]">skip_previous</span>
+</button>
+<!-- Red Solid Play/Pause Block -->
+<button aria-label="Mettre en pause" class="w-12 h-12 bg-secondary text-on-secondary flex items-center justify-center active:scale-95 transition-transform shadow-sm" id="playback-toggle">
+<span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<button aria-label="Piste suivante" class="w-10 h-10 flex items-center justify-center text-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[24px]">skip_next</span>
+</button>
+</div>
+<div class="flex items-center gap-2">
+<button aria-label="Taille typographique" class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="font-label-mono-badge text-label-mono-badge uppercase font-bold">TXT+</span>
+</button>
+<button aria-label="Plein écran" class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">fullscreen</span>
+</button>
+</div>
+</div>
+</footer>
+</div>
+<script>
+  (function () {
+    const playBtn = document.getElementById('playback-toggle');
+    let isPlaying = true;
+
+    if (playBtn) {
+      playBtn.addEventListener('click', function () {
+        isPlaying = !isPlaying;
+        const icon = playBtn.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.textContent = isPlaying ? 'pause' : 'play_arrow';
+        }
+      });
+    }
+
+    const lines = document.querySelectorAll('#lyrics-viewport > div');
+    lines.forEach(function (line) {
+      line.addEventListener('click', function () {
+        lines.forEach(function (l) {
+          if (!l.classList.contains('bg-surface-container')) {
+            l.classList.add('opacity-35');
+            l.classList.remove('opacity-100');
+          }
+        });
+        line.classList.remove('opacity-35');
+        line.classList.add('opacity-100');
+      });
+    });
+  })();
+</script></main></body></html>

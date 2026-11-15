@@ -1,0 +1,227 @@
+{
+  "request": "https://lrclib.net/api/search?q=John%20Cage",
+  "httpStatus": 200,
+  "resultCount": 20,
+  "results": [
+    {
+      "id": 12139891,
+      "trackName": "John Cage (Edit)",
+      "artistName": "Ross From Friends",
+      "albumName": "John Cage",
+      "duration": 257.0,
+      "instrumental": false,
+      "hasWordSync": false,
+      "plainLyricsPresent": true,
+      "syncedLyricsPresent": true
+    },
+    {
+      "id": 10998070,
+      "trackName": "Music for Marcel Duchamp",
+      "artistName": "Cage, John",
+      "albumName": "John Cage",
+      "duration": 394.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 10998069,
+      "trackName": "Music for Marcel Duchamp",
+      "artistName": "John Cage",
+      "albumName": "John Cage",
+      "duration": 394.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 28564139,
+      "trackName": "4'33\"",
+      "artistName": "John Cage",
+      "albumName": "John Cage",
+      "duration": 273.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 33823214,
+      "trackName": "John Cage Bubblegum",
+      "artistName": "Stereolab",
+      "albumName": "John Cage Bubblegum",
+      "duration": 198.0,
+      "instrumental": false,
+      "hasWordSync": false,
+      "plainLyricsPresent": true,
+      "syncedLyricsPresent": true
+    },
+    {
+      "id": 34386369,
+      "trackName": "Child of Tree",
+      "artistName": "John Cage",
+      "albumName": "Cage: Cage After Cage",
+      "duration": 488.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 36869960,
+      "trackName": "In a Landscape",
+      "artistName": "John Cage",
+      "albumName": "John Cage: Early Piano Music",
+      "duration": 768.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 34487131,
+      "trackName": "Music for Marcel Duchamp",
+      "artistName": "John Cage",
+      "albumName": "John Cage in Norway (Live)",
+      "duration": 403.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 34427119,
+      "trackName": "Fourth Interlude",
+      "artistName": "John Cage",
+      "albumName": "John Cage: Sonatas and Interludes",
+      "duration": 160.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 34454466,
+      "trackName": "In a Landscape",
+      "artistName": "John Cage",
+      "albumName": "One - John Cage Piano Music",
+      "duration": 543.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 34527304,
+      "trackName": "Second Construction",
+      "artistName": "John Cage",
+      "albumName": "John Cage in Norway (Live)",
+      "duration": 506.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 34506763,
+      "trackName": "Prelude for Meditation (1944)",
+      "artistName": "John Cage",
+      "albumName": "John Cage: Prelude For Meditation",
+      "duration": 78.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 34438325,
+      "trackName": "4'33 - Adam F`S Club Mix - Cage Against the Machine Version",
+      "artistName": "John Cage",
+      "albumName": "Cage Against the Machine",
+      "duration": 281.0,
+      "instrumental": false,
+      "hasWordSync": false,
+      "plainLyricsPresent": true,
+      "syncedLyricsPresent": true
+    },
+    {
+      "id": 38572364,
+      "trackName": "John Cage - Radio Music (Part B)",
+      "artistName": "Faust",
+      "albumName": "John Cage - Radio Music",
+      "duration": 360.0,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 13340028,
+      "trackName": "Quartet - Moderate",
+      "artistName": "John Cage",
+      "albumName": "John Cage - Music For Percussion Quartet",
+      "duration": 271.882449,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 13327843,
+      "trackName": "Second Construction",
+      "artistName": "John Cage",
+      "albumName": "John Cage - Music For Percussion Quartet",
+      "duration": 450.063673,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 11430855,
+      "trackName": "The Cage",
+      "artistName": "Elton John",
+      "albumName": "The Cage",
+      "duration": 207.0,
+      "instrumental": false,
+      "hasWordSync": false,
+      "plainLyricsPresent": true,
+      "syncedLyricsPresent": true
+    },
+    {
+      "id": 19345493,
+      "trackName": "4'33\"",
+      "artistName": "John Cage",
+      "albumName": "A Chance Operation - The John Cage Tribute",
+      "duration": 142.36,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 19628892,
+      "trackName": "4'33\"",
+      "artistName": "John Cage",
+      "albumName": "A Chance Operation - The John Cage Tribute",
+      "duration": 63.133333,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    },
+    {
+      "id": 19496236,
+      "trackName": "4'33\"",
+      "artistName": "John Cage",
+      "albumName": "A Chance Operation - The John Cage Tribute",
+      "duration": 66.173333,
+      "instrumental": true,
+      "hasWordSync": false,
+      "plainLyricsPresent": false,
+      "syncedLyricsPresent": false
+    }
+  ]
+}

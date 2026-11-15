@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#faf9f6;}body{overscroll-behavior:none;-webkit-font-smoothing:antialiased;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-secondary": "#ffffff", "inverse-on-surface": "#f2f1ee", "on-background": "#1a1c1a", "surface-tint": "#5f5e5e", "primary-fixed": "#e5e2e1", "on-secondary-fixed-variant": "#930014", "on-secondary-fixed": "#410004", "on-tertiary-fixed-variant": "#484645", "primary-container": "#1c1b1b", "secondary": "#b81120", "on-surface-variant": "#444748", "inverse-surface": "#2f312f", "tertiary": "#000000", "primary": "#000000", "background": "#faf9f6", "surface-bright": "#faf9f6", "outline-variant": "#c4c7c7", "on-tertiary-fixed": "#1d1b1a", "surface-container-highest": "#e3e2e0", "surface-container-low": "#f4f3f1", "on-primary-fixed-variant": "#474646", "outline": "#747878", "on-tertiary-container": "#868381", "error-container": "#ffdad6", "primary-fixed-dim": "#c9c6c5", "inverse-primary": "#c9c6c5", "secondary-container": "#dc3135", "surface-variant": "#e3e2e0", "tertiary-container": "#1d1b1a", "surface": "#faf9f6", "surface-dim": "#dbdad7", "on-primary": "#ffffff", "surface-container": "#efeeeb", "surface-container-lowest": "#ffffff", "on-secondary-container": "#fffbff", "secondary-fixed": "#ffdad7", "on-surface": "#1a1c1a", "surface-container-high": "#e9e8e5", "on-primary-container": "#858383", "on-error": "#ffffff", "tertiary-fixed": "#e6e1df", "on-error-container": "#93000a", "error": "#ba1a1a", "tertiary-fixed-dim": "#cac6c3", "secondary-fixed-dim": "#ffb3ae", "on-primary-fixed": "#1c1b1b", "on-tertiary": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "1rem", "space-xs": "0.25rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "gutter": "1rem", "space-2xl": "4rem", "space-sm": "0.5rem", "margin": "1.25rem", "margin-mobile": "1rem", "gutter-sm": "0.75rem" }, "fontFamily": { "label-mono-sm": ["JetBrains Mono"], "body-sm": ["Space Grotesk"], "display-hero": ["Space Grotesk"], "display-hero-mobile": ["Space Grotesk"], "headline-md": ["Space Grotesk"], "label-mono-badge": ["JetBrains Mono"], "label-mono-lg": ["JetBrains Mono"], "headline-lg-mobile": ["Space Grotesk"], "headline-lg": ["Space Grotesk"], "body-lg": ["Space Grotesk"] }, "fontSize": { "label-mono-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "500" }], "body-sm": ["14px", { "lineHeight": "18px", "letterSpacing": "0em", "fontWeight": "400" }], "display-hero": ["64px", { "lineHeight": "60px", "letterSpacing": "-0.05em", "fontWeight": "700" }], "display-hero-mobile": ["48px", { "lineHeight": "46px", "letterSpacing": "-0.04em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-mono-badge": ["9px", { "lineHeight": "11px", "letterSpacing": "0.1em", "fontWeight": "700" }], "label-mono-lg": ["13px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }], "headline-lg-mobile": ["28px", { "lineHeight": "30px", "letterSpacing": "-0.03em", "fontWeight": "700" }], "headline-lg": ["36px", { "lineHeight": "38px", "letterSpacing": "-0.04em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.01em", "fontWeight": "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Hear Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrCy2201VLKcqcbutCKW1rmHv7maIvDVY-oDnCPiKbbL9HTqU_lLYRSNiuvka-HDdHmASZYLVEwDZ9zV9U_VmijWdllyl7QN4v9aNPCeMlrtgC14VUJmguoGtbS2bm56kw0tTghKvURpWHaJTvH57SuqeoR42z5qtICAYWSo-PdRdVnEnyD48p0xuvn7ac6BeKE_25z_Hi32nuH843N4rd0jbdzUxhNBttScpWIJVqtu"/><span class="font-label-mono-lg text-label-mono-lg uppercase text-primary tracking-widest">HEAR</span></div><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button aria-label="Menu Principal" class="w-11 h-11 flex flex-col items-center justify-center gap-1.5 focus:outline-none"><span class="w-5 h-[1.5px] bg-primary block"></span><span class="w-5 h-[1.5px] bg-primary block"></span></button></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-28 bg-surface"><div class="flex flex-col w-full">
+<!-- ARCHIVE INDEX TAG -->
+<div class="px-margin pt-4 pb-2 flex items-center justify-between text-on-surface-variant">
+<span class="font-label-mono-badge text-label-mono-badge tracking-widest uppercase text-on-surface-variant">[ ARCHIVE MATRICIELLE / COLLECTION PERSO ]</span>
+<span class="font-label-mono-badge text-label-mono-badge uppercase px-1.5 py-0.5 bg-surface-container-highest text-primary">RAYON N° 02-B</span>
+</div>
+<!-- EDITORIAL SWISS HERO HEADER -->
+<div class="px-margin pt-1 pb-4 overflow-hidden">
+<h1 class="font-display-hero-mobile text-display-hero-mobile uppercase text-primary tracking-tighter leading-none -ml-0.5">
+      BIBLIOTHÈQUE
+    </h1>
+<div class="flex items-center gap-2 mt-2">
+<span class="w-1.5 h-1.5 bg-secondary inline-block"></span>
+<p class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-wider">
+        DISCOTHÈQUE LOCALE &amp; SÉLECTIONS HAUTE-FIDÉLITÉ
+      </p>
+</div>
+</div>
+<!-- SEGMENTED TABS (SWISS ARCHITECTURAL MONO) -->
+<div class="px-margin pt-2 pb-3">
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 bg-transparent text-on-surface-variant font-label-mono-sm text-label-mono-sm uppercase tracking-wider hover:text-primary transition-colors">
+        FAVORIS
+      </button>
+<button class="px-3 py-1.5 bg-primary text-on-primary font-label-mono-sm text-label-mono-sm uppercase tracking-wider flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 bg-secondary inline-block"></span>
+        PLAYLISTS
+      </button>
+<button class="px-3 py-1.5 bg-transparent text-on-surface-variant font-label-mono-sm text-label-mono-sm uppercase tracking-wider hover:text-primary transition-colors">
+        HISTORIQUE
+      </button>
+</div>
+</div>
+<!-- ACTION TRIGGER: NEW PLAYLIST -->
+<div class="px-margin py-2">
+<button class="w-full h-11 bg-surface-container-high hover:bg-surface-container-highest transition-colors flex items-center justify-between px-4 group">
+<span class="font-label-mono-sm text-label-mono-sm uppercase text-primary tracking-widest flex items-center gap-2">
+<span class="text-secondary text-[16px] font-bold">+</span>
+        NOUVELLE PLAYLIST
+      </span>
+<span class="font-label-mono-badge text-label-mono-badge uppercase text-on-surface-variant bg-surface px-2 py-0.5">
+        SYS.CURATÉ
+      </span>
+</button>
+</div>
+<!-- META BAR (CATALOG SPECS) -->
+<div class="px-margin pt-4 pb-2 flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-1 h-1 bg-secondary inline-block"></span>
+<span class="font-label-mono-sm text-label-mono-sm uppercase text-primary font-semibold tracking-wider">
+        SÉLECTIONS COMPILÉES (05)
+      </span>
+</div>
+<span class="font-label-mono-badge text-label-mono-badge uppercase text-on-surface-variant tracking-widest">
+      TRI CHRONO [AUTO]
+    </span>
+</div>
+<!-- NUMBERED LIST ROWS -->
+<div class="flex flex-col w-full px-margin space-y-1">
+<!-- ROW 01 (ACTIVE / LECTURE EN COURS) -->
+<div class="w-full bg-surface-container-lowest p-3 flex items-center justify-between group cursor-pointer transition-colors relative">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<div class="flex items-center gap-3 min-w-0 pr-2">
+<span class="font-label-mono-sm text-label-mono-sm text-secondary font-bold w-5 shrink-0 pl-1">01</span>
+<div class="w-12 h-12 shrink-0 bg-surface-container-highest overflow-hidden relative">
+<img class="w-full h-full object-cover grayscale contrast-125" data-alt="Minimalist stark black and white architectural photography album cover, brutalist concrete structure with deep shadows and clean grid lines, modern avant-garde record art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsSqzqeVdxbcJISTrLJTDmX2YRVoFInlII7vP_IV5gLXl0x2XjEvGUG1cnjiUgMPRnGf8m7NkcjJHzG5h6d3UqaLg7JciTEFd83BgGphHSCDs4rC-75uWv6lSQboJfCsOTt4V3z-RHJd8n2cWf__6dlt-UrJDV3dNDVj63SBQOcP6BGoiwTyvlSS3MHbMYY2hEezKbUiEBqLp23DEepc7bdtUvTswf8VfaMOlIda8"/>
+<div class="absolute inset-0 bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">equalizer</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h2 class="font-headline-md text-headline-md text-primary truncate leading-tight">
+              NOIR ÉLECTRIQUE
+            </h2>
+<span class="font-label-mono-badge text-label-mono-badge uppercase bg-secondary text-on-secondary px-1 py-0.2 shrink-0">DIRECT</span>
+</div>
+<p class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-tight truncate mt-0.5">
+            THOM YORKE, MARK PRITCHARD · 12 PISTES
+          </p>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-mono-sm text-label-mono-sm text-secondary font-medium tracking-tight">48:16</span>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase mt-1">33⅓ RPM</span>
+</div>
+</div>
+<!-- ROW 02 -->
+<div class="w-full bg-surface-container p-3 flex items-center justify-between group hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3 min-w-0 pr-2">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant w-5 shrink-0 pl-1">02</span>
+<div class="w-12 h-12 shrink-0 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Monochrome Swiss style minimalist typography layout poster cover with stark dark circles and concentric wave lines on cream matte background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw6zMg0gukl7-MJyN8EXJIHFRxSPsPW2Y-vZltF4cNhQo3rCa-ZmwNsYEo0hJ-g40wpDvBdgixNNoUSI6EMgUmYf4E_IBMNcByFzKcnca6g51aio3IPvGAygO6p6O0rEpffk66VWlV1TqsiqLR98I3OHqkpqxHJksiMB3DN3q-HhtynIbPa21UoRNmX7U1JEaNhMX3HashGRHCBsUL6IHFntuX9PxOPkKXAixqk0A"/>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-md text-headline-md text-primary truncate leading-tight group-hover:text-secondary transition-colors">
+            ÉLECTRONIQUE MINIMALE
+          </h2>
+<p class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-tight truncate mt-0.5">
+            BONOBO, JON HOPKINS · 24 PISTES
+          </p>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-mono-sm text-label-mono-sm text-primary font-medium tracking-tight">01:42:10</span>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase mt-1">FLAC 24B</span>
+</div>
+</div>
+<!-- ROW 03 -->
+<div class="w-full bg-surface-container p-3 flex items-center justify-between group hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3 min-w-0 pr-2">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant w-5 shrink-0 pl-1">03</span>
+<div class="w-12 h-12 shrink-0 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover grayscale" data-alt="Vintage archival analog reel-to-reel magnetic tape spool macro shot, warm high-grain black and cream aesthetic, retro audio tape equipment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCj8_9eTE42a4pR0cFg3Of2R1lZntolOn4K3_H9PGE-JmJLyLVRIynvfHZ0fSQTVJpXZeb5TMpLq1VZWaat5GglxAavKQU1t-FPNIIgmhbKuFbSdHoIDhskRFLZ0ZBxq7croRrj8azugT9KL6BeBq2kEpJug-xmM9PapAhQatncEwLUPXfB600P-_5ACF9EgZjUIfNXbqRcmBWmxWDPWIdhgijOx4FpmUwOtCVNG4Y"/>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-md text-headline-md text-primary truncate leading-tight group-hover:text-secondary transition-colors">
+            ANALOG MASTERS 1978-1994
+          </h2>
+<p class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-tight truncate mt-0.5">
+            ARCHIVES D'ÉTAT · 08 PISTES
+          </p>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-mono-sm text-label-mono-sm text-primary font-medium tracking-tight">36:04</span>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase mt-1">MASTER B</span>
+</div>
+</div>
+<!-- ROW 04 -->
+<div class="w-full bg-surface-container p-3 flex items-center justify-between group hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3 min-w-0 pr-2">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant w-5 shrink-0 pl-1">04</span>
+<div class="w-12 h-12 shrink-0 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Modular synthesizer patch cables close-up in high contrast black, ivory and graphite tones, precise audio patch jacks and geometric layout" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4RmF2cCmg-I4PrOvxmz51Bf_9nmh9zjyY6UBDEJdr_aeVhY0wzCNbzTI11l1iled2-3zpxNpLP6C2mBno1k4NJl2fkRja0mRLWxRlcMK0qKWqGn2WdybKVov8Vf350SBPt3EYx5tlhlng4OMJ1WvBFaQh7YzQK_slX5N-tRgpzrllFn0VN8qtslzO8uG-JlAaU-ZqR5TosazJ_KXpaapaiGpgXI6PDze1SCgay_U"/>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-md text-headline-md text-primary truncate leading-tight group-hover:text-secondary transition-colors">
+            FRÉQUENCES MODULAIRES
+          </h2>
+<p class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-tight truncate mt-0.5">
+            ARTISTES VARIÉS · 16 PISTES
+          </p>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-mono-sm text-label-mono-sm text-primary font-medium tracking-tight">54:20</span>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase mt-1">MOD-EUR</span>
+</div>
+</div>
+<!-- ROW 05 -->
+<div class="w-full bg-surface-container p-3 flex items-center justify-between group hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-3 min-w-0 pr-2">
+<span class="font-label-mono-sm text-label-mono-sm text-on-surface-variant w-5 shrink-0 pl-1">05</span>
+<div class="w-12 h-12 shrink-0 bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover contrast-125" data-alt="Atmospheric dark cinematic night street with intense fog and brutalist monolithic street lamp reflection, muted tones, deep noir grain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBbtUaxViMr4E_VkNHQIRdNLWpe6EEaAamv2h-VgsfndQ0ZHGsW8401noV3jZxfENHelYQNtrpJH9-sCNTSe9X3Wjdr96tYwVcNvE5Mns8JiMEgBs-9I7gnYQTc_SqQvASzPz2Md9Za5LSvUyrnKZF_EKxZmS6u6moxcSJC5iFpPXJJNCx5NGBUhfy7h5DWQ3A-CjTr8_dXxpJ8Iz-8xULpKPK_6yAtz6TPfqvvSc"/>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-md text-headline-md text-primary truncate leading-tight group-hover:text-secondary transition-colors">
+            NUITS BRUTES
+          </h2>
+<p class="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-tight truncate mt-0.5">
+            SÉLECTION PERSONNELLE · 19 PISTES
+          </p>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-mono-sm text-label-mono-sm text-primary font-medium tracking-tight">01:15:40</span>
+<span class="font-label-mono-badge text-label-mono-badge text-on-surface-variant uppercase mt-1">WAV-96K</span>
+</div>
+</div>
+</div>
+<!-- TACTILE VINYL CATHEDRAL SCRUB INDICATOR / STATS TILE -->
+<div class="px-margin pt-6 pb-2">
+<div class="bg-surface-container-low p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+<div class="w-2.5 h-2.5 rounded-full bg-surface"></div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono-badge text-label-mono-badge uppercase text-secondary font-bold">FLUX LINÉAIRE CONTINU</span>
+<span class="font-body-sm text-body-sm text-primary font-medium">Capacité archivée: 4.8 GB</span>
+</div>
+</div>
+<span class="font-label-mono-sm text-label-mono-sm uppercase text-on-surface-variant">5/12 SLOTS</span>
+</div>
+</div>
+<!-- PERSISTENT MINI-PLAYER (SWISS HI-FI DOCK) -->
+<div class="px-margin pt-4 pb-2">
+<div class="w-full bg-primary text-on-primary p-3.5 flex flex-col relative shadow-[0_4px_24px_rgba(0,0,0,0.15)]">
+<!-- Hairline Scrub Bar -->
+<div class="absolute top-0 left-0 right-0 h-1 bg-surface-container-highest overflow-hidden cursor-pointer">
+<div class="h-full bg-secondary w-[42%] relative">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-secondary"></div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-1">
+<!-- Track & Artist Info -->
+<div class="flex items-center gap-3 min-w-0 pr-3">
+<div class="w-9 h-9 bg-tertiary-container shrink-0 flex items-center justify-center relative overflow-hidden">
+<div class="w-6 h-6 rounded-full border border-surface-container-highest flex items-center justify-center animate-spin" style="animation-duration: 4s;">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-body-sm text-body-sm font-semibold truncate text-on-primary">
+                COLLÉGIUM [33T]
+              </span>
+<span class="font-label-mono-badge text-label-mono-badge uppercase text-secondary">A·01</span>
+</div>
+<p class="font-label-mono-sm text-label-mono-sm text-surface-dim uppercase truncate tracking-tight">
+              THOM YORKE · ANALOG MIX
+            </p>
+</div>
+</div>
+<!-- Controls Dock -->
+<div class="flex items-center gap-2 shrink-0">
+<button aria-label="Piste précédente" class="w-8 h-8 flex items-center justify-center text-surface-dim hover:text-on-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[18px]">skip_previous</span>
+</button>
+<button aria-label="Lecture ou Pause" class="w-9 h-9 rounded-full bg-secondary text-on-secondary flex items-center justify-center transition-transform active:scale-90" id="hearPlayBtn">
+<span class="material-symbols-outlined text-[20px]" id="hearPlayIcon" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<button aria-label="Piste suivante" class="w-8 h-8 flex items-center justify-center text-surface-dim hover:text-on-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[18px]">skip_next</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+    (function() {
+      const playBtn = document.getElementById('hearPlayBtn');
+      const playIcon = document.getElementById('hearPlayIcon');
+      let isPlaying = true;
+
+      if (playBtn && playIcon) {
+        playBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          isPlaying = !isPlaying;
+          if (isPlaying) {
+            playIcon.textContent = 'pause';
+            playBtn.classList.remove('bg-surface', 'text-primary');
+            playBtn.classList.add('bg-secondary', 'text-on-secondary');
+          } else {
+            playIcon.textContent = 'play_arrow';
+            playBtn.classList.remove('bg-secondary', 'text-on-secondary');
+            playBtn.classList.add('bg-surface', 'text-primary');
+          }
+        });
+      }
+    })();
+  </script>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_12px_rgba(0,0,0,0.03)]" data-active-classes="text-secondary font-semibold"><div class="h-16 px-margin flex items-center justify-around"><a class="flex flex-col items-center justify-center gap-1 h-11 px-3 text-on-surface-variant hover:text-secondary transition-colors" data-path="accueil" href="#"><span class="material-symbols-outlined text-[22px]">album</span><span class="font-label-mono-badge text-label-mono-badge uppercase">ACCUEIL</span></a><a class="flex flex-col items-center justify-center gap-1 h-11 px-3 text-on-surface-variant hover:text-secondary transition-colors" data-path="artiste" href="#"><span class="material-symbols-outlined text-[22px]">graphic_eq</span><span class="font-label-mono-badge text-label-mono-badge uppercase">ARTISTE</span></a><a class="flex flex-col items-center justify-center gap-1 h-11 px-3 text-on-surface-variant hover:text-secondary transition-colors" data-path="bibliotheque" href="#"><span class="material-symbols-outlined text-[22px]">library_music</span><span class="font-label-mono-badge text-label-mono-badge uppercase">COLLECTION</span></a></div></nav></body></html>

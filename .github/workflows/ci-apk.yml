@@ -1,0 +1,159 @@
+name: Hear CI and Android APK
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - main
+      - 'sprint/**'
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hear-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  quality:
+    name: Web quality gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: true
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Match the repository npm version
+        run: npm install --global npm@12.0.2
+
+      - name: Install locked dependencies
+        run: npm ci --prefer-offline
+
+      - name: Lint and format
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Reject fake content and external assets
+        run: npm run verify
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npm run e2e
+
+  android-apk:
+    name: Build installable Android debug APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Match the repository npm version
+        run: npm install --global npm@12.0.2
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Install the Android API used by the app
+        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Cache Gradle distributions and dependencies
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Install locked dependencies
+        run: npm ci --prefer-offline
+
+      - name: Build, sync, and package the APK
+        run: npm run apk:debug
+
+      - name: Verify the APK signature
+        shell: bash
+        run: |
+          apk=(release/*.apk)
+          test -f "${apk[0]}"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "${apk[0]}"
+
+      - name: Upload the APK artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: hear-debug-apk-${{ github.sha }}
+          path: release/*.apk
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+  publish-release:
+    name: Attach APK to GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [quality, android-apk]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Download the APK artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: hear-debug-apk-${{ github.sha }}
+          path: release
+
+      - name: Check release tag and APK version
+        id: release-file
+        shell: bash
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          expected_tag="v${version}"
+          if [[ "${GITHUB_REF_NAME}" != "${expected_tag}" ]]; then
+            echo "Le tag ${GITHUB_REF_NAME} ne correspond pas à ${expected_tag}." >&2
+            exit 1
+          fi
+          apk="release/hear-${version}-debug.apk"
+          test -s "${apk}"
+          echo "apk=${apk}" >> "${GITHUB_OUTPUT}"
+
+      - name: Publish the APK as a GitHub Release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" "${{ steps.release-file.outputs.apk }}" --title "Hear ${GITHUB_REF_NAME}" --generate-notes
