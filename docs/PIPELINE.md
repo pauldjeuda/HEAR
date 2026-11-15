@@ -10,6 +10,10 @@ Les jobs `Web quality gates` et `Build installable Android debug APK` partent en
 - Android : JDK 21 et SDK API 36, build web de production, `cap sync android`, `assembleDebug`, empaquetage dans `release/hear-<version>-debug.apk`, puis vérification de signature avec `apksigner`.
 - Le job de publication attend la réussite des deux jobs. Il vérifie que le tag est exactement `v<version package.json>`, puis crée la GitHub Release et y attache l’APK.
 
+## Exécution cloud vérifiée
+
+Le run [#43765584497](https://github.com/pauldjeuda/HEAR/actions/runs/43765584497), commit `adc277b`, a réussi le 15 novembre 2026 : jobs Web et Android verts, signature `apksigner` vérifiée, artefact `hear-debug-apk-adc277b0d2dfabd9e38c9f172e928513467a55ba` généré (14,6 Mo, rétention 30 jours). Aucun tag n’ayant été poussé, l’APK est disponible dans les artefacts Actions et aucune GitHub Release n’a été créée.
+
 Les runners Actions et `gradle/actions/setup-gradle` mettent en cache npm et Gradle. Aucun `client_id` Jamendo ni secret de build n’est requis. Les builds des branches et l’exécution manuelle donnent un artefact Actions conservé 30 jours ; seuls les tags de version créent une GitHub Release.
 
 ## Générer localement

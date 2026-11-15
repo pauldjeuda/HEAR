@@ -6,7 +6,7 @@
 - [x] `npm test` — 2 fichiers, 3 tests réussis ; couverture non configurée.
 - [x] `npm run build -- --configuration production` — OK.
 - [x] `npx cap sync android` — 11 plugins synchronisés.
-- [ ] Assemblage debug Android
+- [x] Assemblage debug Android — GitHub Actions : `assembleDebug` et vérification `apksigner` réussis ; artefact uploadé.
 - [x] `npm run e2e` — 2 tests réussis.
 - [x] `npm run verify` — 27 fichiers examinés.
 
