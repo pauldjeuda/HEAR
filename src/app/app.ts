@@ -320,11 +320,17 @@ export class App implements OnDestroy {
       return;
     }
     try {
-      await this.collectionStore.createPlaylist(name);
+      const playlist = await this.collectionStore.createPlaylist(name);
+      this.playlistLoadVersion++;
+      this.playlists.update((current) =>
+        [...current.filter((item) => item.id !== playlist.id), playlist].sort(
+          (first, second) => second.updatedAt - first.updatedAt,
+        ),
+      );
+      this.collectionStoreReady.set(true);
       this.playlistName.set('');
       this.isCreatingPlaylist.set(false);
       this.playlistMessage.set('Playlist créée sur ce téléphone.');
-      await this.loadPlaylists();
     } catch {
       this.playlistMessage.set('La playlist n’a pas pu être enregistrée.');
     }

@@ -19,7 +19,7 @@ export class LocalCollectionStore {
     return playlists.sort((first, second) => second.updatedAt - first.updatedAt);
   }
 
-  async createPlaylist(name: string): Promise<void> {
+  async createPlaylist(name: string): Promise<HearPlaylist> {
     const normalizedName = name.trim();
     if (!normalizedName || normalizedName.length > 60) {
       throw new Error('Le nom de la playlist doit contenir entre 1 et 60 caractères.');
@@ -33,13 +33,15 @@ export class LocalCollectionStore {
     ) {
       throw new Error('Une playlist porte déjà ce nom.');
     }
-    playlists.push({
+    const playlist: HearPlaylist = {
       id: `playlist-${crypto.randomUUID()}`,
       name: normalizedName,
       trackIds: [],
       updatedAt: Date.now(),
-    });
+    };
+    playlists.push(playlist);
     await this.write(PLAYLISTS_KEY, playlists);
+    return playlist;
   }
 
   async deletePlaylist(id: string): Promise<void> {
