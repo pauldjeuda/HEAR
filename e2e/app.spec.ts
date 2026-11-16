@@ -107,13 +107,13 @@ test('indexes, searches, favorites, plays and keeps local audio in the browser p
   await page.getByRole('button', { name: /NOUVELLE PLAYLIST/ }).click();
   await page.getByLabel('NOM DE LA PLAYLIST').fill('Mes écoutes');
   await page.getByRole('button', { name: 'CRÉER', exact: true }).click();
-  await expect(page.getByRole('button', { name: /Mes écoutes/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Mes écoutes OUVRIR/ })).toBeVisible();
 
   await page.getByRole('tab', { name: 'TITRES' }).click();
   await page.getByRole('button', { name: 'Ajouter Piste locale à une playlist' }).click();
   await page.getByRole('button', { name: 'Mes écoutes', exact: true }).last().click();
   await page.getByRole('tab', { name: 'PLAYLISTS' }).click();
-  await page.getByRole('button', { name: /Mes écoutes OUVRIR/ }).click();
+  await page.getByRole('button', { name: /^Mes écoutes OUVRIR/ }).click();
   await expect(page.getByRole('button', { name: 'Lire Piste locale' })).toBeVisible();
   await page.getByRole('button', { name: 'Lire Piste locale' }).click();
   await expect(page.getByRole('heading', { name: 'Piste locale' })).toBeVisible();
@@ -135,7 +135,8 @@ test('saves real local-library, display and playback settings', async ({ page })
   await page.getByRole('button', { name: /RÉGLAGES/ }).click();
   await expect(page.getByRole('heading', { name: 'RÉGLAGES' })).toBeVisible();
 
-  const autoScan = page.getByRole('checkbox');
+  const indexingSettings = page.getByRole('region', { name: 'INDEXATION AUDIO' });
+  const autoScan = indexingSettings.getByRole('checkbox');
   await expect(autoScan).toBeChecked();
   await autoScan.uncheck();
   await page.getByRole('button', { name: 'SOMBRE (VINYLE)' }).click();
@@ -146,7 +147,9 @@ test('saves real local-library, display and playback settings', async ({ page })
   await page.reload();
   await page.getByRole('button', { name: 'Ouvrir le menu' }).click();
   await page.getByRole('button', { name: /RÉGLAGES/ }).click();
-  await expect(page.getByRole('checkbox')).not.toBeChecked();
+  await expect(
+    page.getByRole('region', { name: 'INDEXATION AUDIO' }).getByRole('checkbox'),
+  ).not.toBeChecked();
   await expect(page.locator('.app-shell')).toHaveAttribute('data-theme', 'vinyl');
   await expect(page.getByRole('button', { name: 'UN TITRE' })).toHaveClass(/is-selected/);
 });
