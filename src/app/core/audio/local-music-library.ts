@@ -21,11 +21,16 @@ const AUDIO_MIME_TYPES: Record<string, string> = {
 
 export interface LocalMusicTrack {
   id: string;
+  uri?: string;
   title: string;
+  artist?: string;
+  album?: string;
+  duration?: number;
   mimeType: string;
   size: number;
   addedAt: number;
-  file: Blob;
+  modifiedAt?: number;
+  file?: Blob;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -75,10 +80,15 @@ export class LocalMusicLibrary {
         : (AUDIO_MIME_TYPES[extension] ?? file.type ?? 'application/octet-stream');
       return {
         id: `local-${crypto.randomUUID()}`,
+        uri: '',
         title: file.name.replace(/\.[^./\\]+$/, '') || file.name,
+        artist: 'Artiste inconnu',
+        album: 'Album inconnu',
+        duration: 0,
         mimeType,
         size: file.size,
         addedAt: now,
+        modifiedAt: file.lastModified,
         file: file.slice(0, file.size, mimeType),
       };
     });

@@ -38,9 +38,6 @@ yarn-error.log
 /playwright-report
 /release/*.apk
 /audit-report.json
-/.env.local
-src/environments/environment.local.ts
-public/assets/sql-wasm.wasm
 /android/.gradle
 /android/local.properties
 /android/captures

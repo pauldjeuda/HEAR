@@ -10,6 +10,11 @@ const forbidden = [
   ['Tailwind CDN', /cdn\.tailwindcss\.com/i],
   ['Google Fonts host', /fonts\.googleapis\.com/i],
   ['Google Fonts asset host', /fonts\.gstatic\.com/i],
+  ['Remote music catalog', /jamendo|lrclib/i],
+  [
+    'Seeded prototype track names',
+    /noir\s+électrique|collégium|fracture\s+analogique|thom\s+yorke|bonobo/i,
+  ],
   ['Google-hosted cover image', /lh3\.googleusercontent\.com/i],
   ['Unsupported lossless claim', /FLAC\s+24/i],
   ['Unsupported mastering claim', /BIT\s*-?\s*PERFECT/i],

@@ -1,30 +1,14 @@
-# Pipeline CI et APK Android
+# Pipeline cloud et APK Android
 
-Le workflow [ci-apk.yml](../.github/workflows/ci-apk.yml) s’exécute sur les pull requests vers `main`, les pushes vers `main` et `sprint/**`, les tags `v*`, et à la demande depuis l’onglet Actions.
+Le workflow [ci-apk.yml](../.github/workflows/ci-apk.yml) s’exécute sur les pull requests vers `main`, les pushes sur `main` et `sprint/**`, les tags `v*`, et à la demande depuis GitHub Actions.
 
 ## Contrôles
 
-Les jobs `Web quality gates` et `Build installable Android debug APK` partent en parallèle.
+- **Web** : installation verrouillée avec `npm ci`, lint et formatage, tests unitaires, vérification anti-contenu fictif, puis Playwright/Chromium. Les parcours vérifient la navigation, le retour, le défilement, l’index local de test dans le navigateur, les favoris, playlists, le lecteur et les réglages.
+- **Android** : JDK 21 et SDK API 36 sur runner Ubuntu, build web, `cap sync android`, build `assembleDebug` et vérification de signature `apksigner`.
+- **Artefact** : `hear-0.2.0-debug.apk`, conservé 30 jours après un build de branche.
+- **Release** : le tag doit correspondre à la version du `package.json` (`v0.2.0`). Le job de publication attend les contrôles Web et Android et attache l’APK à la GitHub Release.
 
-- Web : `npm ci`, lint/formatage, tests unitaires, `npm run verify`, puis e2e Playwright/Chromium sur navigation/retour, roulette, SQLite, playlists et import/lecture/persistance d’un fichier audio.
-- Android : JDK 21 et SDK API 36, génération des icônes Android depuis les sources de marque, build web de production, `cap sync android`, `assembleDebug`, empaquetage dans `release/hear-<version>-debug.apk`, puis vérification de signature avec `apksigner`.
-- Le job de publication attend la réussite des deux jobs. Il vérifie que le tag est exactement `v<version package.json>`, puis crée la GitHub Release et y attache l’APK.
+Toutes les installations de dépendances, les tests et la génération de l’APK s’exécutent dans GitHub Actions. Aucun téléchargement d’APK ou de SDK n’est requis sur le poste de travail.
 
-## Exécution cloud vérifiée
-
-Le run [#43765584497](https://github.com/pauldjeuda/HEAR/actions/runs/43765584497), commit `adc277b`, a réussi le 15 novembre 2026 : jobs Web et Android verts, signature `apksigner` vérifiée, artefact `hear-debug-apk-adc277b0d2dfabd9e38c9f172e928513467a55ba` généré (14,6 Mo, rétention 30 jours). Aucun tag n’ayant été poussé, l’APK est disponible dans les artefacts Actions et aucune GitHub Release n’a été créée.
-
-Le correctif d’application a ensuite passé tous les contrôles dans le run [#43771448620](https://github.com/pauldjeuda/HEAR/actions/runs/43771448620) : lint, tests unitaires, vérification de contenu, quatre tests Playwright (navigation/retour, molette, SQLite, playlists, import/lecture/persistance audio), build Android et signature APK. Le tag [run #43771672223](https://github.com/pauldjeuda/HEAR/actions/runs/43771672223) a publié [Hear v0.1.0](https://github.com/pauldjeuda/HEAR/releases/tag/v0.1.0) avec l’asset `hear-0.1.0-debug.apk` (13,85 Mio).
-
-Les runners Actions et `gradle/actions/setup-gradle` mettent en cache npm et Gradle. Aucun `client_id` Jamendo ni secret de build n’est requis. Les builds des branches et l’exécution manuelle donnent un artefact Actions conservé 30 jours ; seuls les tags de version créent une GitHub Release.
-
-## Générer localement
-
-Avec Node/npm, Java 21 et Android SDK API 36 installés :
-
-```powershell
-npm ci
-npm run apk:debug
-```
-
-La commande copie l’APK debug signé avec la clé de débogage Android dans `release/`. Ce n’est pas un APK signé pour distribution de production ; aucun keystore de production n’est configuré.
+Le build cloud confirme la compilation et la signature. Il ne simule pas les autorisations MediaStore ni une écoute sur appareil physique ; voir [QA_CHECKLIST.md](QA_CHECKLIST.md).

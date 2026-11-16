@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-function makeWaveFile(durationSeconds = 4): Buffer {
+function makeWaveFile(durationSeconds = 8): Buffer {
   const sampleRate = 8000;
   const sampleCount = sampleRate * durationSeconds;
   const dataSize = sampleCount;
@@ -24,7 +24,7 @@ function makeWaveFile(durationSeconds = 4): Buffer {
   return wave;
 }
 
-test('opens the Hear home screen with its logo and usable navigation', async ({ page }) => {
+test('opens with no seeded songs and navigates every local-music screen', async ({ page }) => {
   const consoleErrors: string[] = [];
   const uncaughtErrors: string[] = [];
   page.on('console', (message) => {
@@ -33,61 +33,38 @@ test('opens the Hear home screen with its logo and usable navigation', async ({ 
   page.on('pageerror', (error) => uncaughtErrors.push(error.message));
 
   await page.goto('/');
-
   await expect(page).toHaveTitle('Hear — musique personnelle');
   await expect(page.getByRole('img', { name: 'Hear' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Votre musique, à vous.' })).toBeVisible();
-  const mainNavigation = page.getByRole('navigation', { name: 'Navigation principale' });
-  await expect(mainNavigation).toBeVisible();
-  await mainNavigation.getByRole('button', { name: 'RECHERCHE' }).click();
-  await expect(page.getByRole('heading', { name: 'Recherche' })).toBeVisible();
-  await mainNavigation.getByRole('button', { name: 'COLLECTION' }).click();
-  await expect(page.getByRole('heading', { name: 'Collection', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /destinations secondaires/ }).click();
-  await page.getByRole('button', { name: /Hors ligne/ }).click();
-  await expect(page.getByRole('heading', { name: 'Hors ligne' })).toBeVisible();
-  await page.getByRole('button', { name: /RETOUR/ }).click();
-  await expect(page.getByRole('heading', { name: 'Collection', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /destinations secondaires/ }).click();
+  await expect(page.getByRole('heading', { name: 'HEAR' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Votre collection commence ici.' })).toBeVisible();
+  const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
+  await expect(navigation).toBeVisible();
+
+  await navigation.getByRole('button', { name: 'RECHERCHE' }).click();
+  await expect(page.getByRole('heading', { name: 'RECHERCHE' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Votre index est vide.' })).toBeVisible();
+  await navigation.getByRole('button', { name: 'ARTISTES' }).click();
+  await expect(page.getByRole('heading', { name: 'ARTISTES' })).toBeVisible();
+  await navigation.getByRole('button', { name: 'BIBLIOTHÈQUE' }).click();
+  await expect(page.getByRole('heading', { name: 'BIBLIOTHÈQUE' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Ouvrir le menu' }).click();
+  await expect(page.getByRole('heading', { name: 'Navigation' })).toBeVisible();
+  await page.getByRole('button', { name: /HORS LIGNE/ }).click();
+  await expect(page.getByRole('heading', { name: 'HORS LIGNE' })).toBeVisible();
+  await page.getByRole('button', { name: 'Retour' }).click();
+  await expect(page.getByRole('heading', { name: 'Navigation' })).toBeVisible();
+  await page.getByRole('button', { name: /RÉGLAGES/ }).click();
+  await expect(page.getByRole('heading', { name: 'RÉGLAGES' })).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('navigation', { name: 'Menu' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: 'Collection', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Navigation' })).toBeVisible();
+  await page.getByRole('button', { name: /ACCUEIL/ }).click();
+  await expect(page.getByRole('heading', { name: 'HEAR' })).toBeVisible();
   expect(consoleErrors).toEqual([]);
   expect(uncaughtErrors).toEqual([]);
 });
 
-test('creates a local playlist and verifies SQLite from settings', async ({ page }) => {
-  const consoleErrors: string[] = [];
-  const uncaughtErrors: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'error') consoleErrors.push(message.text());
-  });
-  page.on('pageerror', (error) => uncaughtErrors.push(error.message));
-
-  await page.goto('/');
-  const mainNavigation = page.getByRole('navigation', { name: 'Navigation principale' });
-  await mainNavigation.getByRole('button', { name: 'COLLECTION' }).click();
-  await page.getByRole('button', { name: 'CRÉER UNE PLAYLIST' }).click();
-  await page.getByLabel('NOM DE LA PLAYLIST').fill('Mes écoutes');
-  await page.getByRole('button', { name: 'CRÉER', exact: true }).click();
-  await expect(page.getByText('Mes écoutes', { exact: true })).toBeVisible();
-
-  await page.getByRole('button', { name: /destinations secondaires/ }).click();
-  await page.getByRole('button', { name: /Réglages/ }).click();
-  await page.getByRole('button', { name: /RETOUR/ }).click();
-  await expect(page.getByRole('heading', { name: 'Collection', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /destinations secondaires/ }).click();
-  await page.getByRole('button', { name: /Réglages/ }).click();
-  await page.getByRole('button', { name: 'VÉRIFIER SQLITE' }).click();
-  await expect(page.getByText('PRÊTE', { exact: true })).toBeVisible({ timeout: 20_000 });
-  await expect(
-    page.getByText('Lecture et écriture SQLite vérifiées sur cet appareil.'),
-  ).toBeVisible();
-  expect(consoleErrors).toEqual([]);
-  expect(uncaughtErrors).toEqual([]);
-});
-
-test('scrolls the app content with the mouse wheel on a small viewport', async ({ page }) => {
+test('scrolls the home page with the mouse wheel on a small viewport', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto('/');
 
@@ -104,26 +81,72 @@ test('scrolls the app content with the mouse wheel on a small viewport', async (
   await expect.poll(() => screen.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
 });
 
-test('imports and plays a phone audio file, then keeps it in the local library', async ({
+test('indexes, searches, favorites, plays and keeps local audio in the browser preview', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'IMPORTER MA MUSIQUE' }).click();
+  await page.getByRole('button', { name: 'AJOUTER DES FICHIERS À L’APERÇU' }).click();
   await page.locator('input[type="file"]').setInputFiles({
     name: 'Piste locale.wav',
     mimeType: 'audio/wav',
     buffer: makeWaveFile(),
   });
 
-  const localTrack = page.getByText('Piste locale', { exact: true }).first();
-  await expect(localTrack).toBeVisible();
+  const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
+  await navigation.getByRole('button', { name: 'RECHERCHE' }).click();
+  await page
+    .getByRole('searchbox', { name: 'Rechercher dans la musique locale' })
+    .fill('Piste locale');
+  await expect(page.getByRole('button', { name: 'Lire Piste locale' })).toBeVisible();
+  await page.getByRole('button', { name: 'Ajouter Piste locale aux favoris' }).click();
+
+  await navigation.getByRole('button', { name: 'BIBLIOTHÈQUE' }).click();
+  await page.getByRole('tab', { name: /FAVORIS/ }).click();
+  await expect(page.getByRole('button', { name: 'Lire Piste locale' })).toBeVisible();
+  await page.getByRole('tab', { name: 'PLAYLISTS' }).click();
+  await page.getByRole('button', { name: /NOUVELLE PLAYLIST/ }).click();
+  await page.getByLabel('NOM DE LA PLAYLIST').fill('Mes écoutes');
+  await page.getByRole('button', { name: 'CRÉER', exact: true }).click();
+  await expect(page.getByRole('button', { name: /Mes écoutes/ })).toBeVisible();
+
+  await page.getByRole('tab', { name: 'TITRES' }).click();
+  await page.getByRole('button', { name: 'Ajouter Piste locale à une playlist' }).click();
+  await page.getByRole('button', { name: 'Mes écoutes', exact: true }).last().click();
+  await page.getByRole('tab', { name: 'PLAYLISTS' }).click();
+  await page.getByRole('button', { name: /Mes écoutes OUVRIR/ }).click();
+  await expect(page.getByRole('button', { name: 'Lire Piste locale' })).toBeVisible();
   await page.getByRole('button', { name: 'Lire Piste locale' }).click();
-  await expect(page.getByRole('region', { name: 'Lecteur audio local' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Piste locale' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Mettre en pause la lecture' })).toBeVisible();
 
   await page.reload();
-  const mainNavigation = page.getByRole('navigation', { name: 'Navigation principale' });
-  await mainNavigation.getByRole('button', { name: 'COLLECTION' }).click();
-  await page.getByRole('tab', { name: 'Titres locaux' }).click();
-  await expect(page.getByText('Piste locale', { exact: true })).toBeVisible();
+  await page
+    .getByRole('navigation', { name: 'Navigation principale' })
+    .getByRole('button', { name: 'BIBLIOTHÈQUE' })
+    .click();
+  await expect(page.getByRole('button', { name: 'Lire Piste locale' })).toBeVisible();
+  await page.getByRole('tab', { name: /FAVORIS/ }).click();
+  await expect(page.getByRole('button', { name: 'Lire Piste locale' })).toBeVisible();
+});
+
+test('saves real local-library, display and playback settings', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ouvrir le menu' }).click();
+  await page.getByRole('button', { name: /RÉGLAGES/ }).click();
+  await expect(page.getByRole('heading', { name: 'RÉGLAGES' })).toBeVisible();
+
+  const autoScan = page.getByRole('checkbox');
+  await expect(autoScan).toBeChecked();
+  await autoScan.uncheck();
+  await page.getByRole('button', { name: 'SOMBRE (VINYLE)' }).click();
+  await expect(page.locator('.app-shell')).toHaveAttribute('data-theme', 'vinyl');
+  await page.getByRole('button', { name: 'UN TITRE' }).click();
+  await expect(page.getByRole('button', { name: 'UN TITRE' })).toHaveClass(/is-selected/);
+
+  await page.reload();
+  await page.getByRole('button', { name: 'Ouvrir le menu' }).click();
+  await page.getByRole('button', { name: /RÉGLAGES/ }).click();
+  await expect(page.getByRole('checkbox')).not.toBeChecked();
+  await expect(page.locator('.app-shell')).toHaveAttribute('data-theme', 'vinyl');
+  await expect(page.getByRole('button', { name: 'UN TITRE' })).toHaveClass(/is-selected/);
 });

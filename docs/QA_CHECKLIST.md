@@ -1,24 +1,25 @@
-# Checklist de recette
+# Vérifications
 
-## Sprint 0 — automatisée
+## Pipeline GitHub Actions
 
-- [x] `npm run lint` — 0 erreur, Prettier conforme.
-- [x] `npm test` — 2 fichiers, 3 tests réussis ; couverture non configurée.
-- [x] `npm run build -- --configuration production` — OK.
-- [x] `npx cap sync android` — 11 plugins synchronisés.
-- [x] Assemblage debug Android — GitHub Actions : `assembleDebug` et vérification `apksigner` réussis ; artefact uploadé.
-- [x] `npm run e2e` — 4 tests réussis : navigation/retour, molette, SQLite, playlists, import/lecture/persistance audio locale.
-- [x] `npm run verify` — 30 fichiers examinés.
+- [ ] Lint et formatage.
+- [ ] Tests unitaires.
+- [ ] Parcours Playwright : navigation et retour, recherche locale, lecteur, favoris, playlists, réglages et molette.
+- [ ] Vérification qu’aucun contenu audio n’est prérempli.
+- [ ] Build Android et vérification de signature APK.
+- [ ] Présence de l’APK dans l’artefact de build ou dans la Release versionnée.
 
-## Sprint 0 — téléphone Android
+## Téléphone Android
 
-- [ ] Installer [l’APK debug de la Release v0.1.0](https://github.com/pauldjeuda/HEAR/releases/tag/v0.1.0) et vérifier l’icône Hear, le splash natif et l’ouverture directe de l’accueil.
-- [ ] Naviguer vers Recherche, Collection, Hors ligne et Réglages.
-- [ ] Créer une playlist locale, fermer/réouvrir l’application et vérifier qu’elle persiste.
-- [ ] Importer un fichier audio du téléphone, le lire, mettre en pause, naviguer entre titres et vérifier qu’il persiste après redémarrage.
-- [ ] Appuyer sur « Vérifier SQLite » dans Réglages ; attendre « PRÊTE ».
-- [ ] Configurer un client ID Jamendo et exécuter une recherche de piste réelle.
-- [ ] Démarrer une piste Jamendo réelle, éteindre l’écran cinq minutes, puis rallumer et vérifier la continuité et la position.
-- [ ] Vérifier contrôles notification/écran verrouillé, boutons casque et pause lors d’un appel entrant.
+- [ ] Installer l’APK 0.2.0 depuis la Release GitHub.
+- [ ] Accorder l’accès aux fichiers audio ; vérifier que la bibliothèque se remplit sans sélectionner les morceaux un par un.
+- [ ] Vérifier accueil, recherche, artistes, bibliothèque, hors ligne, réglages et retour Android.
+- [ ] Faire défiler chaque page avec le geste tactile et vérifier la molette dans l’aperçu navigateur.
+- [ ] Lire plusieurs titres, chercher un passage, mettre en pause, reprendre et utiliser suivant/précédent.
+- [ ] Éteindre l’écran et vérifier la continuité, la notification média et les commandes casque.
+- [ ] Ajouter un favori et une playlist, fermer puis rouvrir Hear et vérifier leur persistance.
+- [ ] Activer/désactiver l’indexation automatique et le thème, puis vérifier les préférences après redémarrage.
+- [ ] Ajouter un nouveau fichier audio au téléphone et vérifier sa découverte au retour dans Hear.
+- [ ] Révoquer l’autorisation audio dans Android et vérifier que l’application affiche un état clair, sans plantage.
 
-La piste hors ligne reste suspendue en attendant une autorisation de Jamendo ou un changement de fournisseur.
+Le runner cloud compile l’APK mais ne remplace pas ces vérifications sur appareil physique.

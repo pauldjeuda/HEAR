@@ -1,23 +1,21 @@
-# Architecture Hear
+# Architecture HEAR
 
-## Couches
+## Parcours
 
-`Pages et composants Ionic` → `services de domaine Angular avec signals` → `providers API / repositories SQLite / plugins Capacitor`.
+`Écrans Angular` → `services locaux` → `Capacitor Preferences` et le plugin Android `LocalMusic`.
 
-- Les pages ne parlent ni à `HttpClient` ni à SQLite directement.
-- Jamendo et LRCLIB passent derrière des interfaces fournisseurs.
-- L’état utilisateur reste local dans SQLite et Capacitor Preferences.
-- Audio : interface TypeScript `AudioEngine` et moteur navigateur pour le développement. HearAudio avec Media3 `MediaSessionService` est le choix prévu pour Android ; le plugin natif n’est pas encore implémenté ni validé.
-- Les appels HTTP mobiles utiliseront `CapacitorHttp`; Tailwind, polices et icônes sont compilés ou locaux.
+- Android `LocalMusicPlugin` demande la permission audio et interroge `MediaStore.Audio` pour indexer les fichiers visibles sur le téléphone.
+- Les pistes natives restent des URI `content://` ; Hear n’en copie pas le contenu. La lecture native passe par `LocalPlaybackService` et `MediaPlayer`, avec audio focus, notification média, session Android, file de lecture et progression.
+- Le navigateur utilise un adaptateur de test à sélection multiple et un lecteur Web Audio. Il n’existe pas d’indexeur de stockage Android dans le navigateur.
+- `LocalCollectionStore` conserve favoris, historique, playlists et réglages sur l’appareil via Preferences.
+- Recherche, artistes, bibliothèque et hors ligne sont des vues calculées à partir des pistes indexées. Aucun catalogue distant ni contenu seed n’est embarqué.
 
-## Socle livré en Sprint 0
+## Structure
 
-- App Angular standalone, configuration Ionic, variables de thème et configuration Tailwind.
-- Shell temporaire de fondation localisé en français ; le remplacement par les écrans issus des maquettes est prévu au Sprint 1.
-- SQLite avec migration initiale des tables produit et sonde manuelle de lecture/écriture.
-- Capacitor configuré avec `app.hear.personal`, `CapacitorHttp` et thème de lancement clair.
-- Environnement local Jamendo généré depuis `.env.local`, ignoré par Git.
+- `src/app/app.html`, `app.ts`, `app.scss` : navigation et interface éditoriale issue du prototype Stitch.
+- `src/app/core/audio/` : lecteur Web et contrat Capacitor pour MediaStore/lecture Android.
+- `src/app/core/data/local-collection-store.service.ts` : préférences, favoris, historique et playlists.
+- `android/app/src/main/java/app/hear/personal/` : plugin d’indexation et service de lecture.
+- `design/stitch_minimalist_vinyl_music_app/` : références visuelles du prototype.
 
-## Répertoires de destination
-
-Le dossier `design/stitch_minimalist_vinyl_music_app/` contient la référence Stitch en lecture seule. Les modules d’application sont organisés sous `src/app/core`, `shared` et `features`. Les routes et écrans métier sont introduits au Sprint 1.
+Les permissions Android restent limitées à l’audio. La permission `INTERNET` sert au serveur d’assets local de Capacitor ; l’application n’utilise aucun fournisseur de musique distant.

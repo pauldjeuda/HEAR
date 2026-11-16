@@ -2,6 +2,7 @@
 @use './theme/typography';
 @use './theme/light';
 @use './theme/dark';
+@use './app/app';
 
 @import '@fontsource/space-grotesk/400.css';
 @import '@fontsource/space-grotesk/500.css';
@@ -20,8 +21,6 @@
 @import '@ionic/angular/css/text-alignment.css';
 @import '@ionic/angular/css/text-transformation.css';
 @import '@ionic/angular/css/flex-utils.css';
-
-@import './theme/tailwind.css';
 
 html,
 body {
