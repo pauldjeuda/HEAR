@@ -14,4 +14,4 @@ La recherche, les pages Artistes et Hors ligne utilisent les métadonnées des f
 
 GitHub Actions exécute le lint, les tests unitaires, les parcours Playwright, le contrôle de contenu et le build Android. Les pushes sur `sprint/**` produisent un APK debug comme artefact Actions. Un tag de version `v<version>` publie l’APK dans les [Releases GitHub](https://github.com/pauldjeuda/HEAR/releases).
 
-La version de travail est **0.2.0**. Elle remplace la première version de fondation `0.1.0`; elle n’est publiée qu’après la réussite des contrôles cloud.
+La version de travail est **0.2.1**. Elle remplace la première version de fondation `0.1.0`; elle n’est publiée qu’après la réussite des contrôles cloud.

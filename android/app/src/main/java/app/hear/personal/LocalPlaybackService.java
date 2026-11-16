@@ -49,6 +49,7 @@ public class LocalPlaybackService extends Service {
     private final ArrayList<String> artists = new ArrayList<>();
     private final ArrayList<String> albums = new ArrayList<>();
     private MediaPlayer player;
+    private boolean playerPrepared;
     private MediaSession mediaSession;
     private AudioManager audioManager;
     private AudioFocusRequest audioFocusRequest;
@@ -60,15 +61,15 @@ public class LocalPlaybackService extends Service {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable progressTick = new Runnable() {
         @Override public void run() {
-            if (player != null && player.isPlaying()) {
+            if (isPlayerPlaying()) {
                 publishState(false);
                 handler.postDelayed(this, 1000L);
             }
         }
     };
     private final AudioManager.OnAudioFocusChangeListener focusListener = change -> {
-        if (change <= AudioManager.AUDIOFOCUS_LOSS_TRANSIENT && player != null && player.isPlaying()) pause();
-        if (change == AudioManager.AUDIOFOCUS_GAIN && wantsPlayback && player != null && !player.isPlaying()) {
+        if (change <= AudioManager.AUDIOFOCUS_LOSS_TRANSIENT && isPlayerPlaying()) pause();
+        if (change == AudioManager.AUDIOFOCUS_GAIN && wantsPlayback && playerPrepared && !isPlayerPlaying()) {
             player.start();
             state = "playing";
             publishState();
@@ -175,7 +176,7 @@ public class LocalPlaybackService extends Service {
             startCurrent(true);
             return;
         }
-        if (player != null && !player.isPlaying()) {
+        if (player != null && playerPrepared && !isPlayerPlaying()) {
             if (!requestAudioFocus()) {
                 state = "error";
                 lastError = "Un autre son utilise la sortie audio.";
@@ -195,7 +196,7 @@ public class LocalPlaybackService extends Service {
     private void pause() {
         wantsPlayback = false;
         handler.removeCallbacks(progressTick);
-        if (player != null && player.isPlaying()) player.pause();
+        if (isPlayerPlaying()) player.pause();
         abandonAudioFocus();
         if (player != null) state = "paused";
         publishState();
@@ -221,7 +222,7 @@ public class LocalPlaybackService extends Service {
     }
 
     private void previous() {
-        if (player != null && player.getCurrentPosition() > 3000) {
+        if (playerPrepared && player.getCurrentPosition() > 3000) {
             seek(0);
         } else if (index > 0) {
             index--;
@@ -233,7 +234,7 @@ public class LocalPlaybackService extends Service {
     }
 
     private void seek(long position) {
-        if (player == null) return;
+        if (player == null || !playerPrepared) return;
         int bounded = (int) Math.max(0, Math.min(position, player.getDuration()));
         player.seekTo(bounded);
         publishState();
@@ -256,11 +257,14 @@ public class LocalPlaybackService extends Service {
         lastError = null;
         publishState();
         player = new MediaPlayer();
+        playerPrepared = false;
         player.setAudioAttributes(new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build());
         player.setOnPreparedListener(prepared -> {
+            if (player != prepared) return;
+            playerPrepared = true;
             if (wantsPlayback) {
                 prepared.start();
                 state = "playing";
@@ -282,6 +286,7 @@ public class LocalPlaybackService extends Service {
             }
         });
         player.setOnErrorListener((failedPlayer, what, extra) -> {
+            playerPrepared = false;
             state = "error";
             wantsPlayback = false;
             lastError = "Ce fichier audio ne peut pas être lu sur cet appareil.";
@@ -291,10 +296,10 @@ public class LocalPlaybackService extends Service {
         });
         try {
             player.setDataSource(this, Uri.parse(uris.get(index)));
-            updateMetadata();
             player.prepareAsync();
             updateNotification();
-        } catch (IOException | IllegalArgumentException error) {
+        } catch (IOException | RuntimeException error) {
+            playerPrepared = false;
             state = "error";
             wantsPlayback = false;
             lastError = "Impossible d’ouvrir ce fichier audio.";
@@ -316,6 +321,7 @@ public class LocalPlaybackService extends Service {
     private void releasePlayer() {
         if (player == null) return;
         handler.removeCallbacks(progressTick);
+        playerPrepared = false;
         player.setOnPreparedListener(null);
         player.setOnCompletionListener(null);
         player.setOnErrorListener(null);
@@ -326,16 +332,19 @@ public class LocalPlaybackService extends Service {
 
     private void updateMetadata() {
         if (mediaSession == null || uris.isEmpty()) return;
+        // Duration and position are invalid until MediaPlayer reaches Prepared.
+        long duration = playerPrepared ? safePlayerDuration() : 0L;
+        long position = playerPrepared ? safePlayerPosition() : 0L;
         android.media.MediaMetadata metadata = new android.media.MediaMetadata.Builder()
             .putString(android.media.MediaMetadata.METADATA_KEY_TITLE, valueAt(titles, index, "Titre local"))
             .putString(android.media.MediaMetadata.METADATA_KEY_ARTIST, valueAt(artists, index, "Artiste inconnu"))
             .putString(android.media.MediaMetadata.METADATA_KEY_ALBUM, valueAt(albums, index, "Album inconnu"))
-            .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, player == null ? 0L : Math.max(0, player.getDuration()))
+            .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, duration)
             .build();
         mediaSession.setMetadata(metadata);
         mediaSession.setPlaybackState(new PlaybackState.Builder()
             .setActions(PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE | PlaybackState.ACTION_SKIP_TO_NEXT | PlaybackState.ACTION_SKIP_TO_PREVIOUS | PlaybackState.ACTION_SEEK_TO)
-            .setState(wantsPlayback ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED, player == null ? 0 : player.getCurrentPosition(), 1f)
+            .setState(wantsPlayback ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED, position, 1f)
             .build());
     }
 
@@ -346,8 +355,8 @@ public class LocalPlaybackService extends Service {
     private void publishState(boolean updateNotification) {
         long position = 0L;
         long duration = 0L;
-        if (player != null) {
-            try { position = player.getCurrentPosition(); duration = Math.max(0, player.getDuration()); }
+        if (player != null && playerPrepared) {
+            try { position = safePlayerPosition(); duration = safePlayerDuration(); }
             catch (IllegalStateException ignored) { }
         }
         if (mediaSession != null && !uris.isEmpty()) updateMetadata();
@@ -447,5 +456,23 @@ public class LocalPlaybackService extends Service {
         return position >= 0 && position < values.size() && values.get(position) != null
             ? values.get(position)
             : fallback;
+    }
+
+    private boolean isPlayerPlaying() {
+        if (player == null || !playerPrepared) return false;
+        try { return player.isPlaying(); }
+        catch (IllegalStateException ignored) { return false; }
+    }
+
+    private long safePlayerDuration() {
+        if (player == null || !playerPrepared) return 0L;
+        try { return Math.max(0, player.getDuration()); }
+        catch (IllegalStateException ignored) { return 0L; }
+    }
+
+    private long safePlayerPosition() {
+        if (player == null || !playerPrepared) return 0L;
+        try { return Math.max(0, player.getCurrentPosition()); }
+        catch (IllegalStateException ignored) { return 0L; }
     }
 }

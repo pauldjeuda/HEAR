@@ -11,7 +11,7 @@
 
 ## Téléphone Android
 
-- [ ] Installer l’APK 0.2.0 depuis la Release GitHub.
+- [ ] Installer l’APK 0.2.1 depuis la Release GitHub.
 - [ ] Accorder l’accès aux fichiers audio ; vérifier que la bibliothèque se remplit sans sélectionner les morceaux un par un.
 - [ ] Vérifier accueil, recherche, artistes, bibliothèque, hors ligne, réglages et retour Android.
 - [ ] Faire défiler chaque page avec le geste tactile et vérifier la molette dans l’aperçu navigateur.

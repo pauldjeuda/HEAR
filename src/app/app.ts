@@ -47,7 +47,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.2.0';
+  protected readonly appVersion = '0.2.1';
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
   private readonly localMusic = inject(LocalMusicLibrary);
