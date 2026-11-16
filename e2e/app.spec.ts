@@ -155,3 +155,31 @@ test('saves real local-library, display and playback settings', async ({ page })
   await expect(page.locator('.app-shell')).toHaveAttribute('data-theme', 'vinyl');
   await expect(page.getByRole('button', { name: 'UN TITRE' })).toHaveClass(/is-selected/);
 });
+
+test('displays waveform scrubber, opens lyrics screen and returns to player', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'AJOUTER DES FICHIERS À L’APERÇU' }).click();
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'Piste test.wav',
+    mimeType: 'audio/wav',
+    buffer: makeWaveFile(),
+  });
+
+  const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
+  await navigation.getByRole('button', { name: 'BIBLIOTHÈQUE' }).click();
+  await page.getByRole('button', { name: 'Lire Piste test' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Piste test' })).toBeVisible();
+  const scrubber = page.locator('.waveform-scrubber');
+  await expect(scrubber).toBeVisible();
+  const bars = scrubber.locator('.waveform-bar');
+  expect(await bars.count()).toBeGreaterThan(30);
+
+  // Click on the lyrics button
+  await page.getByRole('button', { name: 'Afficher les paroles' }).click();
+  await expect(page.locator('.lyrics-screen')).toBeVisible();
+
+  // Return to player
+  await page.getByRole('button', { name: 'Retour au lecteur' }).click();
+  await expect(page.getByRole('heading', { name: 'Piste test' })).toBeVisible();
+});

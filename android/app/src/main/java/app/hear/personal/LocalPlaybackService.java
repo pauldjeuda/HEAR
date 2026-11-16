@@ -5,10 +5,13 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.content.Intent;
 import android.media.AudioAttributes;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
@@ -330,18 +333,44 @@ public class LocalPlaybackService extends Service {
         player = null;
     }
 
+    private Bitmap loadArtworkBitmap(String uriStr) {
+        if (uriStr == null || uriStr.isEmpty()) return null;
+        try {
+            Uri uri = Uri.parse(uriStr);
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            try {
+                mmr.setDataSource(this, uri);
+                byte[] picture = mmr.getEmbeddedPicture();
+                if (picture != null && picture.length > 0) {
+                    return BitmapFactory.decodeByteArray(picture, 0, picture.length);
+                }
+            } finally {
+                try { mmr.release(); } catch (Exception ignored) {}
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
     private void updateMetadata() {
         if (mediaSession == null || uris.isEmpty()) return;
         // Duration and position are invalid until MediaPlayer reaches Prepared.
         long duration = playerPrepared ? safePlayerDuration() : 0L;
         long position = playerPrepared ? safePlayerPosition() : 0L;
-        android.media.MediaMetadata metadata = new android.media.MediaMetadata.Builder()
+        String trackUri = uris.get(index);
+        Bitmap artworkBitmap = loadArtworkBitmap(trackUri);
+
+        android.media.MediaMetadata.Builder metadataBuilder = new android.media.MediaMetadata.Builder()
             .putString(android.media.MediaMetadata.METADATA_KEY_TITLE, valueAt(titles, index, "Titre local"))
             .putString(android.media.MediaMetadata.METADATA_KEY_ARTIST, valueAt(artists, index, "Artiste inconnu"))
             .putString(android.media.MediaMetadata.METADATA_KEY_ALBUM, valueAt(albums, index, "Album inconnu"))
-            .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, duration)
-            .build();
-        mediaSession.setMetadata(metadata);
+            .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, duration);
+
+        if (artworkBitmap != null) {
+            metadataBuilder.putBitmap(android.media.MediaMetadata.METADATA_KEY_ALBUM_ART, artworkBitmap);
+            metadataBuilder.putBitmap(android.media.MediaMetadata.METADATA_KEY_ART, artworkBitmap);
+        }
+
+        mediaSession.setMetadata(metadataBuilder.build());
         mediaSession.setPlaybackState(new PlaybackState.Builder()
             .setActions(PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE | PlaybackState.ACTION_SKIP_TO_NEXT | PlaybackState.ACTION_SKIP_TO_PREVIOUS | PlaybackState.ACTION_SEEK_TO)
             .setState(wantsPlayback ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED, position, 1f)
@@ -380,6 +409,9 @@ public class LocalPlaybackService extends Service {
     private Notification buildNotification() {
         String title = valueAt(titles, index, "Hear");
         String artist = valueAt(artists, index, "Musique locale");
+        String trackUri = uris.isEmpty() ? null : uris.get(index);
+        Bitmap artworkBitmap = loadArtworkBitmap(trackUri);
+
         Notification.Builder builder = Build.VERSION.SDK_INT >= 26
             ? new Notification.Builder(this, CHANNEL_ID)
             : new Notification.Builder(this);
@@ -390,6 +422,10 @@ public class LocalPlaybackService extends Service {
             .setOngoing(wantsPlayback)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setContentIntent(openAppIntent());
+
+        if (artworkBitmap != null) {
+            builder.setLargeIcon(artworkBitmap);
+        }
 
         builder.addAction(action(android.R.drawable.ic_media_previous, "Précédent", ACTION_PREVIOUS));
         builder.addAction(action(wantsPlayback ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play,

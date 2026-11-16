@@ -71,9 +71,13 @@
                   <span>01 <i></i> REPRISE D’ÉCOUTE</span><span>FICHIER LOCAL</span>
                 </div>
                 <button class="feature-track" type="button" (click)="playLocalTrack(recentTrack)">
-                  <span class="feature-track__art" aria-hidden="true"
-                    ><img src="assets/hear-mark.svg" alt=""
-                  /></span>
+                  <span class="feature-track__art" aria-hidden="true">
+                    @if (getTrackArtwork(recentTrack); as art) {
+                      <img [src]="art" alt="" />
+                    } @else {
+                      <img src="assets/placeholder-cover.svg" alt="" />
+                    }
+                  </span>
                   <span class="feature-track__copy">
                     <span class="eyebrow eyebrow--small">DERNIER TITRE DISPONIBLE</span>
                     <strong id="home-feature-title">{{ recentTrack.title }}</strong>
@@ -165,9 +169,13 @@
                         <span class="track-row__number">{{
                           (index + 1).toString().padStart(2, '0')
                         }}</span>
-                        <span class="track-row__art"
-                          ><img src="assets/hear-mark.svg" alt=""
-                        /></span>
+                        <span class="track-row__art" aria-hidden="true">
+                          @if (getTrackArtwork(track); as art) {
+                            <img [src]="art" alt="" />
+                          } @else {
+                            <img src="assets/placeholder-cover.svg" alt="" />
+                          }
+                        </span>
                         <span class="track-row__copy"
                           ><strong>{{ track.title }}</strong
                           ><span>{{ track.artist }}</span></span
@@ -268,7 +276,13 @@
                       <span class="track-row__number">{{
                         (index + 1).toString().padStart(2, '0')
                       }}</span>
-                      <span class="track-row__art"><img src="assets/hear-mark.svg" alt="" /></span>
+                      <span class="track-row__art" aria-hidden="true">
+                        @if (getTrackArtwork(track); as art) {
+                          <img [src]="art" alt="" />
+                        } @else {
+                          <img src="assets/placeholder-cover.svg" alt="" />
+                        }
+                      </span>
                       <span class="track-row__copy"
                         ><strong>{{ track.title }}</strong
                         ><span>{{ track.artist }} · {{ track.album }}</span></span
@@ -359,9 +373,15 @@
                   >
                     <span class="track-row__number">{{
                       (index + 1).toString().padStart(2, '0')
-                    }}</span><span class="track-row__art"
-                      ><img src="assets/hear-mark.svg" alt="" /></span
-                    ><span class="track-row__copy"
+                    }}</span>
+                    <span class="track-row__art" aria-hidden="true">
+                      @if (getTrackArtwork(track); as art) {
+                        <img [src]="art" alt="" />
+                      } @else {
+                        <img src="assets/placeholder-cover.svg" alt="" />
+                      }
+                    </span>
+                    <span class="track-row__copy"
                       ><strong>{{ track.title }}</strong
                       ><span>{{ track.album }}</span></span
                     ><span class="track-row__duration">{{
@@ -450,9 +470,15 @@
                         >
                           <span class="track-row__number">{{
                             (index + 1).toString().padStart(2, '0')
-                          }}</span><span class="track-row__art"
-                            ><img src="assets/hear-mark.svg" alt="" /></span
-                          ><span class="track-row__copy"
+                          }}</span>
+                          <span class="track-row__art" aria-hidden="true">
+                            @if (getTrackArtwork(track); as art) {
+                              <img [src]="art" alt="" />
+                            } @else {
+                              <img src="assets/placeholder-cover.svg" alt="" />
+                            }
+                          </span>
+                          <span class="track-row__copy"
                             ><strong>{{ track.title }}</strong
                             ><span>{{ track.artist }}</span></span
                           ><span class="track-row__duration">{{
@@ -565,9 +591,15 @@
                     >
                       <span class="track-row__number">{{
                         (index + 1).toString().padStart(2, '0')
-                      }}</span><span class="track-row__art"
-                        ><img src="assets/hear-mark.svg" alt="" /></span
-                      ><span class="track-row__copy"
+                      }}</span>
+                      <span class="track-row__art" aria-hidden="true">
+                        @if (getTrackArtwork(track); as art) {
+                          <img [src]="art" alt="" />
+                        } @else {
+                          <img src="assets/placeholder-cover.svg" alt="" />
+                        }
+                      </span>
+                      <span class="track-row__copy"
                         ><strong>{{ track.title }}</strong
                         ><span>{{ track.artist }} · {{ track.album }}</span></span
                       ><span class="track-row__duration">{{
@@ -711,9 +743,15 @@
                     >
                       <span class="track-row__number">{{
                         (index + 1).toString().padStart(2, '0')
-                      }}</span><span class="track-row__art"
-                        ><img src="assets/hear-mark.svg" alt="" /></span
-                      ><span class="track-row__copy"
+                      }}</span>
+                      <span class="track-row__art" aria-hidden="true">
+                        @if (getTrackArtwork(track); as art) {
+                          <img [src]="art" alt="" />
+                        } @else {
+                          <img src="assets/placeholder-cover.svg" alt="" />
+                        }
+                      </span>
+                      <span class="track-row__copy"
                         ><strong>{{ track.title }}</strong
                         ><span>{{ track.artist }} · LOCAL</span></span
                       ><span class="track-row__duration">{{
@@ -909,14 +947,37 @@
                   }}</span
                 ><span>FICHIER LOCAL</span>
               </div>
-              <div
-                class="record-stage"
-                [class.record-stage--playing]="playbackState() === 'playing'"
-                aria-hidden="true"
-              >
-                <img src="assets/hear-mark.svg" alt="" /><span class="record-stage__label"
-                  >HEAR<br />LOCAL</span
-                >
+              <div class="vinyl-hero-stage" aria-hidden="true">
+                <div class="vinyl-disc-wrap" [class.is-playing]="playbackState() === 'playing'">
+                  <div class="vinyl-disc">
+                    <div class="vinyl-disc__grooves"></div>
+                    <div class="vinyl-disc__label">
+                      <span>HEAR</span>
+                      <small>33⅓</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="vinyl-sleeve">
+                  <div class="vinyl-sleeve__header">
+                    <span class="mono-badge">CAT. HR-LP-88</span>
+                    <span class="mono-badge mono-badge--accent">180G · AUDIOPHILE</span>
+                  </div>
+                  <div class="vinyl-sleeve__art">
+                    @if (getTrackArtwork(track); as art) {
+                      <img [src]="art" alt="" />
+                    } @else {
+                      <img
+                        class="vinyl-sleeve__fallback"
+                        src="assets/placeholder-cover.svg"
+                        alt=""
+                      />
+                    }
+                  </div>
+                  <div class="vinyl-sleeve__footer">
+                    <span class="mono-badge">HEAR PERSONAL</span>
+                    <span class="mono-badge">33⅓ RPM</span>
+                  </div>
+                </div>
               </div>
               <div class="player-track-info">
                 <div>
@@ -935,18 +996,41 @@
                   {{ isFavorite(track) ? '♥' : '♡' }}
                 </button>
               </div>
-              <div class="player-progress">
-                <input
-                  type="range"
-                  aria-label="Position de lecture"
-                  min="0"
-                  [max]="playbackDuration() || 1"
-                  [value]="playbackPosition()"
-                  (input)="seekLocalTrack($event)"
-                />
-                <div>
-                  <span>{{ formatTime(playbackPosition()) }}</span><span>{{
-                    formatTime(playbackDuration())
+              <div class="player-waveform-block">
+                <div
+                  class="waveform-scrubber"
+                  role="slider"
+                  aria-label="Jauge d'avancement de la musique"
+                  [attr.aria-valuenow]="playbackPosition()"
+                  [attr.aria-valuemin]="0"
+                  [attr.aria-valuemax]="playbackDuration() || 1"
+                  (pointerdown)="onWaveformScrub($event)"
+                  (pointermove)="$event.buttons === 1 && onWaveformScrub($event)"
+                >
+                  <div class="waveform-bars">
+                    @for (bar of waveformBars(); track $index) {
+                      <div
+                        class="waveform-bar"
+                        [class.is-played]="$index / waveformBars().length <= progressRatio()"
+                        [style.height.%]="bar * 100"
+                      ></div>
+                    }
+                  </div>
+                  <input
+                    type="range"
+                    class="waveform-range-hidden"
+                    aria-label="Position de lecture"
+                    min="0"
+                    [max]="playbackDuration() || 1"
+                    [value]="playbackPosition()"
+                    (input)="seekLocalTrack($event)"
+                  />
+                </div>
+                <div class="waveform-time-row">
+                  <span class="mono-time">{{ formatTime(playbackPosition()) }}</span>
+                  <span class="waveform-quality-badge">44.1 KHZ · SANS PERTE</span>
+                  <span class="mono-time">{{
+                    '-' + formatTime(Math.max(0, (playbackDuration() || 0) - playbackPosition()))
                   }}</span>
                 </div>
               </div>
@@ -986,6 +1070,23 @@
                   ↻<small>{{ repeatMode() === 'one' ? '1' : '' }}</small>
                 </button>
               </div>
+              <div class="player-utility-strip">
+                <div class="utility-chip">
+                  <span class="signal-dot"></span>
+                  <span class="mono-badge">STOCKÉ · {{ formatBytes(track.size) }}</span>
+                </div>
+                <div class="utility-actions">
+                  <button
+                    class="lyrics-trigger-btn"
+                    type="button"
+                    aria-label="Afficher les paroles"
+                    (click)="openLyrics()"
+                  >
+                    <span class="lyrics-icon">≡</span>
+                    <span class="mono-badge">PAROLES</span>
+                  </button>
+                </div>
+              </div>
               <div class="player-source">
                 <span>◉</span><strong>FICHIER LOCAL</strong
                 ><span>{{ formatBytes(track.size) }}</span
@@ -1022,11 +1123,189 @@
             }
           </section>
         }
+
+        @case ('lyrics') {
+          <section class="lyrics-screen" aria-labelledby="lyrics-title">
+            @if (activeLocalTrack(); as track) {
+              <header class="lyrics-header">
+                <button
+                  class="lyrics-pull-bar"
+                  type="button"
+                  aria-label="Réduire les paroles"
+                  (click)="closeLyrics()"
+                ></button>
+                <div class="lyrics-header__main">
+                  <button
+                    class="lyrics-back-button"
+                    type="button"
+                    aria-label="Retour au lecteur"
+                    (click)="closeLyrics()"
+                  >
+                    ←
+                  </button>
+                  <div class="lyrics-track-summary">
+                    <div class="lyrics-track-art">
+                      @if (getTrackArtwork(track); as art) {
+                        <img [src]="art" alt="" />
+                      } @else {
+                        <img src="assets/placeholder-cover.svg" alt="" />
+                      }
+                    </div>
+                    <div class="lyrics-track-meta">
+                      <h1 id="lyrics-title" class="lyrics-track-title">{{ track.title }}</h1>
+                      <p class="lyrics-track-artist">{{ track.artist }}</p>
+                    </div>
+                  </div>
+                  <div class="lyrics-header-badge">
+                    <span class="mono-badge">{{
+                      lyricsService.currentLyrics()?.isSynced ? 'SYNC AUTO' : 'TEXTE'
+                    }}</span>
+                    <div class="lyrics-status-dot">
+                      <span class="signal-dot"></span>
+                      <span class="mono-badge mono-badge--accent">DIRECT</span>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              <div class="lyrics-viewport" id="lyrics-viewport">
+                @if (lyricsService.isLoading()) {
+                  <div class="lyrics-loading">
+                    <span class="signal-dot animate-pulse"></span>
+                    <p class="mono-tag">CHARGEMENT DES PAROLES…</p>
+                  </div>
+                } @else if (lyricsService.currentLyrics()?.lines?.length) {
+                  @for (line of lyricsService.currentLyrics()!.lines; track $index) {
+                    <button
+                      class="lyric-line"
+                      type="button"
+                      [id]="'lyric-line-' + $index"
+                      [class.is-past]="$index < currentLyricIndex()"
+                      [class.is-active]="$index === currentLyricIndex()"
+                      [class.is-future]="$index > currentLyricIndex()"
+                      (click)="seekToLyric(line.time)"
+                    >
+                      @if (lyricsService.currentLyrics()!.isSynced) {
+                        <div class="lyric-line__meta">
+                          @if ($index === currentLyricIndex()) {
+                            <span class="lyric-line__dot"></span>
+                            <span class="lyric-line__time"
+                              >{{ formatTime(line.time) }} · LECTURE SYNCHRONISÉE</span
+                            >
+                          } @else {
+                            <span class="lyric-line__time">{{ formatTime(line.time) }}</span>
+                          }
+                        </div>
+                      }
+                      <p class="lyric-line__text">{{ line.text }}</p>
+                      @if ($index === currentLyricIndex()) {
+                        <div class="lyric-line__equalizer" aria-hidden="true">
+                          <span></span><span></span><span></span><span></span>
+                        </div>
+                      }
+                    </button>
+                  }
+                } @else {
+                  <div class="lyrics-empty-banner">
+                    <div class="lyrics-empty-banner__header">
+                      <span class="mono-badge mono-badge--accent">[ APERÇU HORS LIGNE ]</span>
+                      <span class="mono-badge">00:00</span>
+                    </div>
+                    <p class="lyrics-empty-banner__text">
+                      [ ÉTAT SYSTÈME : PAROLES NON DISPONIBLES — SOURCE LOCALE NON INDEXÉE ]
+                    </p>
+                    <div class="lyrics-empty-banner__footer">
+                      <span class="mono-badge">INDEXATION LOCALE ACTIVE</span>
+                      <button
+                        class="action-button action-button--small"
+                        type="button"
+                        (click)="closeLyrics()"
+                      >
+                        RETOUR AU LECTEUR
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <footer class="lyrics-footer">
+                <div class="lyrics-mini-timeline" (pointerdown)="onWaveformScrub($event)">
+                  <div class="lyrics-mini-timeline__fill" [style.width.%]="progressRatio() * 100">
+                    <div class="lyrics-mini-timeline__thumb"></div>
+                  </div>
+                </div>
+                <div class="lyrics-footer__metrics">
+                  <span class="mono-time">{{ formatTime(playbackPosition()) }}</span>
+                  <span class="mono-badge mono-badge--accent">
+                    {{
+                      lyricsService.currentLyrics()?.isSynced
+                        ? 'SYNC AUTO · DÉFILEMENT ACTIF'
+                        : 'LECTURE EN COURS'
+                    }}
+                  </span>
+                  <span class="mono-time">{{
+                    '-' + formatTime(Math.max(0, (playbackDuration() || 0) - playbackPosition()))
+                  }}</span>
+                </div>
+                <div class="lyrics-footer__controls">
+                  <button
+                    type="button"
+                    class="lyrics-ctrl-btn"
+                    [class.is-active]="repeatMode() !== 'none'"
+                    (click)="
+                      setRepeat(
+                        repeatMode() === 'none' ? 'all' : repeatMode() === 'all' ? 'one' : 'none'
+                      )
+                    "
+                  >
+                    ↻
+                  </button>
+                  <div class="lyrics-ctrl-center">
+                    <button
+                      type="button"
+                      class="lyrics-ctrl-btn"
+                      aria-label="Titre précédent"
+                      (click)="handlePreviousTrack()"
+                    >
+                      |◀
+                    </button>
+                    <button
+                      type="button"
+                      class="lyrics-ctrl-play"
+                      [attr.aria-label]="playbackState() === 'playing' ? 'Mettre en pause' : 'Lire'"
+                      (click)="togglePlayback()"
+                    >
+                      {{ playbackState() === 'playing' ? 'Ⅱ' : '▶' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="lyrics-ctrl-btn"
+                      aria-label="Titre suivant"
+                      (click)="handleNextTrack()"
+                    >
+                      ▶|
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    class="lyrics-ctrl-btn"
+                    aria-label="Fermer les paroles"
+                    (click)="closeLyrics()"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </footer>
+            }
+          </section>
+        }
       }
     </main>
 
     @if (activeLocalTrack(); as playingTrack) {
-      @if (activeScreen() !== 'player' && activeScreen() !== 'menu') {
+      @if (
+        activeScreen() !== 'player' && activeScreen() !== 'menu' && activeScreen() !== 'lyrics'
+      ) {
         <div class="mini-player">
           <span class="mini-player__progress"
             ><i
@@ -1035,7 +1314,13 @@
               "
             ></i
           ></span>
-          <span class="mini-player__art"><img src="assets/hear-mark.svg" alt="" /></span>
+          <span class="mini-player__art" aria-hidden="true">
+            @if (getTrackArtwork(playingTrack); as art) {
+              <img [src]="art" alt="" />
+            } @else {
+              <img src="assets/placeholder-cover.svg" alt="" />
+            }
+          </span>
           <button
             class="mini-player__copy"
             type="button"
@@ -1057,7 +1342,7 @@
       }
     }
 
-    @if (activeScreen() !== 'player' && activeScreen() !== 'menu') {
+    @if (activeScreen() !== 'player' && activeScreen() !== 'menu' && activeScreen() !== 'lyrics') {
       <nav class="tab-bar" aria-label="Navigation principale">
         <button
           type="button"

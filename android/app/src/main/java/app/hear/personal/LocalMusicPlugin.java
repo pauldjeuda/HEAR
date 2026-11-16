@@ -8,9 +8,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Base64;
+import android.util.Size;
 
 import androidx.core.content.ContextCompat;
 
@@ -26,6 +30,8 @@ import com.getcapacitor.annotation.PermissionCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 @CapacitorPlugin(
@@ -119,7 +125,8 @@ public class LocalMusicPlugin extends Plugin {
             MediaStore.Audio.Media.MIME_TYPE,
             MediaStore.Audio.Media.DATE_MODIFIED,
             MediaStore.Audio.Media.DISPLAY_NAME,
-            MediaStore.Audio.Media.IS_MUSIC
+            MediaStore.Audio.Media.IS_MUSIC,
+            MediaStore.Audio.Media.ALBUM_ID
         };
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " + MediaStore.Audio.Media.DURATION + " > 0";
 
@@ -140,6 +147,7 @@ public class LocalMusicPlugin extends Plugin {
                 int mimeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE);
                 int modifiedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED);
                 int nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
+                int albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID);
 
                 while (cursor.moveToNext()) {
                     long id = cursor.getLong(idColumn);
@@ -148,6 +156,7 @@ public class LocalMusicPlugin extends Plugin {
                     if (title == null || title.trim().isEmpty()) title = fileName == null ? "Titre sans nom" : fileName;
                     String artist = cursor.getString(artistColumn);
                     String album = cursor.getString(albumColumn);
+                    long albumId = cursor.getLong(albumIdColumn);
                     JSObject track = new JSObject();
                     String mediaUri = ContentUris.withAppendedId(collection, id).toString();
                     track.put("id", mediaUri);
@@ -155,6 +164,7 @@ public class LocalMusicPlugin extends Plugin {
                     track.put("title", title);
                     track.put("artist", artist == null || artist.equals("<unknown>") ? "Artiste inconnu" : artist);
                     track.put("album", album == null || album.equals("<unknown>") ? "Album inconnu" : album);
+                    track.put("albumId", String.valueOf(albumId));
                     track.put("duration", cursor.getLong(durationColumn));
                     track.put("size", cursor.getLong(sizeColumn));
                     track.put("mimeType", cursor.getString(mimeColumn));
@@ -176,6 +186,89 @@ public class LocalMusicPlugin extends Plugin {
         result.put("tracks", values);
         result.put("scannedAt", System.currentTimeMillis());
         call.resolve(result);
+    }
+
+    @PluginMethod
+    public void getArtwork(PluginCall call) {
+        String uriString = call.getString("uri");
+        if (uriString == null || uriString.isEmpty()) {
+            JSObject empty = new JSObject();
+            empty.put("artwork", (String) null);
+            call.resolve(empty);
+            return;
+        }
+
+        try {
+            Uri uri = Uri.parse(uriString);
+
+            // 1. Essayer d'extraire la pochette intégrée via MediaMetadataRetriever
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            try {
+                mmr.setDataSource(getContext(), uri);
+                byte[] picture = mmr.getEmbeddedPicture();
+                if (picture != null && picture.length > 0) {
+                    String base64 = Base64.encodeToString(picture, Base64.NO_WRAP);
+                    JSObject res = new JSObject();
+                    res.put("artwork", "data:image/jpeg;base64," + base64);
+                    call.resolve(res);
+                    return;
+                }
+            } catch (Exception ignored) {
+            } finally {
+                try { mmr.release(); } catch (Exception ignored) {}
+            }
+
+            // 2. Sur Android 10+ (API 29+), charger le thumbnail via ContentResolver
+            if (Build.VERSION.SDK_INT >= 29) {
+                try {
+                    Bitmap thumbnail = getContext().getContentResolver().loadThumbnail(
+                        uri, new Size(512, 512), null
+                    );
+                    if (thumbnail != null) {
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        thumbnail.compress(Bitmap.CompressFormat.JPEG, 85, stream);
+                        String base64 = Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP);
+                        JSObject res = new JSObject();
+                        res.put("artwork", "data:image/jpeg;base64," + base64);
+                        call.resolve(res);
+                        return;
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+
+            // 3. Essayer via l'album art MediaStore hérité
+            String albumId = call.getString("albumId");
+            if (albumId != null && !albumId.isEmpty()) {
+                try {
+                    Uri albumArtUri = ContentUris.withAppendedId(
+                        Uri.parse("content://media/external/audio/albumart"),
+                        Long.parseLong(albumId)
+                    );
+                    try (InputStream is = getContext().getContentResolver().openInputStream(albumArtUri)) {
+                        if (is != null) {
+                            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                            byte[] data = new byte[8192];
+                            int nRead;
+                            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                                buffer.write(data, 0, nRead);
+                            }
+                            String base64 = Base64.encodeToString(buffer.toByteArray(), Base64.NO_WRAP);
+                            JSObject res = new JSObject();
+                            res.put("artwork", "data:image/jpeg;base64," + base64);
+                            call.resolve(res);
+                            return;
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        JSObject empty = new JSObject();
+        empty.put("artwork", (String) null);
+        call.resolve(empty);
     }
 
     @PluginMethod

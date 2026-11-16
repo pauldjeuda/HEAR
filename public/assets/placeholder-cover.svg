@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Pochette Hear par défaut">
+  <rect width="240" height="240" fill="#0D0D0D"/>
+  <circle cx="120" cy="120" r="88" fill="#171717" stroke="#292929" stroke-width="2"/>
+  <circle cx="120" cy="120" r="72" fill="none" stroke="#292929" stroke-width="1"/>
+  <circle cx="120" cy="120" r="56" fill="none" stroke="#303030" stroke-width="1"/>
+  <circle cx="120" cy="120" r="40" fill="none" stroke="#303030" stroke-width="1"/>
+  <circle cx="120" cy="120" r="25" fill="#E5383B"/>
+  <circle cx="120" cy="120" r="5" fill="#FAF9F6"/>
+</svg>

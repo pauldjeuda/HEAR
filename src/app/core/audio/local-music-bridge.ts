@@ -6,6 +6,7 @@ export interface DeviceMusicTrack {
   title: string;
   artist: string;
   album: string;
+  albumId?: string;
   duration: number;
   size: number;
   mimeType: string;
@@ -24,6 +25,7 @@ interface LocalMusicPlugin {
   hasAccess(): Promise<{ granted: boolean }>;
   requestAccess(): Promise<{ granted: boolean }>;
   scan(): Promise<{ tracks: DeviceMusicTrack[]; scannedAt: number }>;
+  getArtwork(options: { uri: string; albumId?: string }): Promise<{ artwork: string | null }>;
   play(options: {
     queue: Pick<DeviceMusicTrack, 'uri' | 'title' | 'artist' | 'album'>[];
     index: number;

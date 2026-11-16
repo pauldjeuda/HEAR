@@ -5,6 +5,7 @@ import {
   OnDestroy,
   ViewChild,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -13,13 +14,16 @@ import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { IonApp } from '@ionic/angular/standalone';
+import { ArtworkService } from './core/audio/artwork.service';
 import type { AudioState } from './core/audio/audio-engine';
+import { LyricsService } from './core/audio/lyrics.service';
 import { LocalMusicLibrary, type LocalMusicTrack } from './core/audio/local-music-library';
 import {
   LocalMusicBridge,
   type DeviceMusicTrack,
   type PlaybackStateEvent,
 } from './core/audio/local-music-bridge';
+import { generateTrackWaveform } from './core/audio/waveform.utils';
 import { WebAudioEngine } from './core/audio/web-audio.engine';
 import {
   LocalCollectionStore,
@@ -35,7 +39,8 @@ type HearScreen =
   | 'collection'
   | 'offline'
   | 'settings'
-  | 'player';
+  | 'player'
+  | 'lyrics';
 type CollectionFilter = 'tracks' | 'favorites' | 'playlists' | 'history' | 'playlistTracks';
 type ThemeMode = 'paper' | 'vinyl' | 'system';
 type RepeatMode = 'none' | 'one' | 'all';
@@ -48,9 +53,12 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
 })
 export class App implements OnDestroy {
   protected readonly appVersion = '0.2.1';
+  protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
   private readonly localMusic = inject(LocalMusicLibrary);
+  protected readonly artworkService = inject(ArtworkService);
+  protected readonly lyricsService = inject(LyricsService);
   private readonly audioEngine = new WebAudioEngine();
   private readonly navigationHistory: HearScreen[] = [];
   private playlistLoadVersion = 0;
@@ -90,6 +98,28 @@ export class App implements OnDestroy {
   protected readonly activeLocalTrack = computed(
     () => this.localTracks().find((track) => track.id === this.activeLocalTrackId()) ?? null,
   );
+  protected readonly waveformBars = computed(() => {
+    const track = this.activeLocalTrack();
+    const seed = track ? `${track.id}-${track.title}-${track.duration}` : 'default';
+    return generateTrackWaveform(seed, 44);
+  });
+  protected readonly progressRatio = computed(() => {
+    const dur = this.playbackDuration();
+    if (!dur || dur <= 0) return 0;
+    return Math.min(1, Math.max(0, this.playbackPosition() / dur));
+  });
+  protected readonly currentLyricIndex = computed(() => {
+    const lyrics = this.lyricsService.currentLyrics();
+    if (!lyrics || !lyrics.isSynced || lyrics.lines.length === 0) return -1;
+    const pos = this.playbackPosition();
+    const lines = lyrics.lines;
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (pos >= lines[i].time) {
+        return i;
+      }
+    }
+    return 0;
+  });
   protected readonly artists = computed(() => {
     const names = this.localTracks()
       .map((track) => track.artist?.trim() || 'Artiste inconnu')
@@ -170,6 +200,13 @@ export class App implements OnDestroy {
         .then((listener) => (this.nativePlaybackListener = listener))
         .catch(() => undefined);
     }
+    effect(() => {
+      const idx = this.currentLyricIndex();
+      if (this.activeScreen() === 'lyrics' && idx >= 0) {
+        const el = document.getElementById(`lyric-line-${idx}`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -386,6 +423,7 @@ export class App implements OnDestroy {
   }
 
   protected async playLocalTrack(track: PlayableLocalTrack): Promise<void> {
+    void this.lyricsService.loadLyricsForTrack(track);
     if (this.isAndroid) {
       if (this.activeLocalTrackId() === track.id && this.playbackState() === 'playing') {
         await LocalMusicBridge.toggle();
@@ -467,11 +505,46 @@ export class App implements OnDestroy {
     else await this.audioEngine.seek(0).catch(() => undefined);
   }
 
+  protected async seekToPosition(position: number): Promise<void> {
+    const safePos = Math.max(0, Math.min(this.playbackDuration() || 0, position));
+    this.playbackPosition.set(safePos);
+    if (this.isAndroid) await LocalMusicBridge.seek({ position: Math.round(safePos * 1000) });
+    else await this.audioEngine.seek(safePos).catch(() => undefined);
+  }
+
   protected async seekLocalTrack(event: Event): Promise<void> {
     const position = Number((event.target as HTMLInputElement).value);
-    this.playbackPosition.set(position);
-    if (this.isAndroid) await LocalMusicBridge.seek({ position: Math.round(position * 1000) });
-    else await this.audioEngine.seek(position).catch(() => undefined);
+    await this.seekToPosition(position);
+  }
+
+  protected onWaveformScrub(event: PointerEvent): void {
+    const target = event.currentTarget as HTMLElement;
+    if (!target) return;
+    const rect = target.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    const newPos = ratio * (this.playbackDuration() || 0);
+    void this.seekToPosition(newPos);
+  }
+
+  protected async seekToLyric(timeSeconds: number): Promise<void> {
+    await this.seekToPosition(timeSeconds);
+  }
+
+  protected openLyrics(): void {
+    const track = this.activeLocalTrack();
+    if (track) void this.lyricsService.loadLyricsForTrack(track);
+    this.navigate('lyrics');
+  }
+
+  protected closeLyrics(): void {
+    this.navigate('player');
+  }
+
+  protected getTrackArtwork(
+    track: PlayableLocalTrack | LocalMusicTrack | undefined | null,
+  ): string | null {
+    return this.artworkService.getArtwork(track);
   }
 
   protected async setRepeat(mode: RepeatMode): Promise<void> {
@@ -596,6 +669,7 @@ export class App implements OnDestroy {
       title: track.title,
       artist: track.artist,
       album: track.album,
+      albumId: track.albumId,
       duration: track.duration,
       mimeType: track.mimeType,
       size: track.size,
@@ -612,6 +686,8 @@ export class App implements OnDestroy {
   private async handleNativePlayback(event: PlaybackStateEvent): Promise<void> {
     if (event.trackId && this.localTracks().some((track) => track.id === event.trackId)) {
       this.activeLocalTrackId.set(event.trackId);
+      const active = this.localTracks().find((track) => track.id === event.trackId);
+      if (active) void this.lyricsService.loadLyricsForTrack(active);
     }
     this.playbackState.set(event.state);
     this.playbackPosition.set(event.position / 1000);

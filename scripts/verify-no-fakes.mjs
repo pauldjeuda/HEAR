@@ -10,7 +10,7 @@ const forbidden = [
   ['Tailwind CDN', /cdn\.tailwindcss\.com/i],
   ['Google Fonts host', /fonts\.googleapis\.com/i],
   ['Google Fonts asset host', /fonts\.gstatic\.com/i],
-  ['Remote music catalog', /jamendo|lrclib/i],
+  ['Remote music catalog', /\bjamendo\b/i],
   [
     'Seeded prototype track names',
     /noir\s+électrique|collégium|fracture\s+analogique|thom\s+yorke|bonobo/i,

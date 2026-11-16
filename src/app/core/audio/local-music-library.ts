@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { parseAudioFileMetadata } from './tag-parser';
 
 const DATABASE_NAME = 'hear-local-audio';
 const DATABASE_VERSION = 1;
@@ -25,12 +26,14 @@ export interface LocalMusicTrack {
   title: string;
   artist?: string;
   album?: string;
+  albumId?: string;
   duration?: number;
   mimeType: string;
   size: number;
   addedAt: number;
   modifiedAt?: number;
   file?: Blob;
+  artworkUrl?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -73,25 +76,32 @@ export class LocalMusicLibrary {
     }
 
     const now = Date.now();
-    const tracks = audioFiles.map((file) => {
-      const extension = file.name.match(/\.([^./\\]+)$/)?.[1]?.toLowerCase() ?? '';
-      const mimeType = file.type.startsWith('audio/')
-        ? file.type
-        : (AUDIO_MIME_TYPES[extension] ?? file.type ?? 'application/octet-stream');
-      return {
-        id: `local-${crypto.randomUUID()}`,
-        uri: '',
-        title: file.name.replace(/\.[^./\\]+$/, '') || file.name,
-        artist: 'Artiste inconnu',
-        album: 'Album inconnu',
-        duration: 0,
-        mimeType,
-        size: file.size,
-        addedAt: now,
-        modifiedAt: file.lastModified,
-        file: file.slice(0, file.size, mimeType),
-      };
-    });
+    const tracks: LocalMusicTrack[] = await Promise.all(
+      audioFiles.map(async (file) => {
+        const extension = file.name.match(/\.([^./\\]+)$/)?.[1]?.toLowerCase() ?? '';
+        const mimeType = file.type.startsWith('audio/')
+          ? file.type
+          : (AUDIO_MIME_TYPES[extension] ?? file.type ?? 'application/octet-stream');
+
+        const metadata = await parseAudioFileMetadata(file);
+        const fallbackTitle = file.name.replace(/\.[^./\\]+$/, '') || file.name;
+
+        return {
+          id: `local-${crypto.randomUUID()}`,
+          uri: '',
+          title: metadata.title || fallbackTitle,
+          artist: metadata.artist || 'Artiste inconnu',
+          album: metadata.album || 'Album inconnu',
+          duration: 0,
+          mimeType,
+          size: file.size,
+          addedAt: now,
+          modifiedAt: file.lastModified,
+          file: file.slice(0, file.size, mimeType),
+          artworkUrl: metadata.artworkUrl,
+        };
+      }),
+    );
     const database = await this.open();
 
     await new Promise<void>((resolve, reject) => {
