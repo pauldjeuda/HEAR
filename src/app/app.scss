@@ -1819,6 +1819,28 @@ button:disabled {
   text-transform: uppercase;
 }
 
+.lyrics-manual-search {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.lyrics-search-input {
+  flex: 1;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: var(--hear-mono);
+  font-size: 0.8rem;
+  padding: 0.45rem 0.65rem;
+  outline: none;
+
+  &:focus {
+    border-color: var(--signal, #b81120);
+  }
+}
+
 .lyrics-empty-banner__footer {
   display: flex;
   justify-content: space-between;

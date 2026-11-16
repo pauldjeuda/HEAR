@@ -618,14 +618,41 @@ export class App implements OnDestroy {
     await this.seekToPosition(timeSeconds);
   }
 
+  protected readonly manualLyricsQuery = signal('');
+
   protected openLyrics(): void {
     const track = this.activeLocalTrack();
-    if (track) void this.lyricsService.loadLyricsForTrack(track);
+    if (track) {
+      this.manualLyricsQuery.set(
+        `${track.artist !== 'Artiste inconnu' ? track.artist + ' ' : ''}${track.title}`,
+      );
+      void this.lyricsService.loadLyricsForTrack(track);
+    }
     this.navigate('lyrics');
   }
 
   protected closeLyrics(): void {
     this.navigate('player');
+  }
+
+  protected onManualQueryInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.manualLyricsQuery.set(input.value);
+  }
+
+  protected async retryLyrics(): Promise<void> {
+    const track = this.activeLocalTrack();
+    if (track) {
+      await this.lyricsService.loadLyricsForTrack(track, true);
+    }
+  }
+
+  protected async searchLyricsManually(): Promise<void> {
+    const track = this.activeLocalTrack();
+    const query = this.manualLyricsQuery().trim();
+    if (track && query) {
+      await this.lyricsService.searchCustom(track.id, query);
+    }
   }
 
   protected getTrackArtwork(

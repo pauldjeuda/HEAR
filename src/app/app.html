@@ -1232,14 +1232,37 @@
                 } @else {
                   <div class="lyrics-empty-banner">
                     <div class="lyrics-empty-banner__header">
-                      <span class="mono-badge mono-badge--accent">[ APERÇU HORS LIGNE ]</span>
-                      <span class="mono-badge">00:00</span>
+                      <span class="mono-badge mono-badge--accent">[ PAROLES INTROUVABLES ]</span>
+                      <button
+                        class="action-button action-button--small"
+                        type="button"
+                        (click)="retryLyrics()"
+                      >
+                        RÉESSAYER
+                      </button>
                     </div>
                     <p class="lyrics-empty-banner__text">
-                      [ ÉTAT SYSTÈME : PAROLES NON DISPONIBLES — SOURCE LOCALE NON INDEXÉE ]
+                      Aucune parole synchronisée trouvée automatiquement pour « {{ track.title }} ».
                     </p>
+                    <div class="lyrics-manual-search">
+                      <input
+                        type="text"
+                        class="lyrics-search-input"
+                        placeholder="Rechercher par titre ou artiste…"
+                        [value]="manualLyricsQuery()"
+                        (input)="onManualQueryInput($event)"
+                        (keydown.enter)="searchLyricsManually()"
+                      />
+                      <button
+                        class="action-button action-button--small"
+                        type="button"
+                        (click)="searchLyricsManually()"
+                      >
+                        CHERCHER
+                      </button>
+                    </div>
                     <div class="lyrics-empty-banner__footer">
-                      <span class="mono-badge">INDEXATION LOCALE ACTIVE</span>
+                      <span class="mono-badge">LRCLIB API · TEMPS RÉEL</span>
                       <button
                         class="action-button action-button--small"
                         type="button"
