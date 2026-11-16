@@ -1438,6 +1438,7 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 2px;
+  pointer-events: none;
 }
 
 .waveform-bar {
@@ -1456,12 +1457,20 @@ button:disabled {
   }
 }
 
-.waveform-range-hidden {
+.waveform-range-overlay {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
-  pointer-events: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  z-index: 5;
+  touch-action: pan-y;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .waveform-time-row {

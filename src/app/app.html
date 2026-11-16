@@ -997,28 +997,8 @@
                 </button>
               </div>
               <div class="player-waveform-block">
-                <div
-                  class="waveform-scrubber"
-                  role="slider"
-                  tabindex="0"
-                  aria-label="Jauge d'avancement de la musique"
-                  [attr.aria-valuenow]="isScrubbing() ? scrubPosition() : playbackPosition()"
-                  [attr.aria-valuemin]="0"
-                  [attr.aria-valuemax]="playbackDuration() || 1"
-                  (pointerdown)="onWaveformPointerDown($event)"
-                  (pointermove)="onWaveformPointerMove($event)"
-                  (pointerup)="onWaveformPointerUp($event)"
-                  (pointercancel)="onWaveformPointerCancel($event)"
-                  (click)="onWaveformClick($event)"
-                  (keydown)="
-                    $event.key === 'ArrowRight'
-                      ? seekToPosition(playbackPosition() + 5)
-                      : $event.key === 'ArrowLeft'
-                        ? seekToPosition(playbackPosition() - 5)
-                        : null
-                  "
-                >
-                  <div class="waveform-bars">
+                <div class="waveform-scrubber">
+                  <div class="waveform-bars" aria-hidden="true">
                     @for (bar of waveformBars(); track $index) {
                       <div
                         class="waveform-bar"
@@ -1029,12 +1009,15 @@
                   </div>
                   <input
                     type="range"
-                    class="waveform-range-hidden"
-                    aria-label="Position de lecture"
+                    class="waveform-range-overlay"
+                    role="slider"
+                    aria-label="Jauge d'avancement de la musique"
                     min="0"
+                    step="0.1"
                     [max]="playbackDuration() || 1"
                     [value]="isScrubbing() ? scrubPosition() : playbackPosition()"
-                    (input)="seekLocalTrack($event)"
+                    (input)="onWaveformRangeInput($event)"
+                    (change)="onWaveformRangeChange($event)"
                   />
                 </div>
                 <div class="waveform-time-row">
@@ -1126,7 +1109,7 @@
                     ><button type="button" (click)="navigate('collection')">FILE LOCALE →</button>
                   </div>
                   @for (next of upcomingTracks(track.id); track next.id; let index = $index) {
-                    <button class="up-next-row" type="button" (click)="playLocalTrack(next)">
+                    <button class="up-next-row" type="button" (click)="playQueueTrack(next)">
                       <span>{{ (index + 1).toString().padStart(2, '0') }}</span><strong>{{
                         next.title
                       }}</strong

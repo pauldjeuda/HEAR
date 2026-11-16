@@ -546,9 +546,50 @@ export class App implements OnDestroy {
     else await this.audioEngine.seek(safePos).catch(() => undefined);
   }
 
-  protected async seekLocalTrack(event: Event): Promise<void> {
-    const position = Number((event.target as HTMLInputElement).value);
-    await this.seekToPosition(position);
+  protected onWaveformRangeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const pos = Number(input.value);
+    this.isScrubbing.set(true);
+    this.scrubPosition.set(pos);
+  }
+
+  protected async onWaveformRangeChange(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const pos = Number(input.value);
+    this.isScrubbing.set(false);
+    this.playbackPosition.set(pos);
+    await this.seekToPosition(pos);
+  }
+
+  protected async playQueueTrack(track: PlayableLocalTrack): Promise<void> {
+    const queue = this.playbackQueue().length ? this.playbackQueue() : this.localTracks();
+    const index = queue.findIndex((item) => item.id === track.id);
+    if (this.isAndroid && index >= 0) {
+      this.activeLocalTrackId.set(track.id);
+      this.playbackState.set('loading');
+      this.playbackPosition.set(0);
+      this.playbackDuration.set((track.duration ?? 0) / 1000);
+      void this.lyricsService.loadLyricsForTrack(track);
+      try {
+        await LocalMusicBridge.play({
+          queue: queue.map((item) => ({
+            uri: item.uri ?? '',
+            title: item.title,
+            artist: item.artist ?? 'Artiste inconnu',
+            album: item.album ?? 'Album inconnu',
+          })),
+          index,
+          repeatMode: this.repeatMode(),
+        });
+        await this.collectionStore.recordPlayed(track.id);
+        await this.refreshCollection();
+      } catch (error) {
+        this.playbackState.set('error');
+        this.localMusicMessage.set(error instanceof Error ? error.message : 'La lecture a échoué.');
+      }
+    } else {
+      await this.playLocalTrack(track);
+    }
   }
 
   protected onWaveformPointerDown(event: PointerEvent): void {
