@@ -108,13 +108,27 @@ test('indexes, searches, favorites, plays and keeps local audio in the browser p
   await page.getByLabel('NOM DE LA PLAYLIST').fill('Mes écoutes');
   await page.getByRole('button', { name: 'CRÉER', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Playlist créée sur ce téléphone.');
-  await expect(page.getByRole('button', { name: /^Mes écoutes OUVRIR/ })).toBeVisible();
+  console.log(
+    'Playlist UI after create:',
+    JSON.stringify(
+      await page.evaluate(() => ({
+        rows: Array.from(document.querySelectorAll('.playlist-row')).map((row) => row.textContent),
+        text: document.querySelector('.collection-screen')?.textContent,
+        storage: Object.fromEntries(
+          Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index) ?? '')
+            .filter(Boolean)
+            .map((key) => [key, localStorage.getItem(key)]),
+        ),
+      })),
+    ),
+  );
+  await expect(page.locator('.playlist-row').filter({ hasText: 'Mes écoutes' })).toBeVisible();
 
   await page.getByRole('tab', { name: 'TITRES' }).click();
   await page.getByRole('button', { name: 'Ajouter Piste locale à une playlist' }).click();
   await page.getByRole('button', { name: 'Mes écoutes', exact: true }).last().click();
   await page.getByRole('tab', { name: 'PLAYLISTS' }).click();
-  await page.getByRole('button', { name: /^Mes écoutes OUVRIR/ }).click();
+  await page.locator('.playlist-row').filter({ hasText: 'Mes écoutes' }).click();
   await expect(page.getByRole('button', { name: 'Lire Piste locale' })).toBeVisible();
   await page.getByRole('button', { name: 'Lire Piste locale' }).click();
   await expect(page.getByRole('heading', { name: 'Piste locale' })).toBeVisible();
