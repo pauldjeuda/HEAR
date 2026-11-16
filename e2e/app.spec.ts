@@ -107,6 +107,7 @@ test('indexes, searches, favorites, plays and keeps local audio in the browser p
   await page.getByRole('button', { name: /NOUVELLE PLAYLIST/ }).click();
   await page.getByLabel('NOM DE LA PLAYLIST').fill('Mes écoutes');
   await page.getByRole('button', { name: 'CRÉER', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('Playlist créée sur ce téléphone.');
   await expect(page.getByRole('button', { name: /^Mes écoutes OUVRIR/ })).toBeVisible();
 
   await page.getByRole('tab', { name: 'TITRES' }).click();
@@ -138,7 +139,8 @@ test('saves real local-library, display and playback settings', async ({ page })
   const indexingSettings = page.getByRole('region', { name: 'INDEXATION AUDIO' });
   const autoScan = indexingSettings.getByRole('checkbox');
   await expect(autoScan).toBeChecked();
-  await autoScan.uncheck();
+  await indexingSettings.locator('label.switch-control').click();
+  await expect(autoScan).not.toBeChecked();
   await page.getByRole('button', { name: 'SOMBRE (VINYLE)' }).click();
   await expect(page.locator('.app-shell')).toHaveAttribute('data-theme', 'vinyl');
   await page.getByRole('button', { name: 'UN TITRE' }).click();
