@@ -53,6 +53,7 @@ export class App implements OnDestroy {
   private readonly localMusic = inject(LocalMusicLibrary);
   private readonly audioEngine = new WebAudioEngine();
   private readonly navigationHistory: HearScreen[] = [];
+  private playlistLoadVersion = 0;
   private nativePlaybackListener?: PluginListenerHandle;
 
   protected readonly activeScreen = signal<HearScreen>('home');
@@ -550,10 +551,14 @@ export class App implements OnDestroy {
   }
 
   private async loadPlaylists(): Promise<void> {
+    const loadVersion = ++this.playlistLoadVersion;
     try {
-      this.playlists.set(await this.collectionStore.listPlaylists());
+      const playlists = await this.collectionStore.listPlaylists();
+      if (loadVersion !== this.playlistLoadVersion) return;
+      this.playlists.set(playlists);
       this.collectionStoreReady.set(true);
     } catch {
+      if (loadVersion !== this.playlistLoadVersion) return;
       this.collectionStoreReady.set(false);
     }
   }
