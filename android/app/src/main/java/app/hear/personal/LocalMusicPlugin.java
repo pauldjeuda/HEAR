@@ -24,6 +24,7 @@ import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -190,7 +191,7 @@ public class LocalMusicPlugin extends Plugin {
         ArrayList<String> albums = new ArrayList<>();
         try {
             for (int index = 0; index < queue.length(); index++) {
-                JSObject item = queue.getJSONObject(index);
+                JSONObject item = queue.getJSONObject(index);
                 uris.add(item.getString("uri"));
                 titles.add(item.optString("title", "Titre local"));
                 artists.add(item.optString("artist", "Artiste inconnu"));

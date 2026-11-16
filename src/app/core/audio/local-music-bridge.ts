@@ -25,7 +25,7 @@ interface LocalMusicPlugin {
   requestAccess(): Promise<{ granted: boolean }>;
   scan(): Promise<{ tracks: DeviceMusicTrack[]; scannedAt: number }>;
   play(options: {
-    queue: Array<Pick<DeviceMusicTrack, 'uri' | 'title' | 'artist' | 'album'>>;
+    queue: Pick<DeviceMusicTrack, 'uri' | 'title' | 'artist' | 'album'>[];
     index: number;
     repeatMode: 'none' | 'one' | 'all';
   }): Promise<void>;
