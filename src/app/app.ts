@@ -339,9 +339,10 @@ export class App implements OnDestroy {
   protected async deletePlaylist(id: string): Promise<void> {
     try {
       await this.collectionStore.deletePlaylist(id);
+      this.playlistLoadVersion++;
+      this.playlists.update((current) => current.filter((playlist) => playlist.id !== id));
       this.playlistMessage.set('Playlist supprimée.');
       if (this.activePlaylistId() === id) this.setCollectionFilter('playlists');
-      await this.loadPlaylists();
     } catch {
       this.playlistMessage.set('La playlist n’a pas pu être supprimée.');
     }
@@ -561,7 +562,11 @@ export class App implements OnDestroy {
     try {
       const playlists = await this.collectionStore.listPlaylists();
       if (loadVersion !== this.playlistLoadVersion) return;
-      this.playlists.set(playlists);
+      this.playlists.update((current) => {
+        const latestById = new Map(current.map((playlist) => [playlist.id, playlist]));
+        for (const playlist of playlists) latestById.set(playlist.id, playlist);
+        return [...latestById.values()].sort((first, second) => second.updatedAt - first.updatedAt);
+      });
       this.collectionStoreReady.set(true);
     } catch {
       if (loadVersion !== this.playlistLoadVersion) return;
