@@ -1000,12 +1000,23 @@
                 <div
                   class="waveform-scrubber"
                   role="slider"
+                  tabindex="0"
                   aria-label="Jauge d'avancement de la musique"
-                  [attr.aria-valuenow]="playbackPosition()"
+                  [attr.aria-valuenow]="isScrubbing() ? scrubPosition() : playbackPosition()"
                   [attr.aria-valuemin]="0"
                   [attr.aria-valuemax]="playbackDuration() || 1"
-                  (pointerdown)="onWaveformScrub($event)"
-                  (pointermove)="$event.buttons === 1 && onWaveformScrub($event)"
+                  (pointerdown)="onWaveformPointerDown($event)"
+                  (pointermove)="onWaveformPointerMove($event)"
+                  (pointerup)="onWaveformPointerUp($event)"
+                  (pointercancel)="onWaveformPointerCancel($event)"
+                  (click)="onWaveformClick($event)"
+                  (keydown)="
+                    $event.key === 'ArrowRight'
+                      ? seekToPosition(playbackPosition() + 5)
+                      : $event.key === 'ArrowLeft'
+                        ? seekToPosition(playbackPosition() - 5)
+                        : null
+                  "
                 >
                   <div class="waveform-bars">
                     @for (bar of waveformBars(); track $index) {
@@ -1022,15 +1033,24 @@
                     aria-label="Position de lecture"
                     min="0"
                     [max]="playbackDuration() || 1"
-                    [value]="playbackPosition()"
+                    [value]="isScrubbing() ? scrubPosition() : playbackPosition()"
                     (input)="seekLocalTrack($event)"
                   />
                 </div>
                 <div class="waveform-time-row">
-                  <span class="mono-time">{{ formatTime(playbackPosition()) }}</span>
+                  <span class="mono-time">{{
+                    formatTime(isScrubbing() ? scrubPosition() : playbackPosition())
+                  }}</span>
                   <span class="waveform-quality-badge">44.1 KHZ · SANS PERTE</span>
                   <span class="mono-time">{{
-                    '-' + formatTime(Math.max(0, (playbackDuration() || 0) - playbackPosition()))
+                    '-' +
+                      formatTime(
+                        Math.max(
+                          0,
+                          (playbackDuration() || 0) -
+                            (isScrubbing() ? scrubPosition() : playbackPosition())
+                        )
+                      )
                   }}</span>
                 </div>
               </div>
@@ -1060,14 +1080,18 @@
                 ><button
                   type="button"
                   [class.is-active]="repeatMode() !== 'none'"
-                  [attr.aria-label]="'Répétition : ' + repeatMode()"
-                  (click)="
-                    setRepeat(
-                      repeatMode() === 'none' ? 'all' : repeatMode() === 'all' ? 'one' : 'none'
-                    )
+                  [attr.aria-label]="
+                    repeatMode() === 'all'
+                      ? 'Lecture sans fin (tout répéter)'
+                      : repeatMode() === 'one'
+                        ? 'Répéter le son en cours'
+                        : 'Répétition désactivée'
                   "
+                  (click)="cycleRepeat()"
                 >
-                  ↻<small>{{ repeatMode() === 'one' ? '1' : '' }}</small>
+                  ↻<small>{{
+                    repeatMode() === 'one' ? '1' : repeatMode() === 'all' ? '∞' : ''
+                  }}</small>
                 </button>
               </div>
               <div class="player-utility-strip">
@@ -1229,7 +1253,27 @@
               </div>
 
               <footer class="lyrics-footer">
-                <div class="lyrics-mini-timeline" (pointerdown)="onWaveformScrub($event)">
+                <div
+                  class="lyrics-mini-timeline"
+                  role="slider"
+                  tabindex="0"
+                  aria-label="Position de lecture"
+                  [attr.aria-valuenow]="playbackPosition()"
+                  [attr.aria-valuemin]="0"
+                  [attr.aria-valuemax]="playbackDuration() || 1"
+                  (pointerdown)="onWaveformPointerDown($event)"
+                  (pointermove)="onWaveformPointerMove($event)"
+                  (pointerup)="onWaveformPointerUp($event)"
+                  (pointercancel)="onWaveformPointerCancel($event)"
+                  (click)="onWaveformClick($event)"
+                  (keydown)="
+                    $event.key === 'ArrowRight'
+                      ? seekToPosition(playbackPosition() + 5)
+                      : $event.key === 'ArrowLeft'
+                        ? seekToPosition(playbackPosition() - 5)
+                        : null
+                  "
+                >
                   <div class="lyrics-mini-timeline__fill" [style.width.%]="progressRatio() * 100">
                     <div class="lyrics-mini-timeline__thumb"></div>
                   </div>
@@ -1252,13 +1296,18 @@
                     type="button"
                     class="lyrics-ctrl-btn"
                     [class.is-active]="repeatMode() !== 'none'"
-                    (click)="
-                      setRepeat(
-                        repeatMode() === 'none' ? 'all' : repeatMode() === 'all' ? 'one' : 'none'
-                      )
+                    [attr.aria-label]="
+                      repeatMode() === 'all'
+                        ? 'Lecture sans fin (tout répéter)'
+                        : repeatMode() === 'one'
+                          ? 'Répéter le son en cours'
+                          : 'Répétition désactivée'
                     "
+                    (click)="cycleRepeat()"
                   >
-                    ↻
+                    ↻<small>{{
+                      repeatMode() === 'one' ? '1' : repeatMode() === 'all' ? '∞' : ''
+                    }}</small>
                   </button>
                   <div class="lyrics-ctrl-center">
                     <button

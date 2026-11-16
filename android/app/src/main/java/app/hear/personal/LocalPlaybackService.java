@@ -34,6 +34,7 @@ public class LocalPlaybackService extends Service {
     public static final String ACTION_PREVIOUS = "app.hear.personal.action.PREVIOUS";
     public static final String ACTION_SEEK = "app.hear.personal.action.SEEK";
     public static final String ACTION_REPEAT = "app.hear.personal.action.REPEAT";
+    public static final String ACTION_UPDATE_QUEUE = "app.hear.personal.action.UPDATE_QUEUE";
     public static final String ACTION_STOP = "app.hear.personal.action.STOP";
     public static final String EXTRA_URIS = "uris";
     public static final String EXTRA_TITLES = "titles";
@@ -125,6 +126,9 @@ public class LocalPlaybackService extends Service {
             case ACTION_REPEAT:
                 repeatMode = intent.getStringExtra(EXTRA_REPEAT) == null ? "none" : intent.getStringExtra(EXTRA_REPEAT);
                 publishState();
+                break;
+            case ACTION_UPDATE_QUEUE:
+                updateQueue(intent);
                 break;
             case ACTION_STOP:
                 stopPlayback();
@@ -231,6 +235,10 @@ public class LocalPlaybackService extends Service {
             index--;
             wantsPlayback = true;
             startCurrent(false);
+        } else if ("all".equals(repeatMode) && !uris.isEmpty()) {
+            index = uris.size() - 1;
+            wantsPlayback = true;
+            startCurrent(false);
         } else {
             seek(0);
         }
@@ -239,8 +247,28 @@ public class LocalPlaybackService extends Service {
     private void seek(long position) {
         if (player == null || !playerPrepared) return;
         int bounded = (int) Math.max(0, Math.min(position, player.getDuration()));
-        player.seekTo(bounded);
-        publishState();
+        if (Build.VERSION.SDK_INT >= 26) {
+            player.seekTo((long) bounded, MediaPlayer.SEEK_CLOSEST);
+        } else {
+            player.seekTo(bounded);
+        }
+        player.setOnSeekCompleteListener(mp -> publishState());
+    }
+
+    private void updateQueue(Intent intent) {
+        String currentUri = (uris.isEmpty() || index < 0 || index >= uris.size()) ? null : uris.get(index);
+        readQueue(intent);
+        if (currentUri != null) {
+            int newIndex = uris.indexOf(currentUri);
+            if (newIndex >= 0) {
+                index = newIndex;
+            }
+        }
+        if (intent.hasExtra(EXTRA_REPEAT)) {
+            String repeat = intent.getStringExtra(EXTRA_REPEAT);
+            if (repeat != null) repeatMode = repeat;
+        }
+        publishState(true);
     }
 
     private void startCurrent(boolean foreground) {

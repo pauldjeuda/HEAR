@@ -37,6 +37,10 @@ interface LocalMusicPlugin {
   previous(): Promise<void>;
   seek(options: { position: number }): Promise<void>;
   stop(): Promise<void>;
+  updateQueue(options: {
+    queue: Pick<DeviceMusicTrack, 'uri' | 'title' | 'artist' | 'album'>[];
+    repeatMode?: 'none' | 'one' | 'all';
+  }): Promise<void>;
   setRepeatMode(options: { mode: 'none' | 'one' | 'all' }): Promise<void>;
   addListener(
     eventName: 'playbackState',

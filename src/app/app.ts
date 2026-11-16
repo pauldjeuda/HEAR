@@ -93,6 +93,9 @@ export class App implements OnDestroy {
   protected readonly theme = signal<ThemeMode>('paper');
   protected readonly repeatMode = signal<RepeatMode>('none');
   protected readonly shuffleEnabled = signal(false);
+  protected readonly playbackQueue = signal<PlayableLocalTrack[]>([]);
+  protected readonly isScrubbing = signal(false);
+  protected readonly scrubPosition = signal(0);
   protected readonly isAndroid = Capacitor.getPlatform() === 'android';
 
   protected readonly activeLocalTrack = computed(
@@ -106,7 +109,8 @@ export class App implements OnDestroy {
   protected readonly progressRatio = computed(() => {
     const dur = this.playbackDuration();
     if (!dur || dur <= 0) return 0;
-    return Math.min(1, Math.max(0, this.playbackPosition() / dur));
+    const current = this.isScrubbing() ? this.scrubPosition() : this.playbackPosition();
+    return Math.min(1, Math.max(0, current / dur));
   });
   protected readonly currentLyricIndex = computed(() => {
     const lyrics = this.lyricsService.currentLyrics();
@@ -175,7 +179,9 @@ export class App implements OnDestroy {
   private readonly audioEvents = this.audioEngine.events.subscribe((event) => {
     if (event.type === 'state') this.playbackState.set(event.state);
     if (event.type === 'position') {
-      this.playbackPosition.set(event.position);
+      if (!this.isScrubbing()) {
+        this.playbackPosition.set(event.position);
+      }
       this.playbackDuration.set(event.duration);
     }
     if (event.type === 'ended') void this.playNextLocalTrack();
@@ -412,9 +418,17 @@ export class App implements OnDestroy {
   }
 
   protected upcomingTracks(currentId: string): PlayableLocalTrack[] {
-    return this.localTracks()
-      .filter((track) => track.id !== currentId)
-      .slice(0, 3);
+    const queue = this.playbackQueue().length ? this.playbackQueue() : this.localTracks();
+    const currentIndex = queue.findIndex((track) => track.id === currentId);
+    if (currentIndex >= 0) {
+      const nextTracks = queue.slice(currentIndex + 1);
+      if (this.repeatMode() === 'all' && nextTracks.length < 3) {
+        const wrap = queue.slice(0, currentIndex);
+        nextTracks.push(...wrap);
+      }
+      return nextTracks.slice(0, 3);
+    }
+    return queue.filter((track) => track.id !== currentId).slice(0, 3);
   }
 
   protected openArtist(artist: string): void {
@@ -424,13 +438,27 @@ export class App implements OnDestroy {
 
   protected async playLocalTrack(track: PlayableLocalTrack): Promise<void> {
     void this.lyricsService.loadLyricsForTrack(track);
+
+    const allTracks = this.localTracks();
+    if (this.shuffleEnabled()) {
+      const remaining = allTracks.filter((item) => item.id !== track.id);
+      const shuffledOthers = [...remaining].sort(() => Math.random() - 0.5);
+      this.playbackQueue.set([track, ...shuffledOthers]);
+    } else {
+      this.playbackQueue.set(allTracks);
+    }
+
+    const currentQueue = this.playbackQueue();
+    const index = Math.max(
+      0,
+      currentQueue.findIndex((item) => item.id === track.id),
+    );
+
     if (this.isAndroid) {
       if (this.activeLocalTrackId() === track.id && this.playbackState() === 'playing') {
         await LocalMusicBridge.toggle();
         return;
       }
-      const tracks = this.localTracks();
-      const index = tracks.findIndex((item) => item.id === track.id);
       this.activeLocalTrackId.set(track.id);
       this.playbackState.set('loading');
       this.playbackPosition.set(0);
@@ -438,13 +466,13 @@ export class App implements OnDestroy {
       this.navigate('player');
       try {
         await LocalMusicBridge.play({
-          queue: tracks.map((item) => ({
+          queue: currentQueue.map((item) => ({
             uri: item.uri ?? '',
             title: item.title,
             artist: item.artist ?? 'Artiste inconnu',
             album: item.album ?? 'Album inconnu',
           })),
-          index: Math.max(0, index),
+          index,
           repeatMode: this.repeatMode(),
         });
         await this.collectionStore.recordPlayed(track.id);
@@ -498,11 +526,17 @@ export class App implements OnDestroy {
       await LocalMusicBridge.previous();
       return;
     }
-    const currentIndex = this.localTracks().findIndex(
-      (track) => track.id === this.activeLocalTrackId(),
-    );
-    if (currentIndex > 0) await this.playLocalTrack(this.localTracks()[currentIndex - 1]);
-    else await this.audioEngine.seek(0).catch(() => undefined);
+    const queue = this.playbackQueue().length ? this.playbackQueue() : this.localTracks();
+    const currentIndex = queue.findIndex((track) => track.id === this.activeLocalTrackId());
+    if (this.playbackPosition() > 3) {
+      await this.seekToPosition(0);
+    } else if (currentIndex > 0) {
+      await this.playLocalTrack(queue[currentIndex - 1]);
+    } else if (this.repeatMode() === 'all' && queue.length > 0) {
+      await this.playLocalTrack(queue[queue.length - 1]);
+    } else {
+      await this.seekToPosition(0);
+    }
   }
 
   protected async seekToPosition(position: number): Promise<void> {
@@ -517,14 +551,67 @@ export class App implements OnDestroy {
     await this.seekToPosition(position);
   }
 
-  protected onWaveformScrub(event: PointerEvent): void {
+  protected onWaveformPointerDown(event: PointerEvent): void {
+    const target = event.currentTarget as HTMLElement;
+    if (!target) return;
+    try {
+      target.setPointerCapture(event.pointerId);
+    } catch {
+      void 0;
+    }
+    this.isScrubbing.set(true);
+    const rect = target.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    this.scrubPosition.set(ratio * (this.playbackDuration() || 0));
+  }
+
+  protected onWaveformPointerMove(event: PointerEvent): void {
+    if (!this.isScrubbing()) return;
+    const target = event.currentTarget as HTMLElement;
+    if (!target) return;
+    const rect = target.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    this.scrubPosition.set(ratio * (this.playbackDuration() || 0));
+  }
+
+  protected async onWaveformPointerUp(event: PointerEvent): Promise<void> {
+    if (!this.isScrubbing()) return;
+    const target = event.currentTarget as HTMLElement;
+    const rect = target?.getBoundingClientRect();
+    let newPos = this.scrubPosition();
+    if (rect && rect.width > 0) {
+      const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+      newPos = ratio * (this.playbackDuration() || 0);
+    }
+    this.isScrubbing.set(false);
+    this.playbackPosition.set(newPos);
+    try {
+      target?.releasePointerCapture(event.pointerId);
+    } catch {
+      void 0;
+    }
+    await this.seekToPosition(newPos);
+  }
+
+  protected onWaveformPointerCancel(event: PointerEvent): void {
+    this.isScrubbing.set(false);
+    try {
+      (event.currentTarget as HTMLElement)?.releasePointerCapture(event.pointerId);
+    } catch {
+      void 0;
+    }
+  }
+
+  protected async onWaveformClick(event: MouseEvent): Promise<void> {
     const target = event.currentTarget as HTMLElement;
     if (!target) return;
     const rect = target.getBoundingClientRect();
     if (rect.width <= 0) return;
     const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
     const newPos = ratio * (this.playbackDuration() || 0);
-    void this.seekToPosition(newPos);
+    await this.seekToPosition(newPos);
   }
 
   protected async seekToLyric(timeSeconds: number): Promise<void> {
@@ -547,6 +634,12 @@ export class App implements OnDestroy {
     return this.artworkService.getArtwork(track);
   }
 
+  protected cycleRepeat(): void {
+    const current = this.repeatMode();
+    const next: RepeatMode = current === 'none' ? 'all' : current === 'all' ? 'one' : 'none';
+    void this.setRepeat(next);
+  }
+
   protected async setRepeat(mode: RepeatMode): Promise<void> {
     this.repeatMode.set(mode);
     await Preferences.set({ key: 'playback-repeat', value: mode });
@@ -554,27 +647,36 @@ export class App implements OnDestroy {
   }
 
   protected async toggleShuffle(): Promise<void> {
-    this.shuffleEnabled.update((enabled) => !enabled);
-    await Preferences.set({ key: 'playback-shuffle', value: String(this.shuffleEnabled()) });
-    if (this.activeLocalTrack()) {
-      const current = this.activeLocalTrack()!;
-      const remaining = this.localTracks().filter((track) => track.id !== current.id);
-      const ordered = this.shuffleEnabled()
-        ? [current, ...remaining.sort(() => Math.random() - 0.5)]
-        : this.localTracks();
-      if (this.isAndroid) {
-        const mode = this.repeatMode();
-        await LocalMusicBridge.play({
-          queue: ordered.map((track) => ({
-            uri: track.uri ?? '',
-            title: track.title,
-            artist: track.artist ?? 'Artiste inconnu',
-            album: track.album ?? 'Album inconnu',
-          })),
-          index: 0,
-          repeatMode: mode,
-        });
-      }
+    const newShuffle = !this.shuffleEnabled();
+    this.shuffleEnabled.set(newShuffle);
+    await Preferences.set({ key: 'playback-shuffle', value: String(newShuffle) });
+
+    const currentTrack = this.activeLocalTrack();
+    if (!currentTrack) return;
+
+    const allTracks = this.localTracks();
+    let newQueue: PlayableLocalTrack[];
+
+    if (newShuffle) {
+      const remaining = allTracks.filter((track) => track.id !== currentTrack.id);
+      const shuffledOthers = [...remaining].sort(() => Math.random() - 0.5);
+      newQueue = [currentTrack, ...shuffledOthers];
+    } else {
+      newQueue = allTracks;
+    }
+
+    this.playbackQueue.set(newQueue);
+
+    if (this.isAndroid) {
+      await LocalMusicBridge.updateQueue({
+        queue: newQueue.map((track) => ({
+          uri: track.uri ?? '',
+          title: track.title,
+          artist: track.artist ?? 'Artiste inconnu',
+          album: track.album ?? 'Album inconnu',
+        })),
+        repeatMode: this.repeatMode(),
+      }).catch(() => undefined);
     }
   }
 
@@ -690,19 +792,30 @@ export class App implements OnDestroy {
       if (active) void this.lyricsService.loadLyricsForTrack(active);
     }
     this.playbackState.set(event.state);
-    this.playbackPosition.set(event.position / 1000);
+    if (!this.isScrubbing()) {
+      this.playbackPosition.set(event.position / 1000);
+    }
     this.playbackDuration.set(event.duration / 1000);
     if (event.error) this.localMusicMessage.set(event.error);
   }
 
   private async playNextLocalTrack(): Promise<void> {
-    const tracks = this.localTracks();
-    const currentIndex = tracks.findIndex((track) => track.id === this.activeLocalTrackId());
-    if (currentIndex < 0 || currentIndex >= tracks.length - 1) {
-      this.playbackState.set('ended');
+    const queue = this.playbackQueue().length ? this.playbackQueue() : this.localTracks();
+    const currentIndex = queue.findIndex((track) => track.id === this.activeLocalTrackId());
+
+    if (this.repeatMode() === 'one' && this.activeLocalTrack()) {
+      await this.seekToPosition(0);
+      await this.audioEngine.play();
       return;
     }
-    await this.playLocalTrack(tracks[currentIndex + 1]);
+
+    if (currentIndex >= 0 && currentIndex < queue.length - 1) {
+      await this.playLocalTrack(queue[currentIndex + 1]);
+    } else if (this.repeatMode() === 'all' && queue.length > 0) {
+      await this.playLocalTrack(queue[0]);
+    } else {
+      this.playbackState.set('ended');
+    }
   }
 
   private async handleRemoteCommand(

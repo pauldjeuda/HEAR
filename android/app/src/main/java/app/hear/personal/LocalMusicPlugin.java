@@ -317,7 +317,50 @@ public class LocalMusicPlugin extends Plugin {
     public void seek(PluginCall call) {
         Intent intent = new Intent(getContext(), LocalPlaybackService.class);
         intent.setAction(LocalPlaybackService.ACTION_SEEK);
-        intent.putExtra(LocalPlaybackService.EXTRA_POSITION, call.getLong("position", 0L));
+        long pos = 0L;
+        if (call.getData().has("position")) {
+            pos = call.getData().optLong("position", 0L);
+        } else {
+            pos = call.getLong("position", 0L);
+        }
+        intent.putExtra(LocalPlaybackService.EXTRA_POSITION, pos);
+        startService(intent);
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void updateQueue(PluginCall call) {
+        JSArray queue = call.getArray("queue");
+        if (queue == null) {
+            call.reject("Une file d'attente est requise.");
+            return;
+        }
+        ArrayList<String> uris = new ArrayList<>();
+        ArrayList<String> titles = new ArrayList<>();
+        ArrayList<String> artists = new ArrayList<>();
+        ArrayList<String> albums = new ArrayList<>();
+        try {
+            for (int i = 0; i < queue.length(); i++) {
+                JSObject item = JSObject.fromJSONObject(queue.getJSONObject(i));
+                uris.add(item.getString("uri", ""));
+                titles.add(item.getString("title", "Titre local"));
+                artists.add(item.getString("artist", "Artiste inconnu"));
+                albums.add(item.getString("album", "Album inconnu"));
+            }
+        } catch (JSONException error) {
+            call.reject("La file d'attente est invalide.", error);
+            return;
+        }
+
+        Intent intent = new Intent(getContext(), LocalPlaybackService.class);
+        intent.setAction(LocalPlaybackService.ACTION_UPDATE_QUEUE);
+        intent.putStringArrayListExtra(LocalPlaybackService.EXTRA_URIS, uris);
+        intent.putStringArrayListExtra(LocalPlaybackService.EXTRA_TITLES, titles);
+        intent.putStringArrayListExtra(LocalPlaybackService.EXTRA_ARTISTS, artists);
+        intent.putStringArrayListExtra(LocalPlaybackService.EXTRA_ALBUMS, albums);
+        if (call.hasOption("repeatMode")) {
+            intent.putExtra(LocalPlaybackService.EXTRA_REPEAT, call.getString("repeatMode", "none"));
+        }
         startService(intent);
         call.resolve();
     }

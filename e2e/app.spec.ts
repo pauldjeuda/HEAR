@@ -175,6 +175,32 @@ test('displays waveform scrubber, opens lyrics screen and returns to player', as
   const bars = scrubber.locator('.waveform-bar');
   expect(await bars.count()).toBeGreaterThan(30);
 
+  // Click on the waveform scrubber to advance position
+  const scrubberBounds = await scrubber.boundingBox();
+  expect(scrubberBounds).not.toBeNull();
+  await page.mouse.click(
+    scrubberBounds!.x + scrubberBounds!.width * 0.5,
+    scrubberBounds!.y + scrubberBounds!.height * 0.5,
+  );
+
+  // Test repeat button cycling: none -> all -> one -> none
+  const repeatBtn = page.getByRole('button', {
+    name: /Lecture sans fin|Répéter le son|Répétition/,
+  });
+  await expect(repeatBtn).toBeVisible();
+  await repeatBtn.click();
+  await expect(page.getByRole('button', { name: /Lecture sans fin/ })).toBeVisible();
+  await repeatBtn.click();
+  await expect(page.getByRole('button', { name: /Répéter le son en cours/ })).toBeVisible();
+  await repeatBtn.click();
+  await expect(page.getByRole('button', { name: /Répétition désactivée/ })).toBeVisible();
+
+  // Test shuffle toggle
+  const shuffleBtn = page.getByRole('button', { name: 'Lecture aléatoire' });
+  await expect(shuffleBtn).toBeVisible();
+  await shuffleBtn.click();
+  await expect(shuffleBtn).toHaveClass(/is-active/);
+
   // Click on the lyrics button
   await page.getByRole('button', { name: 'Afficher les paroles' }).click();
   await expect(page.locator('.lyrics-screen')).toBeVisible();
