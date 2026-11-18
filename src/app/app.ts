@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.2.1';
+  protected readonly appVersion = '0.3.5';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -175,6 +175,22 @@ export class App implements OnDestroy {
       null
     );
   });
+  protected readonly recentPlayedTracks = computed(() => {
+    const tracks = this.localTracks();
+    const history = this.historyTrackIds()
+      .map((id) => tracks.find((track) => track.id === id))
+      .filter((track): track is PlayableLocalTrack => track !== undefined);
+    if (history.length > 0) {
+      return history.slice(0, 4);
+    }
+    return tracks.slice(0, 4);
+  });
+
+  protected readonly swipeAnimation = signal<'swipe-left' | 'swipe-right' | ''>('');
+  private activeScrubberElement: HTMLElement | null = null;
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private mouseStartX = 0;
 
   private readonly audioEvents = this.audioEngine.events.subscribe((event) => {
     if (event.type === 'state') this.playbackState.set(event.state);
@@ -516,12 +532,57 @@ export class App implements OnDestroy {
     else await this.audioEngine.play();
   }
 
+  protected triggerSwipeAnimation(direction: 'swipe-left' | 'swipe-right'): void {
+    this.swipeAnimation.set(direction);
+    setTimeout(() => {
+      this.swipeAnimation.set('');
+    }, 400);
+  }
+
+  protected onStageTouchStart(event: TouchEvent): void {
+    if (event.touches.length === 1) {
+      this.touchStartX = event.touches[0].clientX;
+      this.touchStartY = event.touches[0].clientY;
+    }
+  }
+
+  protected async onStageTouchEnd(event: TouchEvent): Promise<void> {
+    if (event.changedTouches.length === 1) {
+      const deltaX = event.changedTouches[0].clientX - this.touchStartX;
+      const deltaY = event.changedTouches[0].clientY - this.touchStartY;
+      if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+        if (deltaX < 0) {
+          await this.handleNextTrack();
+        } else {
+          await this.handlePreviousTrack();
+        }
+      }
+    }
+  }
+
+  protected onStageMouseDown(event: MouseEvent): void {
+    this.mouseStartX = event.clientX;
+  }
+
+  protected async onStageMouseUp(event: MouseEvent): Promise<void> {
+    const deltaX = event.clientX - this.mouseStartX;
+    if (Math.abs(deltaX) > 40) {
+      if (deltaX < 0) {
+        await this.handleNextTrack();
+      } else {
+        await this.handlePreviousTrack();
+      }
+    }
+  }
+
   protected async handleNextTrack(): Promise<void> {
+    this.triggerSwipeAnimation('swipe-left');
     if (this.isAndroid) await LocalMusicBridge.next();
     else await this.playNextLocalTrack();
   }
 
   protected async handlePreviousTrack(): Promise<void> {
+    this.triggerSwipeAnimation('swipe-right');
     if (this.isAndroid) {
       await LocalMusicBridge.previous();
       return;
@@ -546,55 +607,15 @@ export class App implements OnDestroy {
     else await this.audioEngine.seek(safePos).catch(() => undefined);
   }
 
-  protected onWaveformRangeInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const pos = Number(input.value);
-    this.isScrubbing.set(true);
-    this.scrubPosition.set(pos);
-  }
-
-  protected async onWaveformRangeChange(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const pos = Number(input.value);
-    this.isScrubbing.set(false);
-    this.playbackPosition.set(pos);
-    await this.seekToPosition(pos);
-  }
-
-  protected async playQueueTrack(track: PlayableLocalTrack): Promise<void> {
-    const queue = this.playbackQueue().length ? this.playbackQueue() : this.localTracks();
-    const index = queue.findIndex((item) => item.id === track.id);
-    if (this.isAndroid && index >= 0) {
-      this.activeLocalTrackId.set(track.id);
-      this.playbackState.set('loading');
-      this.playbackPosition.set(0);
-      this.playbackDuration.set((track.duration ?? 0) / 1000);
-      void this.lyricsService.loadLyricsForTrack(track);
-      try {
-        await LocalMusicBridge.play({
-          queue: queue.map((item) => ({
-            uri: item.uri ?? '',
-            title: item.title,
-            artist: item.artist ?? 'Artiste inconnu',
-            album: item.album ?? 'Album inconnu',
-          })),
-          index,
-          repeatMode: this.repeatMode(),
-        });
-        await this.collectionStore.recordPlayed(track.id);
-        await this.refreshCollection();
-      } catch (error) {
-        this.playbackState.set('error');
-        this.localMusicMessage.set(error instanceof Error ? error.message : 'La lecture a échoué.');
-      }
-    } else {
-      await this.playLocalTrack(track);
-    }
+  protected async seekLocalTrack(event: Event): Promise<void> {
+    const position = Number((event.target as HTMLInputElement).value);
+    await this.seekToPosition(position);
   }
 
   protected onWaveformPointerDown(event: PointerEvent): void {
     const target = event.currentTarget as HTMLElement;
     if (!target) return;
+    this.activeScrubberElement = target;
     try {
       target.setPointerCapture(event.pointerId);
     } catch {
@@ -609,7 +630,7 @@ export class App implements OnDestroy {
 
   protected onWaveformPointerMove(event: PointerEvent): void {
     if (!this.isScrubbing()) return;
-    const target = event.currentTarget as HTMLElement;
+    const target = this.activeScrubberElement ?? (event.currentTarget as HTMLElement);
     if (!target) return;
     const rect = target.getBoundingClientRect();
     if (rect.width <= 0) return;
@@ -619,7 +640,7 @@ export class App implements OnDestroy {
 
   protected async onWaveformPointerUp(event: PointerEvent): Promise<void> {
     if (!this.isScrubbing()) return;
-    const target = event.currentTarget as HTMLElement;
+    const target = this.activeScrubberElement ?? (event.currentTarget as HTMLElement);
     const rect = target?.getBoundingClientRect();
     let newPos = this.scrubPosition();
     if (rect && rect.width > 0) {
@@ -633,16 +654,19 @@ export class App implements OnDestroy {
     } catch {
       void 0;
     }
+    this.activeScrubberElement = null;
     await this.seekToPosition(newPos);
   }
 
   protected onWaveformPointerCancel(event: PointerEvent): void {
     this.isScrubbing.set(false);
     try {
-      (event.currentTarget as HTMLElement)?.releasePointerCapture(event.pointerId);
+      const target = this.activeScrubberElement ?? (event.currentTarget as HTMLElement);
+      target?.releasePointerCapture(event.pointerId);
     } catch {
       void 0;
     }
+    this.activeScrubberElement = null;
   }
 
   protected async onWaveformClick(event: MouseEvent): Promise<void> {

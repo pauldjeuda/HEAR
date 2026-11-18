@@ -147,15 +147,15 @@
 
             <section class="home-library" aria-labelledby="home-library-title">
               <div class="section-kicker">
-                <span>02 <i></i> COLLECTION LOCALE</span
+                <span>02 <i></i> TITRES RÉCEMMENT JOUÉS</span
                 ><button type="button" (click)="navigate('collection')">VOIR TOUT →</button>
               </div>
               <h2 id="home-library-title">
-                {{ localTracks().length ? 'Titres du téléphone' : 'Prête quand vous l’êtes.' }}
+                {{ localTracks().length ? 'Titres récemment joués' : 'Prête quand vous l’êtes.' }}
               </h2>
               @if (localTracks().length) {
                 <ol class="track-list">
-                  @for (track of localTracks().slice(0, 4); track track.id; let index = $index) {
+                  @for (track of recentPlayedTracks(); track track.id; let index = $index) {
                     <li
                       class="track-row"
                       [class.track-row--playing]="activeLocalTrackId() === track.id"
@@ -947,7 +947,15 @@
                   }}</span
                 ><span>FICHIER LOCAL</span>
               </div>
-              <div class="vinyl-hero-stage" aria-hidden="true">
+              <div
+                class="vinyl-hero-stage"
+                [class.is-swiping-next]="swipeAnimation() === 'swipe-left'"
+                [class.is-swiping-prev]="swipeAnimation() === 'swipe-right'"
+                (touchstart)="onStageTouchStart($event)"
+                (touchend)="onStageTouchEnd($event)"
+                (mousedown)="onStageMouseDown($event)"
+                (mouseup)="onStageMouseUp($event)"
+              >
                 <div class="vinyl-disc-wrap" [class.is-playing]="playbackState() === 'playing'">
                   <div class="vinyl-disc">
                     <div class="vinyl-disc__grooves"></div>
@@ -997,8 +1005,28 @@
                 </button>
               </div>
               <div class="player-waveform-block">
-                <div class="waveform-scrubber">
-                  <div class="waveform-bars" aria-hidden="true">
+                <div
+                  class="waveform-scrubber"
+                  role="slider"
+                  tabindex="0"
+                  aria-label="Jauge d'avancement de la musique"
+                  [attr.aria-valuenow]="isScrubbing() ? scrubPosition() : playbackPosition()"
+                  [attr.aria-valuemin]="0"
+                  [attr.aria-valuemax]="playbackDuration() || 1"
+                  (pointerdown)="onWaveformPointerDown($event)"
+                  (pointermove)="onWaveformPointerMove($event)"
+                  (pointerup)="onWaveformPointerUp($event)"
+                  (pointercancel)="onWaveformPointerCancel($event)"
+                  (click)="onWaveformClick($event)"
+                  (keydown)="
+                    $event.key === 'ArrowRight'
+                      ? seekToPosition(playbackPosition() + 5)
+                      : $event.key === 'ArrowLeft'
+                        ? seekToPosition(playbackPosition() - 5)
+                        : null
+                  "
+                >
+                  <div class="waveform-bars">
                     @for (bar of waveformBars(); track $index) {
                       <div
                         class="waveform-bar"
@@ -1009,15 +1037,12 @@
                   </div>
                   <input
                     type="range"
-                    class="waveform-range-overlay"
-                    role="slider"
-                    aria-label="Jauge d'avancement de la musique"
+                    class="waveform-range-hidden"
+                    aria-label="Position de lecture"
                     min="0"
-                    step="0.1"
                     [max]="playbackDuration() || 1"
                     [value]="isScrubbing() ? scrubPosition() : playbackPosition()"
-                    (input)="onWaveformRangeInput($event)"
-                    (change)="onWaveformRangeChange($event)"
+                    (input)="seekLocalTrack($event)"
                   />
                 </div>
                 <div class="waveform-time-row">
@@ -1109,7 +1134,7 @@
                     ><button type="button" (click)="navigate('collection')">FILE LOCALE →</button>
                   </div>
                   @for (next of upcomingTracks(track.id); track next.id; let index = $index) {
-                    <button class="up-next-row" type="button" (click)="playQueueTrack(next)">
+                    <button class="up-next-row" type="button" (click)="playLocalTrack(next)">
                       <span>{{ (index + 1).toString().padStart(2, '0') }}</span><strong>{{
                         next.title
                       }}</strong
@@ -1142,14 +1167,6 @@
                   (click)="closeLyrics()"
                 ></button>
                 <div class="lyrics-header__main">
-                  <button
-                    class="lyrics-back-button"
-                    type="button"
-                    aria-label="Retour au lecteur"
-                    (click)="closeLyrics()"
-                  >
-                    ←
-                  </button>
                   <div class="lyrics-track-summary">
                     <div class="lyrics-track-art">
                       @if (getTrackArtwork(track); as art) {
@@ -1264,7 +1281,7 @@
                   role="slider"
                   tabindex="0"
                   aria-label="Position de lecture"
-                  [attr.aria-valuenow]="playbackPosition()"
+                  [attr.aria-valuenow]="isScrubbing() ? scrubPosition() : playbackPosition()"
                   [attr.aria-valuemin]="0"
                   [attr.aria-valuemax]="playbackDuration() || 1"
                   (pointerdown)="onWaveformPointerDown($event)"
@@ -1280,9 +1297,27 @@
                         : null
                   "
                 >
-                  <div class="lyrics-mini-timeline__fill" [style.width.%]="progressRatio() * 100">
+                  <div
+                    class="lyrics-mini-timeline__fill"
+                    [style.width.%]="
+                      playbackDuration() > 0
+                        ? ((isScrubbing() ? scrubPosition() : playbackPosition()) /
+                            playbackDuration()) *
+                          100
+                        : 0
+                    "
+                  >
                     <div class="lyrics-mini-timeline__thumb"></div>
                   </div>
+                  <input
+                    type="range"
+                    class="waveform-range-hidden"
+                    aria-label="Position de lecture des paroles"
+                    min="0"
+                    [max]="playbackDuration() || 1"
+                    [value]="isScrubbing() ? scrubPosition() : playbackPosition()"
+                    (input)="seekLocalTrack($event)"
+                  />
                 </div>
                 <div class="lyrics-footer__metrics">
                   <span class="mono-time">{{ formatTime(playbackPosition()) }}</span>

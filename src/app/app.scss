@@ -1200,28 +1200,47 @@ button:disabled {
   color: var(--ink);
 }
 
-/* Vinyl Hero Stage (Asymmetric Sleeve & Bleeding Disc from Stitch) */
+/* Vinyl Hero Stage (Sleeve Card & Full Disc with Swipe Transitions) */
 .vinyl-hero-stage {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 340px;
-  aspect-ratio: 1;
-  margin: 0.8rem auto 1rem;
+  max-width: 350px;
+  height: clamp(180px, 48vw, 215px);
+  margin: 0.6rem auto 0.9rem;
   overflow: visible;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.is-swiping-next {
+    animation: stage-swipe-next 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &.is-swiping-prev {
+    animation: stage-swipe-prev 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 }
 
 .vinyl-disc-wrap {
   position: absolute;
-  right: -12%;
-  width: 82%;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 98%;
   aspect-ratio: 1;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  z-index: 1;
+  z-index: 2;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 
   &.is-playing .vinyl-disc {
@@ -1291,10 +1310,11 @@ button:disabled {
 }
 
 .vinyl-sleeve {
-  position: relative;
-  z-index: 2;
-  width: 78%;
-  margin-right: auto;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 96%;
   aspect-ratio: 1;
   background: var(--paper-alt);
   color: var(--ink);
@@ -1302,8 +1322,47 @@ button:disabled {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 0.75rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+@keyframes stage-swipe-next {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateX(-40%) scale(0.92);
+    opacity: 0.2;
+  }
+  41% {
+    transform: translateX(40%) scale(0.92);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes stage-swipe-prev {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateX(40%) scale(0.92);
+    opacity: 0.2;
+  }
+  41% {
+    transform: translateX(-40%) scale(0.92);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
 }
 
 .vinyl-sleeve__header,
@@ -1457,20 +1516,12 @@ button:disabled {
   }
 }
 
-.waveform-range-overlay {
+.waveform-range-hidden {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  width: 1px;
+  height: 1px;
   opacity: 0;
-  margin: 0;
-  padding: 0;
-  cursor: pointer;
-  z-index: 5;
-  touch-action: pan-y;
-  -webkit-appearance: none;
-  appearance: none;
+  pointer-events: none;
 }
 
 .waveform-time-row {
@@ -1869,26 +1920,47 @@ button:disabled {
 
 .lyrics-mini-timeline {
   width: 100%;
-  height: 4px;
-  background: var(--line);
+  height: 28px;
   position: relative;
   cursor: pointer;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--line);
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 
 .lyrics-mini-timeline__fill {
-  height: 100%;
+  height: 4px;
   background: var(--signal, #b81120);
   position: relative;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .lyrics-mini-timeline__thumb {
   position: absolute;
-  right: 0;
+  right: -7px;
   top: 50%;
-  transform: translate(50%, -50%);
-  width: 8px;
-  height: 8px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
   background: var(--signal, #b81120);
+  box-shadow: 0 0 0 2px var(--paper-alt);
+  pointer-events: none;
 }
 
 .lyrics-footer__metrics {

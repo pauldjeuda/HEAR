@@ -206,6 +206,6 @@ test('displays waveform scrubber, opens lyrics screen and returns to player', as
   await expect(page.locator('.lyrics-screen')).toBeVisible();
 
   // Return to player
-  await page.locator('.lyrics-back-button').click();
+  await page.locator('.lyrics-pull-bar').click();
   await expect(page.getByRole('heading', { name: 'Piste test' })).toBeVisible();
 });
