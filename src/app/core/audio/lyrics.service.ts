@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
+import { Preferences } from '@capacitor/preferences';
 import type { LocalMusicTrack } from './local-music-library';
-
 export interface LyricLine {
   time: number; // in seconds
   text: string;
@@ -71,6 +71,46 @@ export class LyricsService {
   readonly isLoading = signal<boolean>(false);
   readonly lastError = signal<string | null>(null);
 
+  private async persistCache(trackId: string, lyrics: TrackLyrics): Promise<void> {
+    try {
+      await Preferences.set({
+        key: `hear_lyrics_${trackId}`,
+        value: JSON.stringify(lyrics),
+      });
+    } catch {
+      void 0;
+    }
+  }
+
+  private async loadPersistedCache(trackId: string): Promise<TrackLyrics | null> {
+    try {
+      const { value } = await Preferences.get({ key: `hear_lyrics_${trackId}` });
+      if (value) {
+        const parsed = JSON.parse(value) as TrackLyrics;
+        if (parsed && Array.isArray(parsed.lines) && parsed.lines.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {
+      void 0;
+    }
+    return null;
+  }
+
+  private async fetchWithTimeout(
+    url: string,
+    options: RequestInit = {},
+    timeoutMs = 6000,
+  ): Promise<Response> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async loadLyricsForTrack(
     track: LocalMusicTrack | undefined | null,
     forceRefresh = false,
@@ -83,10 +123,17 @@ export class LyricsService {
 
     if (!forceRefresh) {
       const cached = this.lyricsCache.get(track.id);
-      if (cached) {
+      if (cached && cached.lines.length > 0) {
         this.currentLyrics.set(cached);
         this.lastError.set(null);
         return cached;
+      }
+      const persisted = await this.loadPersistedCache(track.id);
+      if (persisted) {
+        this.lyricsCache.set(track.id, persisted);
+        this.currentLyrics.set(persisted);
+        this.lastError.set(null);
+        return persisted;
       }
     }
 
@@ -112,6 +159,7 @@ export class LyricsService {
         const parsed = this.parseLrc(track.id, found.syncedLyrics, found.plainLyrics);
         if (parsed.lines.length > 0) {
           this.lyricsCache.set(track.id, parsed);
+          this.persistCache(track.id, parsed);
           this.currentLyrics.set(parsed);
           return parsed;
         }
@@ -134,6 +182,39 @@ export class LyricsService {
     }
   }
 
+  async preloadLyricsForTrack(track: LocalMusicTrack | undefined | null): Promise<void> {
+    if (!track) return;
+    if (this.lyricsCache.has(track.id)) return;
+    const persisted = await this.loadPersistedCache(track.id);
+    if (persisted) {
+      this.lyricsCache.set(track.id, persisted);
+      return;
+    }
+    if (this.inFlight.has(track.id)) return;
+
+    this.inFlight.add(track.id);
+    try {
+      const { title, artist } = cleanTrackMetadata(track.title, track.artist);
+      if (!title || title === 'Titre sans nom') return;
+
+      const rawDur = track.duration || 0;
+      const targetDurationSec = rawDur > 10000 ? Math.round(rawDur / 1000) : Math.round(rawDur);
+
+      const found = await this.fetchWithFallbacks(title, artist, targetDurationSec);
+      if (found) {
+        const parsed = this.parseLrc(track.id, found.syncedLyrics, found.plainLyrics);
+        if (parsed.lines.length > 0) {
+          this.lyricsCache.set(track.id, parsed);
+          this.persistCache(track.id, parsed);
+        }
+      }
+    } catch {
+      // Preload runs silently in background
+    } finally {
+      this.inFlight.delete(track.id);
+    }
+  }
+
   async searchCustom(trackId: string, customQuery: string): Promise<TrackLyrics | null> {
     const trimmed = customQuery.trim();
     if (!trimmed) return null;
@@ -142,9 +223,12 @@ export class LyricsService {
     this.lastError.set(null);
 
     try {
-      const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(trimmed)}`, {
-        headers: { 'User-Agent': 'HearApp/0.3' },
-      });
+      const res = await this.fetchWithTimeout(
+        `https://lrclib.net/api/search?q=${encodeURIComponent(trimmed)}`,
+        {
+          headers: { 'User-Agent': 'HearApp/0.3' },
+        },
+      );
       if (res.ok) {
         const list = (await res.json()) as LrclibResponse[];
         const best = this.selectBestResult(list);
@@ -152,6 +236,7 @@ export class LyricsService {
           const parsed = this.parseLrc(trackId, best.syncedLyrics, best.plainLyrics);
           if (parsed.lines.length > 0) {
             this.lyricsCache.set(trackId, parsed);
+            this.persistCache(trackId, parsed);
             this.currentLyrics.set(parsed);
             return parsed;
           }
@@ -179,7 +264,10 @@ export class LyricsService {
     if (hasValidArtist) {
       try {
         const getParams = new URLSearchParams({ track_name: title, artist_name: artist });
-        const res = await fetch(`https://lrclib.net/api/get?${getParams.toString()}`);
+        const res = await this.fetchWithTimeout(
+          `https://lrclib.net/api/get?${getParams.toString()}`,
+          { headers: { 'User-Agent': 'HearApp/0.3' } },
+        );
         if (res.ok) {
           const data = (await res.json()) as LrclibResponse;
           if (data.syncedLyrics || data.plainLyrics) return data;
@@ -193,7 +281,10 @@ export class LyricsService {
     try {
       const searchParams = new URLSearchParams({ track_name: title });
       if (hasValidArtist) searchParams.set('artist_name', artist);
-      const res2 = await fetch(`https://lrclib.net/api/search?${searchParams.toString()}`);
+      const res2 = await this.fetchWithTimeout(
+        `https://lrclib.net/api/search?${searchParams.toString()}`,
+        { headers: { 'User-Agent': 'HearApp/0.3' } },
+      );
       if (res2.ok) {
         const list = (await res2.json()) as LrclibResponse[];
         const best = this.selectBestResult(list, targetDurationSec);
@@ -206,7 +297,10 @@ export class LyricsService {
     // Tier 3: General query "Artist Title"
     try {
       const q = `${hasValidArtist ? artist + ' ' : ''}${title}`.trim();
-      const res3 = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(q)}`);
+      const res3 = await this.fetchWithTimeout(
+        `https://lrclib.net/api/search?q=${encodeURIComponent(q)}`,
+        { headers: { 'User-Agent': 'HearApp/0.3' } },
+      );
       if (res3.ok) {
         const list = (await res3.json()) as LrclibResponse[];
         const best = this.selectBestResult(list, targetDurationSec);
@@ -219,8 +313,9 @@ export class LyricsService {
     // Tier 4: Search by title only if artist was present but perhaps mismatched
     if (hasValidArtist) {
       try {
-        const res4 = await fetch(
+        const res4 = await this.fetchWithTimeout(
           `https://lrclib.net/api/search?track_name=${encodeURIComponent(title)}`,
+          { headers: { 'User-Agent': 'HearApp/0.3' } },
         );
         if (res4.ok) {
           const list = (await res4.json()) as LrclibResponse[];

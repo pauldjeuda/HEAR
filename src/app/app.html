@@ -358,39 +358,77 @@
           <section class="content-screen artist-screen" aria-labelledby="artist-title">
             <p class="eyebrow"><span class="signal-dot"></span> ARTISTE / BIBLIOTHÈQUE LOCALE</p>
             <h1 id="artist-title">{{ selectedArtist() }}</h1>
-            <p class="lead">{{ selectedArtistTracks().length }} TITRES TROUVÉS SUR CE TÉLÉPHONE</p>
-            <ol class="track-list">
-              @for (track of selectedArtistTracks(); track track.id; let index = $index) {
-                <li
-                  class="track-row"
-                  [class.track-row--playing]="activeLocalTrackId() === track.id"
-                >
+            <p class="lead">
+              {{ selectedArtistAlbums().length }} ALBUM{{
+                selectedArtistAlbums().length > 1 ? 'S' : ''
+              }}
+              · {{ selectedArtistTracks().length }} TITRE{{
+                selectedArtistTracks().length > 1 ? 'S' : ''
+              }}
+              TROUVÉ{{ selectedArtistTracks().length > 1 ? 'S' : '' }}
+            </p>
+
+            @for (album of selectedArtistAlbums(); track album.name) {
+              <div class="artist-album-group">
+                <div class="artist-album-header">
+                  <div class="artist-album-header__art" aria-hidden="true">
+                    @if (album.artwork; as art) {
+                      <img [src]="art" alt="" />
+                    } @else {
+                      <img src="assets/placeholder-cover.svg" alt="" />
+                    }
+                  </div>
+                  <div class="artist-album-header__meta">
+                    <span class="mono-badge">ALBUM</span>
+                    <h2 class="artist-album-header__title">{{ album.name }}</h2>
+                    <span class="muted-copy"
+                      >{{ album.tracks.length }} titre{{ album.tracks.length > 1 ? 's' : '' }}</span
+                    >
+                  </div>
                   <button
-                    class="track-row__main"
+                    class="action-button action-button--small artist-album-header__play"
                     type="button"
-                    [attr.aria-label]="'Lire ' + track.title"
-                    (click)="playLocalTrack(track)"
+                    [attr.aria-label]="'Lire l’album ' + album.name"
+                    (click)="playAlbum(album.tracks)"
                   >
-                    <span class="track-row__number">{{
-                      (index + 1).toString().padStart(2, '0')
-                    }}</span>
-                    <span class="track-row__art" aria-hidden="true">
-                      @if (getTrackArtwork(track); as art) {
-                        <img [src]="art" alt="" />
-                      } @else {
-                        <img src="assets/placeholder-cover.svg" alt="" />
-                      }
-                    </span>
-                    <span class="track-row__copy"
-                      ><strong>{{ track.title }}</strong
-                      ><span>{{ track.album }}</span></span
-                    ><span class="track-row__duration">{{
-                      formatTime((track.duration ?? 0) / 1000)
-                    }}</span>
+                    ▶ LIRE
                   </button>
-                </li>
-              }
-            </ol>
+                </div>
+
+                <ol class="track-list">
+                  @for (track of album.tracks; track track.id; let index = $index) {
+                    <li
+                      class="track-row"
+                      [class.track-row--playing]="activeLocalTrackId() === track.id"
+                    >
+                      <button
+                        class="track-row__main"
+                        type="button"
+                        [attr.aria-label]="'Lire ' + track.title"
+                        (click)="playLocalTrack(track)"
+                      >
+                        <span class="track-row__number">{{
+                          (index + 1).toString().padStart(2, '0')
+                        }}</span>
+                        <span class="track-row__art" aria-hidden="true">
+                          @if (getTrackArtwork(track); as art) {
+                            <img [src]="art" alt="" />
+                          } @else {
+                            <img src="assets/placeholder-cover.svg" alt="" />
+                          }
+                        </span>
+                        <span class="track-row__copy"
+                          ><strong>{{ track.title }}</strong
+                          ><span>{{ track.album }}</span></span
+                        ><span class="track-row__duration">{{
+                          formatTime((track.duration ?? 0) / 1000)
+                        }}</span>
+                      </button>
+                    </li>
+                  }
+                </ol>
+              </div>
+            }
           </section>
         }
 

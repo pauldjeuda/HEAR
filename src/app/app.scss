@@ -731,6 +731,73 @@ button:disabled {
   letter-spacing: 0.07em;
 }
 
+.artist-album-group {
+  margin-top: 1.5rem;
+
+  &:first-of-type {
+    margin-top: 1rem;
+  }
+}
+
+.artist-album-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  margin-bottom: 0.4rem;
+}
+
+.artist-album-header__art {
+  width: 46px;
+  height: 46px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.artist-album-header__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+
+  .mono-badge {
+    align-self: flex-start;
+    font-size: 0.55rem;
+  }
+
+  .muted-copy {
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+}
+
+.artist-album-header__title {
+  margin: 0;
+  font-family: var(--hear-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artist-album-header__play {
+  flex-shrink: 0;
+}
+
 .artist-row,
 .playlist-row {
   display: flex;
@@ -1239,7 +1306,7 @@ button:disabled {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  z-index: 2;
+  z-index: 1;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -1323,8 +1390,8 @@ button:disabled {
   flex-direction: column;
   justify-content: space-between;
   padding: 0.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  z-index: 1;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  z-index: 2;
 }
 
 @keyframes stage-swipe-next {
@@ -1722,12 +1789,15 @@ button:disabled {
 
 .lyrics-viewport {
   flex: 1;
-  padding: 2rem 1.25rem 3rem;
+  padding: 2.5rem 1.25rem 3.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
   overflow-y: auto;
   user-select: none;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .lyrics-loading {

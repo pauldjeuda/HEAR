@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.3.5';
+  protected readonly appVersion = '0.3.6';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -116,9 +116,10 @@ export class App implements OnDestroy {
     const lyrics = this.lyricsService.currentLyrics();
     if (!lyrics || !lyrics.isSynced || lyrics.lines.length === 0) return -1;
     const pos = this.playbackPosition();
+    const syncPos = pos + 0.15;
     const lines = lyrics.lines;
     for (let i = lines.length - 1; i >= 0; i--) {
-      if (pos >= lines[i].time) {
+      if (syncPos >= lines[i].time) {
         return i;
       }
     }
@@ -164,6 +165,22 @@ export class App implements OnDestroy {
   protected readonly selectedArtistTracks = computed(() =>
     this.localTracks().filter((track) => track.artist === this.selectedArtist()),
   );
+  protected readonly selectedArtistAlbums = computed(() => {
+    const tracks = this.selectedArtistTracks();
+    const map = new Map<string, PlayableLocalTrack[]>();
+    for (const track of tracks) {
+      const album = track.album?.trim() || 'Album inconnu';
+      if (!map.has(album)) {
+        map.set(album, []);
+      }
+      map.get(album)!.push(track);
+    }
+    return Array.from(map.entries()).map(([album, albumTracks]) => ({
+      name: album,
+      tracks: albumTracks,
+      artwork: this.artworkService.getArtwork(albumTracks[0]) ?? null,
+    }));
+  });
   protected readonly latestTrack = computed(() => {
     const recentId = this.historyTrackIds()[0];
     return (
@@ -225,8 +242,17 @@ export class App implements OnDestroy {
     effect(() => {
       const idx = this.currentLyricIndex();
       if (this.activeScreen() === 'lyrics' && idx >= 0) {
+        const viewport = document.getElementById('lyrics-viewport');
         const el = document.getElementById(`lyric-line-${idx}`);
-        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (viewport && el) {
+          const viewportRect = viewport.getBoundingClientRect();
+          const elRect = el.getBoundingClientRect();
+          const targetScrollTop =
+            viewport.scrollTop +
+            (elRect.top - viewportRect.top) -
+            (viewportRect.height / 2 - elRect.height / 2);
+          viewport.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
+        }
       }
     });
   }
@@ -452,8 +478,22 @@ export class App implements OnDestroy {
     this.navigate('artist');
   }
 
+  protected async playAlbum(tracks: PlayableLocalTrack[]): Promise<void> {
+    if (tracks.length === 0) return;
+    this.playbackQueue.set(tracks);
+    await this.playLocalTrack(tracks[0]);
+  }
+
+  protected async loadAndPreloadLyrics(track: PlayableLocalTrack): Promise<void> {
+    await this.lyricsService.loadLyricsForTrack(track);
+    const nextTracks = this.upcomingTracks(track.id);
+    if (nextTracks.length > 0) {
+      void this.lyricsService.preloadLyricsForTrack(nextTracks[0]);
+    }
+  }
+
   protected async playLocalTrack(track: PlayableLocalTrack): Promise<void> {
-    void this.lyricsService.loadLyricsForTrack(track);
+    void this.loadAndPreloadLyrics(track);
 
     const allTracks = this.localTracks();
     if (this.shuffleEnabled()) {
@@ -691,7 +731,7 @@ export class App implements OnDestroy {
       this.manualLyricsQuery.set(
         `${track.artist !== 'Artiste inconnu' ? track.artist + ' ' : ''}${track.title}`,
       );
-      void this.lyricsService.loadLyricsForTrack(track);
+      void this.loadAndPreloadLyrics(track);
     }
     this.navigate('lyrics');
   }
@@ -709,6 +749,10 @@ export class App implements OnDestroy {
     const track = this.activeLocalTrack();
     if (track) {
       await this.lyricsService.loadLyricsForTrack(track, true);
+      const nextTracks = this.upcomingTracks(track.id);
+      if (nextTracks.length > 0) {
+        void this.lyricsService.preloadLyricsForTrack(nextTracks[0]);
+      }
     }
   }
 
@@ -881,7 +925,7 @@ export class App implements OnDestroy {
     if (event.trackId && this.localTracks().some((track) => track.id === event.trackId)) {
       this.activeLocalTrackId.set(event.trackId);
       const active = this.localTracks().find((track) => track.id === event.trackId);
-      if (active) void this.lyricsService.loadLyricsForTrack(active);
+      if (active) void this.loadAndPreloadLyrics(active);
     }
     this.playbackState.set(event.state);
     if (!this.isScrubbing()) {
