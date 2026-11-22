@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.3.8';
+  protected readonly appVersion = '0.3.9';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -88,6 +88,16 @@ export class App implements OnDestroy {
     'Hear indexe uniquement les fichiers audio de ce téléphone.',
   );
   protected readonly favoriteTrackIds = signal<string[]>([]);
+  protected readonly isCheckingUpdate = signal<boolean>(false);
+  protected readonly updateStatus = signal<'idle' | 'checking' | 'latest' | 'available' | 'error'>(
+    'idle',
+  );
+  protected readonly updateInfo = signal<{
+    version: string;
+    url: string;
+    notes?: string;
+  } | null>(null);
+  protected readonly updateMessage = signal<string>('');
   protected readonly historyTrackIds = signal<string[]>([]);
   protected readonly autoScan = signal(true);
   protected readonly theme = signal<ThemeMode>('paper');
@@ -851,6 +861,74 @@ export class App implements OnDestroy {
   protected formatBytes(bytes: number): string {
     if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KO`;
     return `${(bytes / (1024 * 1024)).toFixed(1).replace('.', ',')} MO`;
+  }
+
+  protected async checkForUpdates(): Promise<void> {
+    if (this.isCheckingUpdate()) return;
+    this.isCheckingUpdate.set(true);
+    this.updateStatus.set('checking');
+    this.updateMessage.set('Recherche de mises à jour en cours…');
+    try {
+      const response = await fetch('https://api.github.com/repos/pauldjeuda/HEAR/releases/latest', {
+        headers: { Accept: 'application/vnd.github.v3+json' },
+      });
+      if (!response.ok) {
+        throw new Error(`Erreur de connexion (${response.status})`);
+      }
+      const data = (await response.json()) as {
+        tag_name?: string;
+        body?: string;
+        assets?: { name?: string; browser_download_url?: string }[];
+      };
+      const tagName = (data.tag_name || '').replace(/^v/, '').trim();
+      const apkAsset = Array.isArray(data.assets)
+        ? data.assets.find((asset) => asset.name?.endsWith('.apk'))
+        : null;
+
+      const currentVersion = this.appVersion;
+      const isNewer = this.compareSemver(tagName, currentVersion) > 0;
+
+      if (isNewer && apkAsset?.browser_download_url) {
+        this.updateStatus.set('available');
+        this.updateInfo.set({
+          version: tagName,
+          url: apkAsset.browser_download_url,
+          notes: data.body,
+        });
+        this.updateMessage.set(`Nouvelle version v${tagName} disponible !`);
+      } else {
+        this.updateStatus.set('latest');
+        this.updateInfo.set(null);
+        this.updateMessage.set(`Hear est à jour (version ${currentVersion}).`);
+      }
+    } catch (error) {
+      this.updateStatus.set('error');
+      this.updateMessage.set(
+        error instanceof Error
+          ? error.message
+          : 'Impossible de vérifier les mises à jour pour le moment.',
+      );
+    } finally {
+      this.isCheckingUpdate.set(false);
+    }
+  }
+
+  protected downloadUpdate(): void {
+    const info = this.updateInfo();
+    if (!info?.url) return;
+    window.open(info.url, '_system');
+  }
+
+  private compareSemver(v1: string, v2: string): number {
+    const p1 = v1.split('.').map((n) => Number.parseInt(n, 10) || 0);
+    const p2 = v2.split('.').map((n) => Number.parseInt(n, 10) || 0);
+    for (let i = 0; i < Math.max(p1.length, p2.length); i++) {
+      const num1 = p1[i] || 0;
+      const num2 = p2[i] || 0;
+      if (num1 > num2) return 1;
+      if (num1 < num2) return -1;
+    }
+    return 0;
   }
 
   protected async toggleAutoScan(event: Event): Promise<void> {

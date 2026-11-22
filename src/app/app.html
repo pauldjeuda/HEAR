@@ -948,19 +948,46 @@
               </div>
             </section>
 
-            <section class="settings-block" aria-labelledby="storage-title">
+            <section class="settings-block" aria-labelledby="update-title">
               <div class="settings-block__bar">
-                <span>04 // ESPACE AUDIO</span><span>FICHIERS SOURCE</span>
+                <span>04 // SYSTÈME</span><span>MISES À JOUR</span>
               </div>
-              <h2 id="storage-title">BIBLIOTHÈQUE INDEXÉE</h2>
-              <div class="storage-summary">
-                <span>{{ localTracks().length }} TITRES</span
-                ><strong>{{ formatBytes(totalLibraryBytes()) }}</strong>
+              <h2 id="update-title">MISE À JOUR DE L’APPLICATION</h2>
+              <div class="setting-row">
+                <div>
+                  <h3>Version installée</h3>
+                  <p>Hear v{{ appVersion }} (Android debug signé)</p>
+                </div>
+                <span class="mono-badge mono-badge--accent">v{{ appVersion }}</span>
               </div>
-              <p class="muted-copy">
-                Hear conserve les références et les préférences sur cet appareil. Les fichiers
-                musicaux restent dans le stockage du téléphone.
-              </p>
+
+              @if (updateMessage()) {
+                <div
+                  class="update-status-box"
+                  [class.is-available]="updateStatus() === 'available'"
+                  [class.is-error]="updateStatus() === 'error'"
+                >
+                  <p>{{ updateMessage() }}</p>
+                  @if (updateStatus() === 'available' && updateInfo(); as info) {
+                    <button
+                      class="action-button action-button--small"
+                      type="button"
+                      (click)="downloadUpdate()"
+                    >
+                      TÉLÉCHARGER LA v{{ info.version }} (APK) ⤓
+                    </button>
+                  }
+                </div>
+              }
+
+              <button
+                class="action-button action-button--wide"
+                type="button"
+                [disabled]="isCheckingUpdate()"
+                (click)="checkForUpdates()"
+              >
+                {{ isCheckingUpdate() ? 'VÉRIFICATION EN COURS…' : 'VÉRIFIER LES MISES À JOUR ↻' }}
+              </button>
             </section>
             <p class="footer-note">
               ANDROID · FRANÇAIS <span>VERSION {{ appVersion }}</span>
