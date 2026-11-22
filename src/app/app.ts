@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.4.4';
+  protected readonly appVersion = '0.4.5';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -216,6 +216,9 @@ export class App implements OnDestroy {
 
   protected readonly outgoingTrack = signal<PlayableLocalTrack | null>(null);
   protected readonly slideDirection = signal<'slide-left' | 'slide-right' | ''>('');
+  protected readonly stageDragX = signal(0);
+  protected readonly isStageDragging = signal(false);
+  protected readonly candidateTrack = signal<PlayableLocalTrack | null>(null);
   private slideTimeout: ReturnType<typeof setTimeout> | null = null;
   private activeScrubberElement: HTMLElement | null = null;
   private touchStartX = 0;
@@ -312,7 +315,7 @@ export class App implements OnDestroy {
     this.slideTimeout = setTimeout(() => {
       this.outgoingTrack.set(null);
       this.slideDirection.set('');
-    }, 480);
+    }, 1000);
   }
 
   ngOnDestroy(): void {
@@ -571,6 +574,30 @@ export class App implements OnDestroy {
     return queue.filter((track) => track.id !== currentId).slice(0, 3);
   }
 
+  protected getNextTrack(currentId: string): PlayableLocalTrack | null {
+    const queue = this.playbackQueue().length ? this.playbackQueue() : this.localTracks();
+    const currentIndex = queue.findIndex((track) => track.id === currentId);
+    if (currentIndex >= 0 && currentIndex < queue.length - 1) {
+      return queue[currentIndex + 1];
+    }
+    if (this.repeatMode() === 'all' && queue.length > 0) {
+      return queue[0];
+    }
+    return null;
+  }
+
+  protected getPreviousTrack(currentId: string): PlayableLocalTrack | null {
+    const queue = this.playbackQueue().length ? this.playbackQueue() : this.localTracks();
+    const currentIndex = queue.findIndex((track) => track.id === currentId);
+    if (currentIndex > 0) {
+      return queue[currentIndex - 1];
+    }
+    if (this.repeatMode() === 'all' && queue.length > 0) {
+      return queue[queue.length - 1];
+    }
+    return null;
+  }
+
   protected openArtist(artist: string): void {
     this.selectedArtist.set(artist);
     this.navigate('artist');
@@ -705,51 +732,106 @@ export class App implements OnDestroy {
   }
 
   protected onStageTouchStart(event: TouchEvent): void {
-    if (event.touches.length === 1) {
+    if (event.touches.length === 1 && this.slideDirection() === '') {
       this.touchStartX = event.touches[0].clientX;
       this.touchStartY = event.touches[0].clientY;
+      this.isStageDragging.set(true);
+      this.stageDragX.set(0);
+      this.candidateTrack.set(null);
     }
   }
 
-  protected async onStageTouchEnd(event: TouchEvent): Promise<void> {
-    if (event.changedTouches.length === 1) {
-      const deltaX = event.changedTouches[0].clientX - this.touchStartX;
-      const deltaY = event.changedTouches[0].clientY - this.touchStartY;
-      if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+  protected onStageTouchMove(event: TouchEvent): void {
+    if (!this.isStageDragging() || event.touches.length !== 1) return;
+    const currentX = event.touches[0].clientX;
+    const currentY = event.touches[0].clientY;
+    const deltaX = currentX - this.touchStartX;
+    const deltaY = currentY - this.touchStartY;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY) * 0.7) {
+      this.stageDragX.set(deltaX);
+      const current = this.activeLocalTrack();
+      if (current) {
         if (deltaX < 0) {
-          await this.handleNextTrack();
-        } else {
-          await this.handlePreviousTrack();
+          this.candidateTrack.set(this.getNextTrack(current.id));
+        } else if (deltaX > 0) {
+          this.candidateTrack.set(this.getPreviousTrack(current.id));
         }
       }
     }
   }
 
-  protected onStageMouseDown(event: MouseEvent): void {
-    this.mouseStartX = event.clientX;
+  protected async onStageTouchEnd(): Promise<void> {
+    if (!this.isStageDragging()) return;
+    const deltaX = this.stageDragX();
+    this.isStageDragging.set(false);
+    this.stageDragX.set(0);
+    this.candidateTrack.set(null);
+
+    const threshold = 40;
+    if (deltaX < -threshold) {
+      await this.handleNextTrack();
+    } else if (deltaX > threshold) {
+      await this.handlePreviousTrack();
+    }
   }
 
-  protected async onStageMouseUp(event: MouseEvent): Promise<void> {
+  protected onStageMouseDown(event: MouseEvent): void {
+    if (this.slideDirection() === '') {
+      this.mouseStartX = event.clientX;
+      this.isStageDragging.set(true);
+      this.stageDragX.set(0);
+      this.candidateTrack.set(null);
+    }
+  }
+
+  protected onStageMouseMove(event: MouseEvent): void {
+    if (!this.isStageDragging()) return;
     const deltaX = event.clientX - this.mouseStartX;
-    if (Math.abs(deltaX) > 40) {
+    this.stageDragX.set(deltaX);
+    const current = this.activeLocalTrack();
+    if (current) {
       if (deltaX < 0) {
-        await this.handleNextTrack();
-      } else {
-        await this.handlePreviousTrack();
+        this.candidateTrack.set(this.getNextTrack(current.id));
+      } else if (deltaX > 0) {
+        this.candidateTrack.set(this.getPreviousTrack(current.id));
       }
+    }
+  }
+
+  protected async onStageMouseUp(): Promise<void> {
+    if (!this.isStageDragging()) return;
+    const deltaX = this.stageDragX();
+    this.isStageDragging.set(false);
+    this.stageDragX.set(0);
+    this.candidateTrack.set(null);
+
+    const threshold = 40;
+    if (deltaX < -threshold) {
+      await this.handleNextTrack();
+    } else if (deltaX > threshold) {
+      await this.handlePreviousTrack();
     }
   }
 
   protected async handleNextTrack(): Promise<void> {
     const current = this.activeLocalTrack();
-    this.triggerTrackSlide('slide-left', current);
+    const nextTrack = current ? this.getNextTrack(current.id) : null;
+    if (current && nextTrack) {
+      this.triggerTrackSlide('slide-left', current);
+      this.activeLocalTrackId.set(nextTrack.id);
+    }
     if (this.isAndroid) await LocalMusicBridge.next();
     else await this.playNextLocalTrack();
   }
 
   protected async handlePreviousTrack(): Promise<void> {
     const current = this.activeLocalTrack();
-    this.triggerTrackSlide('slide-right', current);
+    const prevTrack = current ? this.getPreviousTrack(current.id) : null;
+    if (current && prevTrack) {
+      this.triggerTrackSlide('slide-right', current);
+      this.activeLocalTrackId.set(prevTrack.id);
+    }
     if (this.isAndroid) {
       await LocalMusicBridge.previous();
       return;

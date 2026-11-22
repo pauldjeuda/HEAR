@@ -1317,26 +1317,31 @@ button:disabled {
   pointer-events: auto;
   will-change: transform, opacity;
 
+  &.is-dragging-candidate {
+    pointer-events: none;
+    z-index: 1;
+  }
+
   &.is-sliding-out-left {
     pointer-events: none;
     z-index: 1;
-    animation: vinyl-slide-out-left 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: vinyl-slide-out-left 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
   &.is-sliding-in-left {
     z-index: 2;
-    animation: vinyl-slide-in-left 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: vinyl-slide-in-left 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
   &.is-sliding-out-right {
     pointer-events: none;
     z-index: 1;
-    animation: vinyl-slide-out-right 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: vinyl-slide-out-right 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
   &.is-sliding-in-right {
     z-index: 2;
-    animation: vinyl-slide-in-right 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: vinyl-slide-in-right 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 }
 
