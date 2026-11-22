@@ -1272,10 +1272,10 @@ button:disabled {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
-  max-width: 350px;
-  height: clamp(180px, 48vw, 215px);
+  max-width: 380px;
+  height: clamp(200px, 54vw, 240px);
   margin: 0.6rem auto 0.9rem;
   overflow: visible;
   touch-action: pan-y;
@@ -1296,19 +1296,21 @@ button:disabled {
   }
 }
 
+/* Disque vinyle — DERRIÈRE la pochette (z-index: 1), dépasse sur la droite */
 .vinyl-disc-wrap {
   position: absolute;
-  right: 0;
+  /* Décalé vers la droite : on voit ~40% du disque dépasser de la pochette */
+  left: 55%;
   top: 50%;
   transform: translateY(-50%);
-  height: 98%;
+  height: 100%;
   aspect-ratio: 1;
   border-radius: 50%;
   display: grid;
   place-items: center;
   z-index: 1;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 4px 6px 20px rgba(0, 0, 0, 0.45);
+  transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 
   &.is-playing .vinyl-disc {
     animation: record-spin 4.5s linear infinite;
@@ -1381,7 +1383,8 @@ button:disabled {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  height: 96%;
+  /* Pleine hauteur de la scène pour la pochette */
+  height: 100%;
   aspect-ratio: 1;
   background: var(--paper-alt);
   color: var(--ink);
@@ -1390,7 +1393,7 @@ button:disabled {
   flex-direction: column;
   justify-content: space-between;
   padding: 0.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
   z-index: 2;
 }
 
