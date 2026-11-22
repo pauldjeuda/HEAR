@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.3.6';
+  protected readonly appVersion = '0.3.8';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -480,26 +480,38 @@ export class App implements OnDestroy {
 
   protected async playAlbum(tracks: PlayableLocalTrack[]): Promise<void> {
     if (tracks.length === 0) return;
-    await this.playAlbumTrack(tracks, tracks[0]);
+    await this.playLocalTrack(tracks[0], tracks);
   }
 
   /**
-   * Joue un son depuis une liste d'album : définit la queue = l'album entier
-   * puis démarre le son à l'index correct, sans que playLocalTrack écrase la queue.
+   * Joue un son depuis une liste d'album : délègue à playLocalTrack avec la file d'album.
    */
   protected async playAlbumTrack(
     albumTracks: PlayableLocalTrack[],
     track: PlayableLocalTrack,
   ): Promise<void> {
-    if (albumTracks.length === 0) return;
-    // Définir la queue comme l'album complet
-    this.playbackQueue.set(albumTracks);
-    void this.loadAndPreloadLyrics(track);
+    await this.playLocalTrack(track, albumTracks);
+  }
 
+  protected async loadAndPreloadLyrics(track: PlayableLocalTrack): Promise<void> {
+    await this.lyricsService.loadLyricsForTrack(track);
+    const nextTracks = this.upcomingTracks(track.id);
+    if (nextTracks.length > 0) {
+      void this.lyricsService.preloadLyricsForTrack(nextTracks[0]);
+    }
+  }
+
+  /**
+   * Joue un titre depuis la file active sans réinitialiser ni remélanger la file.
+   */
+  protected async playFromQueue(track: PlayableLocalTrack): Promise<void> {
+    const queue = this.playbackQueue().length ? this.playbackQueue() : this.localTracks();
     const index = Math.max(
       0,
-      albumTracks.findIndex((item) => item.id === track.id),
+      queue.findIndex((item) => item.id === track.id),
     );
+
+    void this.loadAndPreloadLyrics(track);
 
     if (this.isAndroid) {
       if (this.activeLocalTrackId() === track.id && this.playbackState() === 'playing') {
@@ -510,10 +522,9 @@ export class App implements OnDestroy {
       this.playbackState.set('loading');
       this.playbackPosition.set(0);
       this.playbackDuration.set((track.duration ?? 0) / 1000);
-      this.navigate('player');
       try {
         await LocalMusicBridge.play({
-          queue: albumTracks.map((item) => ({
+          queue: queue.map((item) => ({
             uri: item.uri ?? '',
             title: item.title,
             artist: item.artist ?? 'Artiste inconnu',
@@ -540,92 +551,11 @@ export class App implements OnDestroy {
     this.playbackState.set('loading');
     this.playbackPosition.set(0);
     this.playbackDuration.set((track.duration ?? 0) / 1000);
-    this.navigate('player');
     try {
       if (this.activeLocalTrackId() === track.id && this.playbackState() === 'paused') {
         await this.audioEngine.play();
         return;
       }
-      await this.audioEngine.load(
-        { uri: track.url, isLocal: true },
-        { id: track.id, title: track.title, artist: track.artist ?? 'Artiste inconnu' },
-      );
-      await this.audioEngine.play();
-      await this.collectionStore.recordPlayed(track.id);
-      await this.refreshCollection();
-    } catch (error) {
-      this.playbackState.set('error');
-      this.localMusicMessage.set(error instanceof Error ? error.message : 'La lecture a échoué.');
-    }
-  }
-
-  protected async loadAndPreloadLyrics(track: PlayableLocalTrack): Promise<void> {
-    await this.lyricsService.loadLyricsForTrack(track);
-    const nextTracks = this.upcomingTracks(track.id);
-    if (nextTracks.length > 0) {
-      void this.lyricsService.preloadLyricsForTrack(nextTracks[0]);
-    }
-  }
-
-  protected async playLocalTrack(track: PlayableLocalTrack): Promise<void> {
-    void this.loadAndPreloadLyrics(track);
-
-    const allTracks = this.localTracks();
-    if (this.shuffleEnabled()) {
-      const remaining = allTracks.filter((item) => item.id !== track.id);
-      const shuffledOthers = [...remaining].sort(() => Math.random() - 0.5);
-      this.playbackQueue.set([track, ...shuffledOthers]);
-    } else {
-      this.playbackQueue.set(allTracks);
-    }
-
-    const currentQueue = this.playbackQueue();
-    const index = Math.max(
-      0,
-      currentQueue.findIndex((item) => item.id === track.id),
-    );
-
-    if (this.isAndroid) {
-      if (this.activeLocalTrackId() === track.id && this.playbackState() === 'playing') {
-        await LocalMusicBridge.toggle();
-        return;
-      }
-      this.activeLocalTrackId.set(track.id);
-      this.playbackState.set('loading');
-      this.playbackPosition.set(0);
-      this.playbackDuration.set((track.duration ?? 0) / 1000);
-      this.navigate('player');
-      try {
-        await LocalMusicBridge.play({
-          queue: currentQueue.map((item) => ({
-            uri: item.uri ?? '',
-            title: item.title,
-            artist: item.artist ?? 'Artiste inconnu',
-            album: item.album ?? 'Album inconnu',
-          })),
-          index,
-          repeatMode: this.repeatMode(),
-        });
-        await this.collectionStore.recordPlayed(track.id);
-        await this.refreshCollection();
-      } catch (error) {
-        this.playbackState.set('error');
-        this.localMusicMessage.set(error instanceof Error ? error.message : 'La lecture a échoué.');
-      }
-      return;
-    }
-
-    if (this.activeLocalTrackId() === track.id && this.playbackState() === 'playing') {
-      await this.audioEngine.pause();
-      return;
-    }
-    try {
-      if (this.activeLocalTrackId() === track.id && this.playbackState() === 'paused') {
-        await this.audioEngine.play();
-        return;
-      }
-      this.activeLocalTrackId.set(track.id);
-      this.navigate('player');
       await this.audioEngine.load(
         { uri: track.url, isLocal: true },
         { id: track.id, title: track.title, artist: track.artist ?? 'Artiste inconnu' },
@@ -637,6 +567,26 @@ export class App implements OnDestroy {
       this.playbackState.set('error');
       this.localMusicMessage.set('Ce format audio ne peut pas être lu dans le navigateur.');
     }
+  }
+
+  /**
+   * Lance la lecture d'un titre dans un contexte donné (album, playlist, favoris, bibliothèque entière).
+   */
+  protected async playLocalTrack(
+    track: PlayableLocalTrack,
+    contextTracks?: PlayableLocalTrack[],
+  ): Promise<void> {
+    const baseTracks =
+      contextTracks && contextTracks.length > 0 ? contextTracks : this.localTracks();
+    if (this.shuffleEnabled()) {
+      const remaining = baseTracks.filter((item) => item.id !== track.id);
+      const shuffledOthers = [...remaining].sort(() => Math.random() - 0.5);
+      this.playbackQueue.set([track, ...shuffledOthers]);
+    } else {
+      this.playbackQueue.set(baseTracks);
+    }
+    this.navigate('player');
+    await this.playFromQueue(track);
   }
 
   protected async togglePlayback(): Promise<void> {
@@ -707,9 +657,9 @@ export class App implements OnDestroy {
     if (this.playbackPosition() > 3) {
       await this.seekToPosition(0);
     } else if (currentIndex > 0) {
-      await this.playLocalTrack(queue[currentIndex - 1]);
+      await this.playFromQueue(queue[currentIndex - 1]);
     } else if (this.repeatMode() === 'all' && queue.length > 0) {
-      await this.playLocalTrack(queue[queue.length - 1]);
+      await this.playFromQueue(queue[queue.length - 1]);
     } else {
       await this.seekToPosition(0);
     }
@@ -865,15 +815,15 @@ export class App implements OnDestroy {
     const currentTrack = this.activeLocalTrack();
     if (!currentTrack) return;
 
-    const allTracks = this.localTracks();
+    const baseTracks = this.playbackQueue().length > 0 ? this.playbackQueue() : this.localTracks();
     let newQueue: PlayableLocalTrack[];
 
     if (newShuffle) {
-      const remaining = allTracks.filter((track) => track.id !== currentTrack.id);
+      const remaining = baseTracks.filter((track) => track.id !== currentTrack.id);
       const shuffledOthers = [...remaining].sort(() => Math.random() - 0.5);
       newQueue = [currentTrack, ...shuffledOthers];
     } else {
-      newQueue = allTracks;
+      newQueue = [...baseTracks].sort((a, b) => a.title.localeCompare(b.title));
     }
 
     this.playbackQueue.set(newQueue);
@@ -998,9 +948,13 @@ export class App implements OnDestroy {
 
   private async handleNativePlayback(event: PlaybackStateEvent): Promise<void> {
     if (event.trackId && this.localTracks().some((track) => track.id === event.trackId)) {
+      const trackChanged = this.activeLocalTrackId() !== event.trackId;
       this.activeLocalTrackId.set(event.trackId);
       const active = this.localTracks().find((track) => track.id === event.trackId);
-      if (active) void this.loadAndPreloadLyrics(active);
+      if (active && trackChanged) {
+        void this.loadAndPreloadLyrics(active);
+        void this.collectionStore.recordPlayed(active.id).then(() => this.refreshCollection());
+      }
     }
     this.playbackState.set(event.state);
     if (!this.isScrubbing()) {
@@ -1021,9 +975,9 @@ export class App implements OnDestroy {
     }
 
     if (currentIndex >= 0 && currentIndex < queue.length - 1) {
-      await this.playLocalTrack(queue[currentIndex + 1]);
+      await this.playFromQueue(queue[currentIndex + 1]);
     } else if (this.repeatMode() === 'all' && queue.length > 0) {
-      await this.playLocalTrack(queue[0]);
+      await this.playFromQueue(queue[0]);
     } else {
       this.playbackState.set('ended');
     }

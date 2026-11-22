@@ -159,7 +159,7 @@ export class LyricsService {
         const parsed = this.parseLrc(track.id, found.syncedLyrics, found.plainLyrics);
         if (parsed.lines.length > 0) {
           this.lyricsCache.set(track.id, parsed);
-          this.persistCache(track.id, parsed);
+          void this.persistCache(track.id, parsed);
           this.currentLyrics.set(parsed);
           return parsed;
         }
@@ -205,7 +205,7 @@ export class LyricsService {
         const parsed = this.parseLrc(track.id, found.syncedLyrics, found.plainLyrics);
         if (parsed.lines.length > 0) {
           this.lyricsCache.set(track.id, parsed);
-          this.persistCache(track.id, parsed);
+          void this.persistCache(track.id, parsed);
         }
       }
     } catch {
@@ -236,7 +236,7 @@ export class LyricsService {
           const parsed = this.parseLrc(trackId, best.syncedLyrics, best.plainLyrics);
           if (parsed.lines.length > 0) {
             this.lyricsCache.set(trackId, parsed);
-            this.persistCache(trackId, parsed);
+            void this.persistCache(trackId, parsed);
             this.currentLyrics.set(parsed);
             return parsed;
           }

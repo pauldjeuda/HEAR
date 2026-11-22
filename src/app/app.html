@@ -271,7 +271,7 @@
                       class="track-row__main"
                       type="button"
                       [attr.aria-label]="'Lire ' + track.title"
-                      (click)="playLocalTrack(track)"
+                      (click)="playLocalTrack(track, filteredTracks())"
                     >
                       <span class="track-row__number">{{
                         (index + 1).toString().padStart(2, '0')
@@ -504,7 +504,7 @@
                           class="track-row__main"
                           type="button"
                           [attr.aria-label]="'Lire ' + track.title"
-                          (click)="playLocalTrack(track)"
+                          (click)="playLocalTrack(track, collectionTracks())"
                         >
                           <span class="track-row__number">{{
                             (index + 1).toString().padStart(2, '0')
@@ -625,7 +625,7 @@
                       class="track-row__main"
                       type="button"
                       [attr.aria-label]="'Lire ' + track.title"
-                      (click)="playLocalTrack(track)"
+                      (click)="playLocalTrack(track, collectionTracks())"
                     >
                       <span class="track-row__number">{{
                         (index + 1).toString().padStart(2, '0')
@@ -777,7 +777,7 @@
                       class="track-row__main"
                       type="button"
                       [attr.aria-label]="'Lire ' + track.title"
-                      (click)="playLocalTrack(track)"
+                      (click)="playLocalTrack(track, localTracks())"
                     >
                       <span class="track-row__number">{{
                         (index + 1).toString().padStart(2, '0')
@@ -1172,7 +1172,7 @@
                     ><button type="button" (click)="navigate('collection')">FILE LOCALE →</button>
                   </div>
                   @for (next of upcomingTracks(track.id); track next.id; let index = $index) {
-                    <button class="up-next-row" type="button" (click)="playLocalTrack(next)">
+                    <button class="up-next-row" type="button" (click)="playFromQueue(next)">
                       <span>{{ (index + 1).toString().padStart(2, '0') }}</span><strong>{{
                         next.title
                       }}</strong
