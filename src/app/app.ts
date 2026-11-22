@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.4.1';
+  protected readonly appVersion = '0.4.2';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -277,8 +277,37 @@ export class App implements OnDestroy {
     this.revokeBrowserObjectUrls();
   }
 
+  protected selectTab(screen: HearScreen): void {
+    if (screen === 'collection' && this.activeScreen() === 'collection') {
+      // Re-cliquer sur Bibliothèque réinitialise la vue principale des titres
+      this.setCollectionFilter('tracks');
+      this.activePlaylistId.set(null);
+      this.playlistPickerTrackId.set(null);
+      this.scrollScreenToTop();
+      return;
+    }
+    if (screen === 'artists' && this.activeScreen() === 'artist') {
+      // Re-cliquer sur Artistes depuis un détail d'artiste retourne à la liste
+      this.navigate('artists');
+      return;
+    }
+    this.navigate(screen);
+  }
+
   protected navigate(screen: HearScreen): void {
-    if (screen !== this.activeScreen()) this.navigationHistory.push(this.activeScreen());
+    if (screen !== this.activeScreen()) {
+      const isTopLevelTab = (s: HearScreen) =>
+        s === 'home' || s === 'search' || s === 'artists' || s === 'collection';
+      if (isTopLevelTab(screen) && isTopLevelTab(this.activeScreen())) {
+        // La navigation entre onglets principaux réinitialise l'historique circulaire
+        this.navigationHistory.length = 0;
+        if (screen !== 'home') {
+          this.navigationHistory.push('home');
+        }
+      } else {
+        this.navigationHistory.push(this.activeScreen());
+      }
+    }
     this.activeScreen.set(screen);
     this.scrollScreenToTop();
     if (screen === 'collection') void this.refreshCollection();

@@ -2301,31 +2301,49 @@ button:disabled {
   display: flex;
   min-height: 3.8rem;
   flex: 0 0 auto;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-around;
-  gap: 0.25rem;
   margin-inline: -1.25rem;
-  padding: 0.35rem 0.35rem max(0.35rem, env(safe-area-inset-bottom));
+  padding: 0.25rem 0.25rem max(0.35rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
   background: var(--paper);
+  z-index: 50;
 }
 
 .tab-bar button {
+  flex: 1 1 0;
   display: flex;
-  min-width: 3.5rem;
-  min-height: 2.85rem;
+  min-width: 0;
+  min-height: 3.2rem;
+  padding: 0.35rem 0.2rem;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.15rem;
+  gap: 0.2rem;
   color: var(--muted);
   font-family: var(--hear-mono);
-  font-size: 0.49rem;
+  font-size: 0.5rem;
   letter-spacing: 0.07em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 0.15s ease,
+    transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
 }
 
 .tab-bar button.is-active {
-  color: var(--signal);
+  color: var(--signal, #e5383b);
+  font-weight: 700;
+
+  .tab-icon {
+    transform: scale(1.15);
+    color: var(--signal, #e5383b);
+  }
 }
 
 .tab-icon {
@@ -2333,6 +2351,10 @@ button:disabled {
   font-family: var(--hear-display);
   font-size: 1.3rem;
   line-height: 1;
+  pointer-events: none;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
 }
 
 .visually-hidden {

@@ -1503,7 +1503,7 @@
           type="button"
           [class.is-active]="activeScreen() === 'home'"
           [attr.aria-current]="activeScreen() === 'home' ? 'page' : null"
-          (click)="navigate('home')"
+          (click)="selectTab('home')"
         >
           <span class="tab-icon">◎</span><span>ACCUEIL</span>
         </button>
@@ -1511,7 +1511,7 @@
           type="button"
           [class.is-active]="activeScreen() === 'search'"
           [attr.aria-current]="activeScreen() === 'search' ? 'page' : null"
-          (click)="navigate('search')"
+          (click)="selectTab('search')"
         >
           <span class="tab-icon">⌕</span><span>RECHERCHE</span>
         </button>
@@ -1521,15 +1521,17 @@
           [attr.aria-current]="
             activeScreen() === 'artists' || activeScreen() === 'artist' ? 'page' : null
           "
-          (click)="navigate('artists')"
+          (click)="selectTab('artists')"
         >
           <span class="tab-icon">≋</span><span>ARTISTES</span>
         </button>
         <button
           type="button"
-          [class.is-active]="activeScreen() === 'collection'"
-          [attr.aria-current]="activeScreen() === 'collection' ? 'page' : null"
-          (click)="navigate('collection')"
+          [class.is-active]="activeScreen() === 'collection' || activeScreen() === 'offline'"
+          [attr.aria-current]="
+            activeScreen() === 'collection' || activeScreen() === 'offline' ? 'page' : null
+          "
+          (click)="selectTab('collection')"
         >
           <span class="tab-icon">▣</span><span>BIBLIOTHÈQUE</span>
         </button>
