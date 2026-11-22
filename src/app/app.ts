@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.3.9';
+  protected readonly appVersion = '0.4.0';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -104,6 +104,7 @@ export class App implements OnDestroy {
   protected readonly repeatMode = signal<RepeatMode>('none');
   protected readonly shuffleEnabled = signal(false);
   protected readonly playbackQueue = signal<PlayableLocalTrack[]>([]);
+  protected readonly baseQueue = signal<PlayableLocalTrack[]>([]);
   protected readonly isScrubbing = signal(false);
   protected readonly scrubPosition = signal(0);
   protected readonly isAndroid = Capacitor.getPlatform() === 'android';
@@ -128,12 +129,14 @@ export class App implements OnDestroy {
     const pos = this.playbackPosition();
     const syncPos = pos + 0.15;
     const lines = lyrics.lines;
+    // Return -1 if playback hasn't reached the first lyric yet
+    if (syncPos < lines[0].time) return -1;
     for (let i = lines.length - 1; i >= 0; i--) {
       if (syncPos >= lines[i].time) {
         return i;
       }
     }
-    return 0;
+    return -1;
   });
   protected readonly artists = computed(() => {
     const names = this.localTracks()
@@ -270,6 +273,7 @@ export class App implements OnDestroy {
   ngOnDestroy(): void {
     this.audioEvents.unsubscribe();
     void this.nativePlaybackListener?.remove();
+    this.revokeBrowserObjectUrls();
   }
 
   protected navigate(screen: HearScreen): void {
@@ -335,6 +339,7 @@ export class App implements OnDestroy {
         );
       } else {
         const tracks = await this.localMusic.list();
+        this.revokeBrowserObjectUrls();
         this.localTracks.set(tracks.map((track) => this.fromBrowserTrack(track)));
         this.permissionGranted.set(true);
         this.scanCompletedAt.set(Date.now());
@@ -365,6 +370,7 @@ export class App implements OnDestroy {
     try {
       const added = await this.localMusic.add(files);
       const tracks = await this.localMusic.list();
+      this.revokeBrowserObjectUrls();
       this.localTracks.set(tracks.map((track) => this.fromBrowserTrack(track)));
       this.scanCompletedAt.set(Date.now());
       this.localMusicMessage.set(
@@ -553,19 +559,26 @@ export class App implements OnDestroy {
     }
 
     // Web / browser fallback
-    if (this.activeLocalTrackId() === track.id && this.playbackState() === 'playing') {
+    // Capture the state BEFORE modifying any signals to avoid race conditions
+    const previousTrackId = this.activeLocalTrackId();
+    const previousState = this.playbackState();
+
+    if (previousTrackId === track.id && previousState === 'playing') {
       await this.audioEngine.pause();
       return;
     }
+
+    // Resume if same track is paused
+    if (previousTrackId === track.id && previousState === 'paused') {
+      await this.audioEngine.play().catch(() => undefined);
+      return;
+    }
+
     this.activeLocalTrackId.set(track.id);
     this.playbackState.set('loading');
     this.playbackPosition.set(0);
     this.playbackDuration.set((track.duration ?? 0) / 1000);
     try {
-      if (this.activeLocalTrackId() === track.id && this.playbackState() === 'paused') {
-        await this.audioEngine.play();
-        return;
-      }
       await this.audioEngine.load(
         { uri: track.url, isLocal: true },
         { id: track.id, title: track.title, artist: track.artist ?? 'Artiste inconnu' },
@@ -588,6 +601,8 @@ export class App implements OnDestroy {
   ): Promise<void> {
     const baseTracks =
       contextTracks && contextTracks.length > 0 ? contextTracks : this.localTracks();
+    // Always persist the unshuffled order so toggling shuffle off restores it
+    this.baseQueue.set(baseTracks);
     if (this.shuffleEnabled()) {
       const remaining = baseTracks.filter((item) => item.id !== track.id);
       const shuffledOthers = [...remaining].sort(() => Math.random() - 0.5);
@@ -772,7 +787,9 @@ export class App implements OnDestroy {
   }
 
   protected closeLyrics(): void {
-    this.navigate('player');
+    // Pop the navigation stack instead of pushing 'player' again
+    // (openLyrics already pushed 'player' into the history)
+    this.handleBack();
   }
 
   protected onManualQueryInput(event: Event): void {
@@ -825,15 +842,17 @@ export class App implements OnDestroy {
     const currentTrack = this.activeLocalTrack();
     if (!currentTrack) return;
 
-    const baseTracks = this.playbackQueue().length > 0 ? this.playbackQueue() : this.localTracks();
+    // Restore the original unshuffled order if available, otherwise fall back to localTracks
+    const originalOrder = this.baseQueue().length > 0 ? this.baseQueue() : this.localTracks();
     let newQueue: PlayableLocalTrack[];
 
     if (newShuffle) {
-      const remaining = baseTracks.filter((track) => track.id !== currentTrack.id);
+      const remaining = originalOrder.filter((track) => track.id !== currentTrack.id);
       const shuffledOthers = [...remaining].sort(() => Math.random() - 0.5);
       newQueue = [currentTrack, ...shuffledOthers];
     } else {
-      newQueue = [...baseTracks].sort((a, b) => a.title.localeCompare(b.title));
+      // Restore the original order (preserving context: album, playlist, etc.)
+      newQueue = [...originalOrder];
     }
 
     this.playbackQueue.set(newQueue);
@@ -1020,8 +1039,19 @@ export class App implements OnDestroy {
     };
   }
 
+  private readonly objectUrls = new Set<string>();
+
   private fromBrowserTrack(track: LocalMusicTrack): PlayableLocalTrack {
-    return { ...track, url: track.file ? URL.createObjectURL(track.file) : '' };
+    const url = track.file ? URL.createObjectURL(track.file) : '';
+    if (url) this.objectUrls.add(url);
+    return { ...track, url };
+  }
+
+  private revokeBrowserObjectUrls(): void {
+    for (const url of this.objectUrls) {
+      URL.revokeObjectURL(url);
+    }
+    this.objectUrls.clear();
   }
 
   private async handleNativePlayback(event: PlaybackStateEvent): Promise<void> {
@@ -1047,8 +1077,9 @@ export class App implements OnDestroy {
     const currentIndex = queue.findIndex((track) => track.id === this.activeLocalTrackId());
 
     if (this.repeatMode() === 'one' && this.activeLocalTrack()) {
+      this.playbackPosition.set(0);
       await this.seekToPosition(0);
-      await this.audioEngine.play();
+      await this.audioEngine.play().catch(() => undefined);
       return;
     }
 
@@ -1066,7 +1097,7 @@ export class App implements OnDestroy {
   ): Promise<void> {
     const track = this.activeLocalTrack();
     if (!track) return;
-    if (command === 'play') await this.togglePlayback();
+    if (command === 'play') await this.audioEngine.play().catch(() => undefined);
     if (command === 'pause') await this.audioEngine.pause();
     if (command === 'next') await this.handleNextTrack();
     if (command === 'previous') await this.handlePreviousTrack();

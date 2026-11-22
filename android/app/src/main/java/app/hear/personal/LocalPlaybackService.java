@@ -62,6 +62,8 @@ public class LocalPlaybackService extends Service {
     private String repeatMode = "none";
     private String state = "idle";
     private String lastError;
+    private boolean isDucked = false;
+    private boolean resumeOnFocusGain = false;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable progressTick = new Runnable() {
         @Override public void run() {
@@ -72,11 +74,56 @@ public class LocalPlaybackService extends Service {
         }
     };
     private final AudioManager.OnAudioFocusChangeListener focusListener = change -> {
-        if (change <= AudioManager.AUDIOFOCUS_LOSS_TRANSIENT && isPlayerPlaying()) pause();
-        if (change == AudioManager.AUDIOFOCUS_GAIN && wantsPlayback && playerPrepared && !isPlayerPlaying()) {
-            player.start();
-            state = "playing";
-            publishState();
+        switch (change) {
+            case AudioManager.AUDIOFOCUS_LOSS:
+                // Perte définitive du focus audio (ex. autre lecteur musical lancé)
+                resumeOnFocusGain = false;
+                isDucked = false;
+                if (player != null) {
+                    try { player.setVolume(1.0f, 1.0f); } catch (Exception ignored) {}
+                }
+                pause();
+                break;
+
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                // Perte temporaire (ex. appel téléphonique, alarme) : pause temporaire avec reprise automatique
+                if (isPlayerPlaying()) {
+                    resumeOnFocusGain = true;
+                    try { player.pause(); } catch (IllegalStateException ignored) {}
+                    state = "paused";
+                    handler.removeCallbacks(progressTick);
+                    publishState();
+                }
+                break;
+
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                // Notification, guidage GPS : baisse du volume sonore au lieu d'arrêter la musique
+                if (isPlayerPlaying() && player != null) {
+                    isDucked = true;
+                    try { player.setVolume(0.2f, 0.2f); } catch (Exception ignored) {}
+                }
+                break;
+
+            case AudioManager.AUDIOFOCUS_GAIN:
+                // Retour du focus audio : rétablissement du volume d'origine
+                if (isDucked) {
+                    isDucked = false;
+                    if (player != null) {
+                        try { player.setVolume(1.0f, 1.0f); } catch (Exception ignored) {}
+                    }
+                }
+                // Reprise si mis en pause temporairement par un appel
+                if (resumeOnFocusGain && wantsPlayback && playerPrepared && !isPlayerPlaying()) {
+                    resumeOnFocusGain = false;
+                    try {
+                        player.start();
+                        state = "playing";
+                        handler.removeCallbacks(progressTick);
+                        handler.postDelayed(progressTick, 1000L);
+                        publishState();
+                    } catch (IllegalStateException ignored) {}
+                }
+                break;
         }
     };
 
@@ -202,6 +249,11 @@ public class LocalPlaybackService extends Service {
 
     private void pause() {
         wantsPlayback = false;
+        resumeOnFocusGain = false;
+        isDucked = false;
+        if (player != null) {
+            try { player.setVolume(1.0f, 1.0f); } catch (Exception ignored) {}
+        }
         handler.removeCallbacks(progressTick);
         if (isPlayerPlaying()) player.pause();
         abandonAudioFocus();
@@ -501,7 +553,7 @@ public class LocalPlaybackService extends Service {
                 audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                     .setAudioAttributes(attributes)
                     .setOnAudioFocusChangeListener(focusListener, handler)
-                    .setWillPauseWhenDucked(true)
+                    .setWillPauseWhenDucked(false)
                     .build();
             }
             return audioManager.requestAudioFocus(audioFocusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
@@ -511,6 +563,8 @@ public class LocalPlaybackService extends Service {
     }
 
     private void abandonAudioFocus() {
+        resumeOnFocusGain = false;
+        isDucked = false;
         if (audioManager == null) return;
         if (Build.VERSION.SDK_INT >= 26 && audioFocusRequest != null) audioManager.abandonAudioFocusRequest(audioFocusRequest);
         else if (Build.VERSION.SDK_INT < 26) audioManager.abandonAudioFocus(focusListener);
