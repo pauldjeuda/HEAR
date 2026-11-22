@@ -64,12 +64,17 @@ public class LocalPlaybackService extends Service {
     private String lastError;
     private boolean isDucked = false;
     private boolean resumeOnFocusGain = false;
+    private Bitmap cachedArtworkBitmap;
+    private String cachedArtworkUri;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable progressTick = new Runnable() {
         @Override public void run() {
-            if (isPlayerPlaying()) {
-                publishState(false);
-                handler.postDelayed(this, 1000L);
+            handler.removeCallbacks(this);
+            if (wantsPlayback) {
+                if (isPlayerPlaying()) {
+                    publishState(false);
+                }
+                handler.postDelayed(this, 250L);
             }
         }
     };
@@ -304,7 +309,13 @@ public class LocalPlaybackService extends Service {
         } else {
             player.seekTo(bounded);
         }
-        player.setOnSeekCompleteListener(mp -> publishState());
+        player.setOnSeekCompleteListener(mp -> {
+            publishState();
+            if (wantsPlayback) {
+                handler.removeCallbacks(progressTick);
+                handler.post(progressTick);
+            }
+        });
     }
 
     private void updateQueue(Intent intent) {
@@ -413,6 +424,16 @@ public class LocalPlaybackService extends Service {
         player = null;
     }
 
+    private Bitmap getOrLoadArtworkBitmap(String uriStr) {
+        if (uriStr == null || uriStr.isEmpty()) return null;
+        if (uriStr.equals(cachedArtworkUri) && cachedArtworkBitmap != null) {
+            return cachedArtworkBitmap;
+        }
+        cachedArtworkUri = uriStr;
+        cachedArtworkBitmap = loadArtworkBitmap(uriStr);
+        return cachedArtworkBitmap;
+    }
+
     private Bitmap loadArtworkBitmap(String uriStr) {
         if (uriStr == null || uriStr.isEmpty()) return null;
         try {
@@ -437,7 +458,7 @@ public class LocalPlaybackService extends Service {
         long duration = playerPrepared ? safePlayerDuration() : 0L;
         long position = playerPrepared ? safePlayerPosition() : 0L;
         String trackUri = uris.get(index);
-        Bitmap artworkBitmap = loadArtworkBitmap(trackUri);
+        Bitmap artworkBitmap = getOrLoadArtworkBitmap(trackUri);
 
         android.media.MediaMetadata.Builder metadataBuilder = new android.media.MediaMetadata.Builder()
             .putString(android.media.MediaMetadata.METADATA_KEY_TITLE, valueAt(titles, index, "Titre local"))
@@ -490,7 +511,7 @@ public class LocalPlaybackService extends Service {
         String title = valueAt(titles, index, "Hear");
         String artist = valueAt(artists, index, "Musique locale");
         String trackUri = uris.isEmpty() ? null : uris.get(index);
-        Bitmap artworkBitmap = loadArtworkBitmap(trackUri);
+        Bitmap artworkBitmap = getOrLoadArtworkBitmap(trackUri);
 
         Notification.Builder builder = Build.VERSION.SDK_INT >= 26
             ? new Notification.Builder(this, CHANNEL_ID)

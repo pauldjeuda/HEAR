@@ -55,7 +55,7 @@ function cleanTrackMetadata(
   );
 
   // Strip "feat." or "ft."
-  title = title.replace(/\s+(feat\.?|ft\.?)\s+.*$/i, '');
+  title = title.replace(/\s*[([]?(feat\.?|ft\.?)\s+[^\])]*[\])]?/gi, '');
 
   if (artist === '<unknown>') artist = 'Artiste inconnu';
 
@@ -370,18 +370,21 @@ export class LyricsService {
   private parseLrc(trackId: string, syncedLyrics?: string, plainLyrics?: string): TrackLyrics {
     if (syncedLyrics && syncedLyrics.trim()) {
       const lines: LyricLine[] = [];
-      const regex = /^\[(\d{1,2}):(\d{2})(?:[.:](\d{2,3}))?\](.*)$/;
+      const timeTagRegex = /\[(\d{1,2}):(\d{2})(?:[.:](\d{2,3}))?\]/g;
       for (const rawLine of syncedLyrics.split('\n')) {
         const trimmed = rawLine.trim();
-        const match = trimmed.match(regex);
-        if (match) {
-          const minutes = Number.parseInt(match[1], 10);
-          const seconds = Number.parseInt(match[2], 10);
-          const fraction = match[3] ? Number.parseFloat(`0.${match[3]}`) : 0;
-          const time = minutes * 60 + seconds + fraction;
-          const text = match[4].trim();
+        if (!trimmed) continue;
+        const matches = [...trimmed.matchAll(timeTagRegex)];
+        if (matches.length > 0) {
+          const text = trimmed.replace(timeTagRegex, '').trim();
           if (text) {
-            lines.push({ time, text });
+            for (const match of matches) {
+              const minutes = Number.parseInt(match[1], 10);
+              const seconds = Number.parseInt(match[2], 10);
+              const fraction = match[3] ? Number.parseFloat(`0.${match[3]}`) : 0;
+              const time = minutes * 60 + seconds + fraction;
+              lines.push({ time, text });
+            }
           }
         }
       }

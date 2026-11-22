@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.4.0';
+  protected readonly appVersion = '0.4.1';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -129,14 +129,12 @@ export class App implements OnDestroy {
     const pos = this.playbackPosition();
     const syncPos = pos + 0.15;
     const lines = lyrics.lines;
-    // Return -1 if playback hasn't reached the first lyric yet
-    if (syncPos < lines[0].time) return -1;
     for (let i = lines.length - 1; i >= 0; i--) {
       if (syncPos >= lines[i].time) {
         return i;
       }
     }
-    return -1;
+    return 0;
   });
   protected readonly artists = computed(() => {
     const names = this.localTracks()
@@ -254,18 +252,21 @@ export class App implements OnDestroy {
     }
     effect(() => {
       const idx = this.currentLyricIndex();
-      if (this.activeScreen() === 'lyrics' && idx >= 0) {
-        const viewport = document.getElementById('lyrics-viewport');
-        const el = document.getElementById(`lyric-line-${idx}`);
-        if (viewport && el) {
-          const viewportRect = viewport.getBoundingClientRect();
-          const elRect = el.getBoundingClientRect();
-          const targetScrollTop =
-            viewport.scrollTop +
-            (elRect.top - viewportRect.top) -
-            (viewportRect.height / 2 - elRect.height / 2);
-          viewport.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
-        }
+      const screen = this.activeScreen();
+      if (screen === 'lyrics' && idx >= 0) {
+        requestAnimationFrame(() => {
+          const viewport = document.getElementById('lyrics-viewport');
+          const el = document.getElementById(`lyric-line-${idx}`);
+          if (viewport && el) {
+            const viewportRect = viewport.getBoundingClientRect();
+            const elRect = el.getBoundingClientRect();
+            const targetScrollTop =
+              viewport.scrollTop +
+              (elRect.top - viewportRect.top) -
+              (viewportRect.height / 2 - elRect.height / 2);
+            viewport.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
+          }
+        });
       }
     });
   }
