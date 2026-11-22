@@ -1295,10 +1295,9 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
-  max-width: 380px;
-  height: clamp(200px, 54vw, 240px);
-  margin: 0.6rem auto 0.9rem;
+  width: min(100%, 350px);
+  height: clamp(230px, 66vw, 290px);
+  margin: 0.5rem auto 0.8rem;
   overflow: visible;
   touch-action: pan-y;
   user-select: none;
@@ -1310,22 +1309,22 @@ button:disabled {
   }
 
   &.is-swiping-next {
-    animation: stage-swipe-next 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: stage-swipe-next 0.65s cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   &.is-swiping-prev {
-    animation: stage-swipe-prev 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: stage-swipe-prev 0.65s cubic-bezier(0.25, 1, 0.5, 1);
   }
 }
 
-/* Disque vinyle — DERRIÈRE la pochette (z-index: 1), dépasse sur la droite */
+/* Disque vinyle — DERRIÈRE la pochette (z-index: 1), dépasse sur la droite (~30% visible) */
 .vinyl-disc-wrap {
   position: absolute;
-  /* Décalé vers la droite : on voit ~40% du disque dépasser de la pochette */
-  left: 55%;
+  /* Décalé vers la droite : ~30% du disque dépasse de la pochette sans être coupé */
+  left: 28%;
   top: 50%;
   transform: translateY(-50%);
-  height: 100%;
+  height: 95%;
   aspect-ratio: 1;
   border-radius: 50%;
   display: grid;
@@ -1424,13 +1423,13 @@ button:disabled {
     transform: translateX(0) scale(1);
     opacity: 1;
   }
-  40% {
-    transform: translateX(-40%) scale(0.92);
-    opacity: 0.2;
+  38% {
+    transform: translateX(-28%) scale(0.94);
+    opacity: 0;
   }
-  41% {
-    transform: translateX(40%) scale(0.92);
-    opacity: 0.2;
+  42% {
+    transform: translateX(28%) scale(0.94);
+    opacity: 0;
   }
   100% {
     transform: translateX(0) scale(1);
@@ -1443,13 +1442,13 @@ button:disabled {
     transform: translateX(0) scale(1);
     opacity: 1;
   }
-  40% {
-    transform: translateX(40%) scale(0.92);
-    opacity: 0.2;
+  38% {
+    transform: translateX(28%) scale(0.94);
+    opacity: 0;
   }
-  41% {
-    transform: translateX(-40%) scale(0.92);
-    opacity: 0.2;
+  42% {
+    transform: translateX(-28%) scale(0.94);
+    opacity: 0;
   }
   100% {
     transform: translateX(0) scale(1);
@@ -1702,9 +1701,14 @@ button:disabled {
 
 /* Synchronized Lyrics Screen */
 .lyrics-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
   background: var(--paper);
   color: var(--ink);
 }
@@ -1813,15 +1817,18 @@ button:disabled {
 }
 
 .lyrics-viewport {
-  flex: 1;
-  padding: 2.5rem 1.25rem 3.5rem;
+  flex: 1 1 0;
+  min-height: 0;
+  padding: calc(50dvh - 3.5rem) 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
   overflow-y: auto;
+  overflow-x: hidden;
   user-select: none;
   scroll-behavior: smooth;
   overscroll-behavior-y: contain;
+  touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
 }
 

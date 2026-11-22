@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.4.2';
+  protected readonly appVersion = '0.4.3';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -219,6 +219,8 @@ export class App implements OnDestroy {
   private touchStartX = 0;
   private touchStartY = 0;
   private mouseStartX = 0;
+  private isUserScrollingLyrics = false;
+  private userScrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private readonly audioEvents = this.audioEngine.events.subscribe((event) => {
     if (event.type === 'state') this.playbackState.set(event.state);
@@ -253,25 +255,46 @@ export class App implements OnDestroy {
     effect(() => {
       const idx = this.currentLyricIndex();
       const screen = this.activeScreen();
-      if (screen === 'lyrics' && idx >= 0) {
-        requestAnimationFrame(() => {
-          const viewport = document.getElementById('lyrics-viewport');
-          const el = document.getElementById(`lyric-line-${idx}`);
-          if (viewport && el) {
-            const viewportRect = viewport.getBoundingClientRect();
-            const elRect = el.getBoundingClientRect();
-            const targetScrollTop =
-              viewport.scrollTop +
-              (elRect.top - viewportRect.top) -
-              (viewportRect.height / 2 - elRect.height / 2);
-            viewport.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
-          }
-        });
+      if (screen === 'lyrics' && idx >= 0 && !this.isUserScrollingLyrics) {
+        this.centerActiveLyric(true);
       }
     });
   }
 
+  private centerActiveLyric(smooth = true): void {
+    const idx = this.currentLyricIndex();
+    if (idx < 0) return;
+    requestAnimationFrame(() => {
+      const viewport = document.getElementById('lyrics-viewport');
+      const el = document.getElementById(`lyric-line-${idx}`);
+      if (viewport && el) {
+        const viewportRect = viewport.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+        const targetScrollTop =
+          viewport.scrollTop +
+          (elRect.top - viewportRect.top) -
+          (viewportRect.height / 2 - elRect.height / 2);
+        viewport.scrollTo({ top: targetScrollTop, behavior: smooth ? 'smooth' : 'auto' });
+      }
+    });
+  }
+
+  protected onLyricsScroll(): void {
+    this.isUserScrollingLyrics = true;
+    if (this.userScrollTimeout) {
+      clearTimeout(this.userScrollTimeout);
+    }
+    this.userScrollTimeout = setTimeout(() => {
+      this.isUserScrollingLyrics = false;
+      this.centerActiveLyric(true);
+    }, 3500);
+  }
+
   ngOnDestroy(): void {
+    if (this.userScrollTimeout) {
+      clearTimeout(this.userScrollTimeout);
+      this.userScrollTimeout = null;
+    }
     this.audioEvents.unsubscribe();
     void this.nativePlaybackListener?.remove();
     this.revokeBrowserObjectUrls();
@@ -656,7 +679,7 @@ export class App implements OnDestroy {
     this.swipeAnimation.set(direction);
     setTimeout(() => {
       this.swipeAnimation.set('');
-    }, 400);
+    }, 650);
   }
 
   protected onStageTouchStart(event: TouchEvent): void {
@@ -800,7 +823,13 @@ export class App implements OnDestroy {
   }
 
   protected async seekToLyric(timeSeconds: number): Promise<void> {
+    this.isUserScrollingLyrics = false;
+    if (this.userScrollTimeout) {
+      clearTimeout(this.userScrollTimeout);
+      this.userScrollTimeout = null;
+    }
     await this.seekToPosition(timeSeconds);
+    setTimeout(() => this.centerActiveLyric(true), 60);
   }
 
   protected readonly manualLyricsQuery = signal('');
@@ -813,7 +842,13 @@ export class App implements OnDestroy {
       );
       void this.loadAndPreloadLyrics(track);
     }
+    this.isUserScrollingLyrics = false;
+    if (this.userScrollTimeout) {
+      clearTimeout(this.userScrollTimeout);
+      this.userScrollTimeout = null;
+    }
     this.navigate('lyrics');
+    setTimeout(() => this.centerActiveLyric(false), 100);
   }
 
   protected closeLyrics(): void {

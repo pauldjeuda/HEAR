@@ -1257,7 +1257,12 @@
                 </div>
               </header>
 
-              <div class="lyrics-viewport" id="lyrics-viewport">
+              <div
+                class="lyrics-viewport"
+                id="lyrics-viewport"
+                (scroll)="onLyricsScroll()"
+                (touchstart)="onLyricsScroll()"
+              >
                 @if (lyricsService.isLoading()) {
                   <div class="lyrics-loading">
                     <span class="signal-dot animate-pulse"></span>
