@@ -480,8 +480,83 @@ export class App implements OnDestroy {
 
   protected async playAlbum(tracks: PlayableLocalTrack[]): Promise<void> {
     if (tracks.length === 0) return;
-    this.playbackQueue.set(tracks);
-    await this.playLocalTrack(tracks[0]);
+    await this.playAlbumTrack(tracks, tracks[0]);
+  }
+
+  /**
+   * Joue un son depuis une liste d'album : définit la queue = l'album entier
+   * puis démarre le son à l'index correct, sans que playLocalTrack écrase la queue.
+   */
+  protected async playAlbumTrack(
+    albumTracks: PlayableLocalTrack[],
+    track: PlayableLocalTrack,
+  ): Promise<void> {
+    if (albumTracks.length === 0) return;
+    // Définir la queue comme l'album complet
+    this.playbackQueue.set(albumTracks);
+    void this.loadAndPreloadLyrics(track);
+
+    const index = Math.max(
+      0,
+      albumTracks.findIndex((item) => item.id === track.id),
+    );
+
+    if (this.isAndroid) {
+      if (this.activeLocalTrackId() === track.id && this.playbackState() === 'playing') {
+        await LocalMusicBridge.toggle();
+        return;
+      }
+      this.activeLocalTrackId.set(track.id);
+      this.playbackState.set('loading');
+      this.playbackPosition.set(0);
+      this.playbackDuration.set((track.duration ?? 0) / 1000);
+      this.navigate('player');
+      try {
+        await LocalMusicBridge.play({
+          queue: albumTracks.map((item) => ({
+            uri: item.uri ?? '',
+            title: item.title,
+            artist: item.artist ?? 'Artiste inconnu',
+            album: item.album ?? 'Album inconnu',
+          })),
+          index,
+          repeatMode: this.repeatMode(),
+        });
+        await this.collectionStore.recordPlayed(track.id);
+        await this.refreshCollection();
+      } catch (error) {
+        this.playbackState.set('error');
+        this.localMusicMessage.set(error instanceof Error ? error.message : 'La lecture a échoué.');
+      }
+      return;
+    }
+
+    // Web / browser fallback
+    if (this.activeLocalTrackId() === track.id && this.playbackState() === 'playing') {
+      await this.audioEngine.pause();
+      return;
+    }
+    this.activeLocalTrackId.set(track.id);
+    this.playbackState.set('loading');
+    this.playbackPosition.set(0);
+    this.playbackDuration.set((track.duration ?? 0) / 1000);
+    this.navigate('player');
+    try {
+      if (this.activeLocalTrackId() === track.id && this.playbackState() === 'paused') {
+        await this.audioEngine.play();
+        return;
+      }
+      await this.audioEngine.load(
+        { uri: track.url, isLocal: true },
+        { id: track.id, title: track.title, artist: track.artist ?? 'Artiste inconnu' },
+      );
+      await this.audioEngine.play();
+      await this.collectionStore.recordPlayed(track.id);
+      await this.refreshCollection();
+    } catch (error) {
+      this.playbackState.set('error');
+      this.localMusicMessage.set(error instanceof Error ? error.message : 'La lecture a échoué.');
+    }
   }
 
   protected async loadAndPreloadLyrics(track: PlayableLocalTrack): Promise<void> {

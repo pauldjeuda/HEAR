@@ -405,7 +405,7 @@
                         class="track-row__main"
                         type="button"
                         [attr.aria-label]="'Lire ' + track.title"
-                        (click)="playLocalTrack(track)"
+                        (click)="playAlbumTrack(album.tracks, track)"
                       >
                         <span class="track-row__number">{{
                           (index + 1).toString().padStart(2, '0')
