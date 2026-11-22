@@ -1014,41 +1014,84 @@
               </div>
               <div
                 class="vinyl-hero-stage"
-                [class.is-swiping-next]="swipeAnimation() === 'swipe-left'"
-                [class.is-swiping-prev]="swipeAnimation() === 'swipe-right'"
                 (touchstart)="onStageTouchStart($event)"
                 (touchend)="onStageTouchEnd($event)"
                 (mousedown)="onStageMouseDown($event)"
                 (mouseup)="onStageMouseUp($event)"
               >
-                <div class="vinyl-disc-wrap" [class.is-playing]="playbackState() === 'playing'">
-                  <div class="vinyl-disc">
-                    <div class="vinyl-disc__grooves"></div>
-                    <div class="vinyl-disc__label">
-                      <span>HEAR</span>
-                      <small>33⅓</small>
+                @if (outgoingTrack(); as outTrack) {
+                  <div
+                    class="vinyl-unit"
+                    [class.is-sliding-out-left]="slideDirection() === 'slide-left'"
+                    [class.is-sliding-out-right]="slideDirection() === 'slide-right'"
+                  >
+                    <div class="vinyl-disc-wrap">
+                      <div class="vinyl-disc">
+                        <div class="vinyl-disc__grooves"></div>
+                        <div class="vinyl-disc__label">
+                          <span>HEAR</span>
+                          <small>33⅓</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="vinyl-sleeve">
+                      <div class="vinyl-sleeve__header">
+                        <span class="mono-badge">CAT. HR-LP-88</span>
+                        <span class="mono-badge mono-badge--accent">180G · AUDIOPHILE</span>
+                      </div>
+                      <div class="vinyl-sleeve__art">
+                        @if (getTrackArtwork(outTrack); as art) {
+                          <img [src]="art" alt="" />
+                        } @else {
+                          <img
+                            class="vinyl-sleeve__fallback"
+                            src="assets/placeholder-cover.svg"
+                            alt=""
+                          />
+                        }
+                      </div>
+                      <div class="vinyl-sleeve__footer">
+                        <span class="mono-badge">HEAR PERSONAL</span>
+                        <span class="mono-badge">33⅓ RPM</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="vinyl-sleeve">
-                  <div class="vinyl-sleeve__header">
-                    <span class="mono-badge">CAT. HR-LP-88</span>
-                    <span class="mono-badge mono-badge--accent">180G · AUDIOPHILE</span>
+                }
+
+                <div
+                  class="vinyl-unit"
+                  [class.is-sliding-in-left]="slideDirection() === 'slide-left'"
+                  [class.is-sliding-in-right]="slideDirection() === 'slide-right'"
+                >
+                  <div class="vinyl-disc-wrap" [class.is-playing]="playbackState() === 'playing'">
+                    <div class="vinyl-disc">
+                      <div class="vinyl-disc__grooves"></div>
+                      <div class="vinyl-disc__label">
+                        <span>HEAR</span>
+                        <small>33⅓</small>
+                      </div>
+                    </div>
                   </div>
-                  <div class="vinyl-sleeve__art">
-                    @if (getTrackArtwork(track); as art) {
-                      <img [src]="art" alt="" />
-                    } @else {
-                      <img
-                        class="vinyl-sleeve__fallback"
-                        src="assets/placeholder-cover.svg"
-                        alt=""
-                      />
-                    }
-                  </div>
-                  <div class="vinyl-sleeve__footer">
-                    <span class="mono-badge">HEAR PERSONAL</span>
-                    <span class="mono-badge">33⅓ RPM</span>
+                  <div class="vinyl-sleeve">
+                    <div class="vinyl-sleeve__header">
+                      <span class="mono-badge">CAT. HR-LP-88</span>
+                      <span class="mono-badge mono-badge--accent">180G · AUDIOPHILE</span>
+                    </div>
+                    <div class="vinyl-sleeve__art">
+                      @if (getTrackArtwork(track); as art) {
+                        <img [src]="art" alt="" />
+                      } @else {
+                        <img
+                          class="vinyl-sleeve__fallback"
+                          src="assets/placeholder-cover.svg"
+                          alt=""
+                        />
+                      }
+                    </div>
+                    <div class="vinyl-sleeve__footer">
+                      <span class="mono-badge">HEAR PERSONAL</span>
+                      <span class="mono-badge">33⅓ RPM</span>
+                    </div>
                   </div>
                 </div>
               </div>

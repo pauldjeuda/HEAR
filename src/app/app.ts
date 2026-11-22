@@ -52,7 +52,7 @@ type PlayableLocalTrack = LocalMusicTrack & { url: string };
   templateUrl: './app.html',
 })
 export class App implements OnDestroy {
-  protected readonly appVersion = '0.4.3';
+  protected readonly appVersion = '0.4.4';
   protected readonly Math = Math;
   @ViewChild('appScreen') private appScreen?: ElementRef<HTMLElement>;
   private readonly collectionStore = inject(LocalCollectionStore);
@@ -214,13 +214,16 @@ export class App implements OnDestroy {
     return tracks.slice(0, 4);
   });
 
-  protected readonly swipeAnimation = signal<'swipe-left' | 'swipe-right' | ''>('');
+  protected readonly outgoingTrack = signal<PlayableLocalTrack | null>(null);
+  protected readonly slideDirection = signal<'slide-left' | 'slide-right' | ''>('');
+  private slideTimeout: ReturnType<typeof setTimeout> | null = null;
   private activeScrubberElement: HTMLElement | null = null;
   private touchStartX = 0;
   private touchStartY = 0;
   private mouseStartX = 0;
   private isUserScrollingLyrics = false;
   private userScrollTimeout: ReturnType<typeof setTimeout> | null = null;
+  private lastScrolledLyricIndex = -1;
 
   private readonly audioEvents = this.audioEngine.events.subscribe((event) => {
     if (event.type === 'state') this.playbackState.set(event.state);
@@ -256,7 +259,9 @@ export class App implements OnDestroy {
       const idx = this.currentLyricIndex();
       const screen = this.activeScreen();
       if (screen === 'lyrics' && idx >= 0 && !this.isUserScrollingLyrics) {
-        this.centerActiveLyric(true);
+        if (idx !== this.lastScrolledLyricIndex) {
+          this.centerActiveLyric(true);
+        }
       }
     });
   }
@@ -264,16 +269,19 @@ export class App implements OnDestroy {
   private centerActiveLyric(smooth = true): void {
     const idx = this.currentLyricIndex();
     if (idx < 0) return;
+    this.lastScrolledLyricIndex = idx;
     requestAnimationFrame(() => {
       const viewport = document.getElementById('lyrics-viewport');
       const el = document.getElementById(`lyric-line-${idx}`);
       if (viewport && el) {
         const viewportRect = viewport.getBoundingClientRect();
         const elRect = el.getBoundingClientRect();
-        const targetScrollTop =
-          viewport.scrollTop +
-          (elRect.top - viewportRect.top) -
-          (viewportRect.height / 2 - elRect.height / 2);
+        // Point focal style Apple Music : ~36% depuis le haut du viewport (lecture naturelle)
+        const focalPoint = viewportRect.height * 0.36;
+        const targetScrollTop = Math.max(
+          0,
+          viewport.scrollTop + (elRect.top - viewportRect.top) - focalPoint,
+        );
         viewport.scrollTo({ top: targetScrollTop, behavior: smooth ? 'smooth' : 'auto' });
       }
     });
@@ -290,7 +298,28 @@ export class App implements OnDestroy {
     }, 3500);
   }
 
+  protected triggerTrackSlide(
+    direction: 'slide-left' | 'slide-right',
+    previousTrack: PlayableLocalTrack | null,
+  ): void {
+    if (!previousTrack) return;
+    if (this.slideTimeout) {
+      clearTimeout(this.slideTimeout);
+      this.slideTimeout = null;
+    }
+    this.outgoingTrack.set(previousTrack);
+    this.slideDirection.set(direction);
+    this.slideTimeout = setTimeout(() => {
+      this.outgoingTrack.set(null);
+      this.slideDirection.set('');
+    }, 480);
+  }
+
   ngOnDestroy(): void {
+    if (this.slideTimeout) {
+      clearTimeout(this.slideTimeout);
+      this.slideTimeout = null;
+    }
     if (this.userScrollTimeout) {
       clearTimeout(this.userScrollTimeout);
       this.userScrollTimeout = null;
@@ -675,13 +704,6 @@ export class App implements OnDestroy {
     else await this.audioEngine.play();
   }
 
-  protected triggerSwipeAnimation(direction: 'swipe-left' | 'swipe-right'): void {
-    this.swipeAnimation.set(direction);
-    setTimeout(() => {
-      this.swipeAnimation.set('');
-    }, 650);
-  }
-
   protected onStageTouchStart(event: TouchEvent): void {
     if (event.touches.length === 1) {
       this.touchStartX = event.touches[0].clientX;
@@ -719,13 +741,15 @@ export class App implements OnDestroy {
   }
 
   protected async handleNextTrack(): Promise<void> {
-    this.triggerSwipeAnimation('swipe-left');
+    const current = this.activeLocalTrack();
+    this.triggerTrackSlide('slide-left', current);
     if (this.isAndroid) await LocalMusicBridge.next();
     else await this.playNextLocalTrack();
   }
 
   protected async handlePreviousTrack(): Promise<void> {
-    this.triggerSwipeAnimation('swipe-right');
+    const current = this.activeLocalTrack();
+    this.triggerTrackSlide('slide-right', current);
     if (this.isAndroid) {
       await LocalMusicBridge.previous();
       return;
@@ -824,6 +848,7 @@ export class App implements OnDestroy {
 
   protected async seekToLyric(timeSeconds: number): Promise<void> {
     this.isUserScrollingLyrics = false;
+    this.lastScrolledLyricIndex = -1;
     if (this.userScrollTimeout) {
       clearTimeout(this.userScrollTimeout);
       this.userScrollTimeout = null;
@@ -843,12 +868,13 @@ export class App implements OnDestroy {
       void this.loadAndPreloadLyrics(track);
     }
     this.isUserScrollingLyrics = false;
+    this.lastScrolledLyricIndex = -1;
     if (this.userScrollTimeout) {
       clearTimeout(this.userScrollTimeout);
       this.userScrollTimeout = null;
     }
     this.navigate('lyrics');
-    setTimeout(() => this.centerActiveLyric(false), 100);
+    setTimeout(() => this.centerActiveLyric(false), 80);
   }
 
   protected closeLyrics(): void {
@@ -1122,9 +1148,13 @@ export class App implements OnDestroy {
   private async handleNativePlayback(event: PlaybackStateEvent): Promise<void> {
     if (event.trackId && this.localTracks().some((track) => track.id === event.trackId)) {
       const trackChanged = this.activeLocalTrackId() !== event.trackId;
+      const prevTrack = this.activeLocalTrack();
       this.activeLocalTrackId.set(event.trackId);
       const active = this.localTracks().find((track) => track.id === event.trackId);
       if (active && trackChanged) {
+        if (this.slideDirection() === '' && prevTrack) {
+          this.triggerTrackSlide('slide-left', prevTrack);
+        }
         void this.loadAndPreloadLyrics(active);
         void this.collectionStore.recordPlayed(active.id).then(() => this.refreshCollection());
       }

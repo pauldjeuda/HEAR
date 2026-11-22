@@ -1289,16 +1289,13 @@ button:disabled {
   color: var(--ink);
 }
 
-/* Vinyl Hero Stage (Sleeve Card & Full Disc with Swipe Transitions) */
+/* Vinyl Hero Stage (Sleeve Card & Full Disc with Real Carousel Slide) */
 .vinyl-hero-stage {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
   width: min(100%, 350px);
   height: clamp(230px, 66vw, 290px);
   margin: 0.5rem auto 0.8rem;
-  overflow: visible;
+  overflow: hidden;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
@@ -1307,13 +1304,39 @@ button:disabled {
   &:active {
     cursor: grabbing;
   }
+}
 
-  &.is-swiping-next {
-    animation: stage-swipe-next 0.65s cubic-bezier(0.25, 1, 0.5, 1);
+.vinyl-unit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  pointer-events: auto;
+  will-change: transform, opacity;
+
+  &.is-sliding-out-left {
+    pointer-events: none;
+    z-index: 1;
+    animation: vinyl-slide-out-left 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
-  &.is-swiping-prev {
-    animation: stage-swipe-prev 0.65s cubic-bezier(0.25, 1, 0.5, 1);
+  &.is-sliding-in-left {
+    z-index: 2;
+    animation: vinyl-slide-in-left 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  &.is-sliding-out-right {
+    pointer-events: none;
+    z-index: 1;
+    animation: vinyl-slide-out-right 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  &.is-sliding-in-right {
+    z-index: 2;
+    animation: vinyl-slide-in-right 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 }
 
@@ -1418,40 +1441,46 @@ button:disabled {
   z-index: 2;
 }
 
-@keyframes stage-swipe-next {
+@keyframes vinyl-slide-out-left {
   0% {
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
     opacity: 1;
   }
-  38% {
-    transform: translateX(-28%) scale(0.94);
-    opacity: 0;
+  100% {
+    transform: translateX(-120%);
+    opacity: 0.05;
   }
-  42% {
-    transform: translateX(28%) scale(0.94);
-    opacity: 0;
+}
+
+@keyframes vinyl-slide-in-left {
+  0% {
+    transform: translateX(120%);
+    opacity: 0.05;
   }
   100% {
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
     opacity: 1;
   }
 }
 
-@keyframes stage-swipe-prev {
+@keyframes vinyl-slide-out-right {
   0% {
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
     opacity: 1;
   }
-  38% {
-    transform: translateX(28%) scale(0.94);
-    opacity: 0;
+  100% {
+    transform: translateX(120%);
+    opacity: 0.05;
   }
-  42% {
-    transform: translateX(-28%) scale(0.94);
-    opacity: 0;
+}
+
+@keyframes vinyl-slide-in-right {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0.05;
   }
   100% {
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
     opacity: 1;
   }
 }
@@ -1819,7 +1848,7 @@ button:disabled {
 .lyrics-viewport {
   flex: 1 1 0;
   min-height: 0;
-  padding: calc(50dvh - 3.5rem) 1.25rem;
+  padding: 2rem 1.25rem 55dvh;
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
@@ -1843,7 +1872,7 @@ button:disabled {
 .lyric-line {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.35rem;
   border: none;
   background: transparent;
   text-align: left;
@@ -1852,29 +1881,35 @@ button:disabled {
   width: 100%;
   cursor: pointer;
   transition:
-    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.3s ease;
+    opacity 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: left center;
 
   &.is-past {
-    opacity: 0.32;
+    opacity: 0.34;
+    filter: blur(0.3px);
+    transform: scale(0.97);
   }
 
   &.is-active {
     opacity: 1;
+    filter: none;
     transform: scale(1.02);
-    transform-origin: left center;
 
     .lyric-line__text {
       font-size: clamp(1.6rem, 5.5vw, 2.3rem);
       font-weight: 800;
-      line-height: 0.94;
+      line-height: 1.1;
       color: var(--ink);
-      letter-spacing: -0.03em;
+      letter-spacing: -0.02em;
     }
   }
 
   &.is-future {
-    opacity: 0.22;
+    opacity: 0.26;
+    filter: blur(0.3px);
+    transform: scale(0.97);
   }
 }
 
